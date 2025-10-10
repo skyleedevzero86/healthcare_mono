@@ -7,7 +7,7 @@ import lombok.Setter;
 @Embeddable
 @Getter
 @Setter
-public class diseaseCategory {
+public class DiseaseCategory {
     //enum값으로 하지않고 게시글을 통해 언제든 추가될 수 있도록 내장객체로 함.
 
     private Long categoryId;

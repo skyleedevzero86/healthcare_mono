@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Entity
 @Getter
-public class community {
+public class Community {
 
     @Id
     @GeneratedValue
@@ -21,5 +21,5 @@ public class community {
 
     //내장타입
     @Embedded
-    private diseaseCategory category;
+    private DiseaseCategory category;
 }
