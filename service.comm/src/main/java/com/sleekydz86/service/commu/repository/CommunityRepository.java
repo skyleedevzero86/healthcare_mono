@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class CommunityRepository {
@@ -30,4 +32,8 @@ public class CommunityRepository {
         Community community = em.find(Community.class, id);
         return community;
     }
-}
+
+    public List<Community> findBoardList() {
+        return em.createQuery("select i from Community c", Community.class)
+                .getResultList();
+    }
