@@ -1,0 +1,24 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: service.config
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///D:/intel/2005/healthcare_mono/
+          search-paths: gits
+          default-label: main
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,bus-refresh
