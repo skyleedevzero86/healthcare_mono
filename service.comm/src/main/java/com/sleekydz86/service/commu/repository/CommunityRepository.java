@@ -13,7 +13,16 @@ public class CommunityRepository {
 
     /**
      * 커뮤니티 보드 글쓰기
+     *
      * @param community
+     * @return 성공 여부 (1: 성공, 0: 실패)
      */
-    public void writeBoard(Community community) {
-        em.persist(community);
+    public int writeBoard(Community community) {
+        try {
+            em.persist(community);
+            return 1;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+}
