@@ -11,7 +11,7 @@ public class Community {
 
     @Id
     @GeneratedValue
-    @Column(name = "commuId")
+    @Column(name = "commuId")  //기본키에 매핑, @Access (AccessType.FIELD) 생략됨
     private Long commuId;
 
     private String userNm;
@@ -19,10 +19,12 @@ public class Community {
     @Column(length = 100000000)
     @Lob // 대용량 데이터
     private String content;
+
+    @Temporal(TemporalType.TIMESTAMP) //날짜 시간
     private Date regDate;
 
     // 내장타입
-    @Embedded
+    @Enumerated(EnumType.STRING) //enum 을 String으로 저장
     private DiseaseCategory category;
 
     @ManyToOne(fetch = FetchType.EAGER) // 기본전략

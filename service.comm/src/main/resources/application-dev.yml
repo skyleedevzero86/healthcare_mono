@@ -27,7 +27,7 @@ datasource:
 
 jpa:
   hibernate:
-    ddl-auto: create
+    ddl-auto: create-DROP #app실행시점에 테이블 지우고 다시 생성, 종료시 지움
   properties:
     hibernate:
       show_sql: true
