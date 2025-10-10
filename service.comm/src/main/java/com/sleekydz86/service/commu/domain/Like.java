@@ -11,11 +11,11 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long likeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_id")
     Community community; // 1:1 관계
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    User user;
+    @Column(name = "user_seq")
+    Long userSeq;
 }

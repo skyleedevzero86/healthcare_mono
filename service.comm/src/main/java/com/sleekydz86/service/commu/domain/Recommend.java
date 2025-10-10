@@ -12,11 +12,10 @@ public class Recommend {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long recommendId;
 
-    @ManyToOne
-    @JoinColumn(name = "community_Id")
+    @Column(name = "community_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     Community community; // 1:1 관계
 
-    @ManyToOne
-    @JoinColumn(name = "user_Id")
+    @Column(name = "user_seq")
     User user;
 }

@@ -18,7 +18,7 @@ public class CommunityServiceImpl implements CommunityService {
     CommunityRepository communityRepository;
 
     @Override
-    public int writeBoard(Community community) throws Exception {
+    public int writeBoard(Community community) {
         return communityRepository.writeBoard(community);
     }
 

@@ -5,7 +5,7 @@ import com.sleekydz86.service.commu.domain.Community;
 import java.util.List;
 
 public interface CommunityService {
-    public int writeBoard(Community community) throws Exception;
+    public int writeBoard(Community community);
     public Community findBoard(Long commuId);
     public List<Community> findBoardList();
 }

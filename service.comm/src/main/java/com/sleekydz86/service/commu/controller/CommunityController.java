@@ -59,12 +59,17 @@ public class CommunityController {
     }
 
     @PostMapping("updateBoard")
-    public ResponseEntity<ApiResponse> updateBoard(@ModelAttribute Community community ) {
-        Community updatedCommu = communityService.findBoard(community.getCommuId());
-        updatedCommu.setContent(community.getContent());
-        updatedCommu.setCategory(community.getCategory());
-        communityService.writeBoard(updatedCommu);
+    public ResponseEntity<ApiResponse> updateBoard(@ModelAttribute Community community) {
+        try {
+            Community updatedCommu = communityService.findBoard(community.getCommuId());
+            updatedCommu.setContent(community.getContent());
+            updatedCommu.setCategory(community.getCategory());
+            communityService.writeBoard(updatedCommu);
 
-        return ApiResponse.ok(community);
+            return ApiResponse.ok(community);
+        } catch (Exception e) {
+            log.error("게시글 수정 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 }
