@@ -39,4 +39,10 @@ public class CommunityController {
         }
     }
 
+    @PostMapping("findBoard")
+    public ResponseEntity<ApiResponse> findBoard(Long id) {
+        return ApiResponse.ok(communityService.findBoard(id));
+
+    }
+
 }

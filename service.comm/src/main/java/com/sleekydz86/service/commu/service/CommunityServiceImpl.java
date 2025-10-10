@@ -15,8 +15,14 @@ public class CommunityServiceImpl implements CommunityService {
     @Autowired
     CommunityRepository communityRepository;
 
+    @Override
     public int writeBoard(Community community) throws Exception {
         return communityRepository.writeBoard(community);
+    }
+
+    @Override
+    public Community findBoard(Long id) {
+        return communityRepository.findBoard(id);
     }
 
 }

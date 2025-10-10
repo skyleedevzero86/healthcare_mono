@@ -25,4 +25,9 @@ public class CommunityRepository {
             return 0;
         }
     }
+
+    public Community findBoard(Long id) {
+        Community community = em.find(Community.class, id);
+        return community;
+    }
 }
