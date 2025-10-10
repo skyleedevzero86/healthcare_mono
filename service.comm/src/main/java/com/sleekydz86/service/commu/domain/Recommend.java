@@ -13,10 +13,10 @@ public class Recommend {
     Long recommendId;
 
     @ManyToOne
-    @JoinColumn(name = "communityId")
+    @JoinColumn(name = "community_Id")
     Community community; // 1:1 관계
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_Id")
     User user;
 }

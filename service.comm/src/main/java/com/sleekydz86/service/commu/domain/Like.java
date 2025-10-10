@@ -12,10 +12,10 @@ public class Like {
     Long likeId;
 
     @ManyToOne
-    @JoinColumn(name = "communityId")
+    @JoinColumn(name = "community_id")
     Community community; // 1:1 관계
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     User user;
 }

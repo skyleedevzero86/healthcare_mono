@@ -2,10 +2,12 @@ package com.sleekydz86.service.commu.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Date;
 
 @Entity
-@Getter
+@Getter @Setter
 @Table(name = "health_community")
 public class Community {
 

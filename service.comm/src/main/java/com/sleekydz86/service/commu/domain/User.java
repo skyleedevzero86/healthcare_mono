@@ -12,5 +12,5 @@ public class User {
     @Column(name = "userId")
     private Long userId;
 
-    private String userName;
+    private String userNm;
 }
