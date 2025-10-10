@@ -1,5 +1,12 @@
 package com.sleekydz86.service.commu.domain;
 
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
+
+@Embeddable
+@Getter
+@Setter
 public class diseaseCategory {
     //enum값으로 하지않고 게시글을 통해 언제든 추가될 수 있도록 내장객체로 함.
 
