@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Entity
 @Getter
+@Table(name = "community")
 public class Community {
 
     @Id
