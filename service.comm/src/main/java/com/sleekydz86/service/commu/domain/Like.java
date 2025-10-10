@@ -15,7 +15,7 @@ public class Like {
     @JoinColumn(name = "community_id")
     Community community; // 1:1 관계
 
-    @ManyToOne
-    @Column(name = "user_seq")
-    Long userSeq;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_seq")
+    User user;
 }
