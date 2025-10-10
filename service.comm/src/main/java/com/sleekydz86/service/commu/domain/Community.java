@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import java.util.Date;
 
-@Entity
+
 @Getter
 @Table(name = "community")
 public class Community {

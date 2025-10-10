@@ -7,8 +7,9 @@ import com.sleekydz86.service.commu.service.CommunityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -21,7 +22,6 @@ public class CommunityController {
     /**
      * 커뮤니티 보드 INSERT
      */
-
     @PostMapping("writeBoard")
     public ResponseEntity<ApiResponse> writeBoard(@RequestBody Community community) {
         try {
@@ -38,16 +38,13 @@ public class CommunityController {
     }
 
     @PostMapping("findBoard")
-    public ResponseEntity<ApiResponse> findBoard(Long id) {
+    public ResponseEntity<ApiResponse> findBoard(@RequestParam Long id) {
         return ApiResponse.ok(communityService.findBoard(id));
-
     }
 
-    @GetMapping("fingBoardlist")
-    public ResponseEntity<ApiResponse> findBoardList(Model model) {
-
+    @GetMapping("findBoardList")
+    public ResponseEntity<ApiResponse> findBoardList() {
         List<Community> items = communityService.findBoardList();
         return ApiResponse.ok(items);
     }
-
 }

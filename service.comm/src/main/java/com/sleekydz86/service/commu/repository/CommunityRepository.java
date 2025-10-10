@@ -34,6 +34,7 @@ public class CommunityRepository {
     }
 
     public List<Community> findBoardList() {
-        return em.createQuery("select i from Community c", Community.class)
+        return em.createQuery("select c from Community c", Community.class)
                 .getResultList();
     }
+}

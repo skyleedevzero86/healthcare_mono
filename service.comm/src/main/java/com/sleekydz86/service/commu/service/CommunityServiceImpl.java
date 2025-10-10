@@ -27,9 +27,8 @@ public class CommunityServiceImpl implements CommunityService {
         return communityRepository.findBoard(id);
     }
 
-    Override
+    @Override
     public List<Community> findBoardList() {
-        return communityRepository.findBoardList(id);
+        return communityRepository.findBoardList();
     }
-
 }
