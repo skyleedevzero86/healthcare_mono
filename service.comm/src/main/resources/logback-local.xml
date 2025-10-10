@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<!-- 30초마다 설정 파일의 변경을 확인한다. 파일이 변경되면 다시 로딩한다 -->
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>%-30(%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework" level="INFO"/>
+
+    <!-- log4jdbc 옵션 설정 -->
+    <logger name="jdbc" level="OFF"/>
+
+    <!-- 커넥션 open close 이벤트를 로그로 남긴다. -->
+    <logger name="jdbc.connection" level="OFF"/>
+
+    <!-- SQL문만을 로그로 남기며, PreparedStatement일 경우 관련된 argument 값으로 대체된 SQL문이 보여진다. -->
+    <logger name="jdbc.sqlonly" level="OFF"/>
+
+    <!-- SQL문과 해당 SQL을 실행시키는데 수행된 시간 정보(milliseconds)를 포함한다. -->
+    <logger name="jdbc.sqltiming" level="DEBUG"/>
+
+    <!-- ResultSet을 제외한 모든 JDBC 호출 정보를 로그로 남긴다. 많은 양의 로그가 생성되므로 특별히 JDBC 문제를 추적해야 할 필요가 있는 경우를 제외하고는 사용을 권장하지 않는다. -->
+    <logger name="jdbc.audit" level="OFF"/>
+
+    <!-- ResultSet을 포함한 모든 JDBC 호출 정보를 로그로 남기므로 매우 방대한 양의 로그가 생성된다. -->
+    <logger name="jdbc.resultset" level="OFF"/>
+
+    <!-- SQL 결과 조회된 데이터의 table을 로그로 남긴다. -->
+    <logger name="jdbc.resultsettable" level="OFF"/>
+
+    <logger name="com.zaxxer.hikari" level="info"/>
+
+    <!-- redis connection -->
+    <logger name="org.apache.http.impl.conn" level="info"/>
+    <logger name="io.lettuce.core" level="info"/>
+    <logger name="io.netty.util.internal" level="info"/>
+
+    <!-- AWS EC2 안에서 사용되지 않으면 warn 으로 service endpoint 관련 exception 이 발생 하기 때문에 local에서 실행되는 경우 제외 -->
+    <logger name="com.amazonaws.util.EC2MetadataUtils" level="error"/>
+
+    <root level="debug" >
+        <appender-ref ref="console"/>
+    </root>
+
+</configuration>

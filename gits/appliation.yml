@@ -1,0 +1,14 @@
+# 모든 서비스에 공통으로 적용되는 설정
+
+spring:
+  jpa:
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+common:
+  message: "모든 서비스 공통 설정"

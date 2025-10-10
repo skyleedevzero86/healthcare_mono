@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: dev
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: true

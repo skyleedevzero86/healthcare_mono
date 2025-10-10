@@ -1,0 +1,52 @@
+# spring.profiles.active와 spring.config.import 제거!
+
+server:
+  port: 8085
+
+# Eureka Client 설정
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+# H2 Database
+h2:
+  console:
+    enabled: true
+    settings:
+      web_allow_others: true
+    path: /h2-console
+
+datasource:
+  driver-class-name: org.h2.Driver
+  url: jdbc:h2:mem:testdb
+
+jpa:
+  hibernate:
+    ddl-auto: create
+  properties:
+    hibernate:
+      show_sql: true
+      format_sql: true
+
+logging:
+  config: classpath:log4j2-spring.xml
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+#spring:
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#  application:
+#    name: service.usermanagement
+#  rabbitmq:
+#    host: 127.0.0.1
+#    port: 5672
+#    username: guest
+#    password: guest
+
+#JPA TEST를 위한 설정

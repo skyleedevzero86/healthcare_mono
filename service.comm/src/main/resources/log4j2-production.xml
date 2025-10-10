@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="logFileName">api</Property>
+        <Property name="fileLayout">%d [%t] %-5level %c(%M:%L) - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="file" fileName="logs/${logFileName}.log"
+                     filePattern="logs/$${date:yyyyMM}/${logFileName}.%d{yyyyMMdd}.log">
+            <PatternLayout pattern="${fileLayout}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->
+        <Logger name="org.springframework" level="INFO" additivity="false" >
+            <AppenderRef ref="file" />
+        </Logger>
+
+        <Logger name="com.ta" level="DEBUG" additivity="false" >
+            <AppenderRef ref="file" />
+        </Logger>
+
+        <Logger name="com.zaxxer.hikari" level="info" additivity="false">
+            <AppenderRef ref="file" />
+        </Logger>
+
+        <!-- AWS EC2 안에서 사용되지 않으면 warn 으로 service endpoint 관련 exception 이 발생 하기 때문에 local에서 실행되는 경우 제외 -->
+        <Logger name="com.amazonaws.util.EC2MetadataUtils" level="error"/>
+
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="file"/>
+        </Root>
+    </Loggers>
+</Configuration>
