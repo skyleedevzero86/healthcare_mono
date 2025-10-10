@@ -37,14 +37,34 @@ public class CommunityController {
         }
     }
 
+    /**
+     * community 게시글 상세보기
+     * @param commuId
+     * @return
+     */
+
     @PostMapping("findBoard")
-    public ResponseEntity<ApiResponse> findBoard(@RequestParam Long id) {
-        return ApiResponse.ok(communityService.findBoard(id));
+    public ResponseEntity<ApiResponse> findBoard(Long commuId) {
+        return ApiResponse.ok(communityService.findBoard(commuId));
     }
 
+    /**
+     * community 게시글 전체 보기
+     * @return
+     */
     @GetMapping("findBoardList")
     public ResponseEntity<ApiResponse> findBoardList() {
         List<Community> items = communityService.findBoardList();
         return ApiResponse.ok(items);
+    }
+
+    @PostMapping("updateBoard")
+    public ResponseEntity<ApiResponse> updateBoard(@ModelAttribute Community community ) {
+        Community updatedCommu = communityService.findBoard(community.getCommuId());
+        updatedCommu.setContent(community.getContent());
+        updatedCommu.setCategory(community.getCategory());
+        communityService.writeBoard(updatedCommu);
+
+        return ApiResponse.ok(community);
     }
 }

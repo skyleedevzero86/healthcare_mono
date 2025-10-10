@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface CommunityService {
     public int writeBoard(Community community) throws Exception;
-    public Community findBoard(Long id);
+    public Community findBoard(Long commuId);
     public List<Community> findBoardList();
 }

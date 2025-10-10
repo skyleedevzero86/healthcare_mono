@@ -23,8 +23,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public Community findBoard(Long id) {
-        return communityRepository.findBoard(id);
+    public Community findBoard(Long commuid) {
+        return communityRepository.findBoard(commuid);
     }
 
     @Override
