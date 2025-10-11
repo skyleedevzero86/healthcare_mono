@@ -12,7 +12,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityRepository {
 
-    @PersistenceContext //SPRINGDL ENtitymanager만들어서 주입해줌 @AutoWired로 변경가능-> REquiredArgsConstruct로 변경가능
+    @PersistenceContext // SPRINGDL ENtitymanager만들어서 주입해줌 @AutoWired로 변경가능-> REquiredArgsConstruct로
+                        // 변경가능
     private EntityManager em;
 
     /**
