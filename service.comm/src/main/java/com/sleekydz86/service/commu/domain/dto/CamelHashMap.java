@@ -9,7 +9,7 @@ import java.util.HashMap;
  * Snake Case => Camel Case 변환
  *
  */
-public class CamelHashMap<K,V> extends HashMap<Object, Object> {
+public class CamelHashMap<K,V> extends HashMap<Object, Object>{
 
     private static final long serialVersionUID = 1L;
 

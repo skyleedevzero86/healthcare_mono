@@ -4,18 +4,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "likes")
 @Data
-public class Like {
+public class Likeboard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long likeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_id")
-    Community community; // 1:1 관계
-
     @ManyToOne(fetch = FetchType.LAZY)
+    Community commu; //1:1 관계
+
     @JoinColumn(name = "user_seq")
-    User user;
+    @ManyToOne
+    Usermng user;
+
 }

@@ -18,5 +18,5 @@ public class Recommend {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq")
-    User user;
+    Usermng user;
 }
