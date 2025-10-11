@@ -2,22 +2,32 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: configserver:http://localhost:8888
   application:
     name: api.gateway
+  main:
+    web-application-type: reactive
   cloud:
     gateway:
-      routes:
-        - id: healthcare
-          uri: lb://service.healthcare
-          predicates:
-            - Path=/healthcare/**
-        - id: usermanagement
-          uri: lb://service.usermanagement
-          predicates:
-            - Path=/management/**
-      discovery:
-        locator:
-          enabled: true
+      server:
+        webflux:
+          routes:
+            - id: healthcare
+              uri: lb://service.healthcare
+              predicates:
+                - Path=/healthcare/**
+            - id: usermanagement
+              uri: lb://service.usermanagement
+              predicates:
+                - Path=/management/**
+            - id: community
+              uri: lb://service.comm
+              predicates:
+                - Path=/community/**
+          discovery:
+            locator:
+              enabled: true
     config:
       uri: http://localhost:8888
   profiles:
@@ -39,4 +49,4 @@ management:
 logging:
   level:
     root: INFO
-    mz.hc: DEBUG
+    com.sleekydz86: DEBUG
