@@ -1,0 +1,321 @@
+
+	#BioInfoContent {
+        width : 54vw;
+        height: 88vh;
+        float: left;
+	}
+
+	#BioMyContent {
+        width : 27vw;
+        height: 88vh;
+        float: left;
+	}
+
+	#Bio-graph {
+	    width: 54vw;
+        height: 35vh;
+        display: flex;
+        float:top;
+	}
+	.graph-rhythm {
+        width: 27vw;
+        height: 35vh;
+        float:left;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+	}
+    .biorhythm_content {
+        width : 26vw;
+        height: 32vh;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 1px 1px 1px rgb(232,228,228);
+    }
+    .bio_discribe {
+        /*font-family: 'Black Han Sans', sans-serif;*/
+        font-family: 'Noto Sans KR', sans-serif;
+        width : 24vw;
+        height:5vh;
+        align-items: center;
+        justify-content: left;
+        display: flex;
+        padding-left: 2vw;
+        border-radius: 15px;
+        float: top;
+    }
+    .wrap_graph {
+         width : 20vw;
+         height:25vh;
+         background-color:rgb(244,247,255);
+         border-radius: 15px;
+         margin-left: 3vw;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+    }
+    .wrap_graph_active {
+          width : 23vw;
+          height:22vh;
+          background-color:rgb(244,247,255);
+          border-radius: 15px;
+          margin-left: 2vw;
+          margin-top: 1vh;
+         /*align-items: center;
+         justify-content: center;
+         flex-direction: column;*/
+     }
+
+    .wrap_target {
+        width : 18vw;
+        height:24vh;
+        background-color:rgb(244,247,255);
+        border-radius: 15px;
+        margin-left: 3vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    #MyChart_Base {
+        width: 54vw;
+        height: 43vh;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column; //세로정렬
+    }
+    .timetoggle {
+        width: 54vw;
+        height: 1vh;
+        border-radius : 25px;
+        display: flex;
+        justify-content: right;
+        align-items: center;
+        float:top;
+        padding-right: 2vw;
+
+    }
+    .timetoggle button{
+        background-color:white;
+        width: 1vw;
+        height: 2vh;
+
+    }
+
+    .mychart-content {
+        width: 53vw;
+        height: 38vh;
+        display: flex;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 1px 1px 1px rgb(232,228,228);
+        overflow-x: hidden;
+        position: relative;
+        margin-top : 1vh;
+        float: top;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+//     .banner{
+//       width: 51.5vw;
+//       height: 14vh;
+//       background-color: rgb(255,220,152);
+//       animation: slider 7.5s infinite linear;
+//       position: absolute;
+//       display: flex;
+//       justify-content: center;
+//       align-items: center;
+//    }
+
+//    .banner:nth-child(1) {
+//        animation-delay:0;
+//    }
+//    .banner:nth-child(2) {
+//        animation-delay:-2.5s;
+//    }
+//    .banner:nth-child(3) {
+//       animation-delay:-5s;
+//    }
+
+//    @keyframes slider {
+//      0% {
+//        transform: translateX(0);
+//      }
+//      26% {
+//        transform: translateX(0);
+//      }
+//      33% {
+//        transform: translateX(-100%);
+//        animation-timing-function: step-end;
+//      }
+//      93% {
+//        transform: translateX(100%);
+//      }
+//     100% {
+//        transform: translateX(0);
+//      }
+//    }
+
+    #Bio_list {
+        width: 54vw;
+        height: 35vh;
+        display: flex;
+        float:top;
+        justify-content: center;
+        align-items: center;
+    }
+    .user-list{
+        width: 53vw;
+        height: 33vh;
+        display: flex;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 1px 1px 1px rgb(232,228,228);
+        display: flex;
+        justify-content: center;
+    }
+    .wrap_list {
+        width: 50vw;
+        height: 25vh;
+        border-radius: 25px;
+    }
+
+    #Targetinfo{
+        justify-content: center;
+        align-items: center;
+    }
+
+    .target-content {
+        width :  18vw;
+        height: 18vh;
+        float:top;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column; /* 세로 방향으로 정렬 */
+        padding-top: 3vh;
+    }
+
+    .target-content-list {
+        width: 18vw;
+        height: 6vh;
+        display:flex;
+        padding:0.5vh;
+        align-items: left;
+    }
+
+     #Banner{
+        width: 27vw;
+        height: 20vh;
+        float:top;
+        justify-content: center;
+        align-items: center;
+        display:flex;
+    }
+    .banner-content{
+
+        width: 26vw;
+        height: 15vh;
+        border-radius: 15px;
+        <!--padding-right: 1vw;-->
+        box-shadow: 1px 1px 1px rgb(232,228,228);
+        cursor : pointer;
+    }
+
+    #GradePoint {
+        width: 27vw;
+        height: 55vh;
+        float:top;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 4vh;
+    }
+    .myGrade {
+        width : 26vw;
+        height: 55vh;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 1px 1px 1px rgb(232,228,228);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column; /* 세로 방향으로 정렬 */
+
+    }
+
+    .graph-wrap{
+        display:flex;
+        gap: 50px;
+    }
+    .circle-graph {
+        position:relative;
+    }
+    .circle-graph > strong {
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%, -50%);
+        font-size:2rem;
+    }
+    .chart{
+        width: 26vw;
+        height: 24vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .donut-chart {
+        width: 24vw;
+        height: 24vh;
+        display: flex;
+        justify-content: center;
+        align-items: center
+    }
+
+    .myDonutChart {
+        width: 5vw;
+        height: 7vh;
+    }
+
+    .gradeinfo {
+        width: 24vw;
+        height: 18vh;
+        margin-top : 2vh;
+        display:flex;
+        justify-content: center;
+        align-items:center;
+
+    }
+
+    .gradedetail ul{
+        background-color:rgb(244,247,255);
+        width : 18vw;
+        height: 18vh;
+        border-radius: 25px;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column; /* 세로 방향으로 정렬 */
+    }
+
+    .gradedetail ul li {
+        width: 6vw;
+        height: 4vh;
+        float :top;
+        justify-content : center;
+        align-items:center;
+        display: flex;
+    }
+
+    #FooterArea {
+        width: 100vw;
+        height: 20vh;
+        /*background-color:rgb(242,249,255);*/
+    }
+
+.flex_box{
+    background-color:white;
+}

@@ -1,0 +1,186 @@
+#HealthWrap {
+    width : 80vw;
+    height: 92vh;
+    float: top;
+    justify-content: center;
+    align-items: center;
+}
+
+#WrapbioDetail {
+    width: 80vw;
+    height: 20vh;
+    display: flex;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#WrapbioDetail ul{
+    width: 80vw;
+    height: 20vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding:0;
+    padding-left: 2.5vw;
+    padding-top: 5vh;
+}
+
+#WrapbioDetail ul li{
+    width: 16vw;
+    height: 15vh;
+    background-color: white;
+    border-radius: 10px;
+    margin-right: 3vw;
+    display:flex;
+}
+#WrapbioDetail ul li:last-child {
+    margin-right: 0; /* 마지막 li 요소에는 오른쪽 간격을 주지 않음 */
+}
+
+#WrapbioDetail ul li div{
+    width: 7vw;
+    height: 15vh;
+    padding : 1vw;
+    border-radius: 10px;
+}
+
+.right-content{
+    margin-left: 2.5vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Arrange items vertically */
+}
+
+#WrapAnalysis{
+    width: 80vw;
+    height: 50vh;
+    display: flex;
+    padding-top : 10vh;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.ScoreInfo{
+    width: 25vw;
+    height: 40vh;
+    padding-left: 3vw;
+}
+
+.donut-chart {
+    width : 20vw;
+    height: 35vh;
+    background-color: white;
+     border-radius: 15px;
+     margin-bottom:2vh;
+     margin-top: 1vh;
+}
+.myDonutChart {
+    width: 5vw;
+    height: 7vh;
+}
+
+.ScoreGraph {
+    width: 51.5vw;
+    height: 40vh;
+    float: top;
+    justify-content: center;
+    align-items: center;
+}
+.analysis-content {
+
+    width: 75vw;
+    height: 15vh;
+    display: flex;
+    margin-left: 3vw;
+}
+
+.mychart-content{
+     width: 51.5vw;
+      height: 38vh;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 1px 1px 1px rgb(232,228,228);
+      position: relative;
+      margin-top : 1vh;
+      margin-bottom : 1vh;
+      float: top;
+      justify-content: center;
+      align-items: center;
+}
+
+.ScoreGraph-info{
+    width: 55vw;
+    height: 15vh;
+    padding-top : 2vh;
+}
+
+#WrapMemo{
+
+    width: 80vw;
+    height: 50vh;
+    padding-left: 4vw;
+    padding-top: 5vh;
+}
+
+#memoWrap {
+    width: 74vw;
+    height: 50vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background-color:white;
+}
+.keyword-menu{
+     width: 18vw;
+    height: 48vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.keyword-category{
+     width: 18vw;
+     height: 5vh;
+     marin;1vw;
+     margin-top: 1vh;
+     margin-bottom: 2vh;
+}
+.keyword{
+    width: 18vw;
+    height: 38vh;
+    border-right : 2px solid rgb(232,228,228);
+
+
+}
+.btn {
+     width: 7vw;
+     height: 5vh;
+     background-color: rgba(153,209,206, 0.6);
+     border:none;
+     border-radius: 10px;
+     font-size: 1.2vw;
+    margin-right: 0.5vw;
+    margin-top: 2vh;
+
+ }
+
+
+.keyword-content{
+   width: 55vw;
+   height:49vh;
+
+    justify-content: center;
+    align-items: center;
+    display:flex;
+}
+
+.Donutbtn{
+  width: 5vw;
+    height: 4vh;
+    background-color: rgba(142,197,233, 0.6);
+    border:none;
+    border-radius: 10px;
+    font-size: 1vw;
+}

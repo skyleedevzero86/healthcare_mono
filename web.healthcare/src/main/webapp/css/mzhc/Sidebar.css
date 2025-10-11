@@ -1,0 +1,70 @@
+
+    img{
+        display: table-cell;
+        max-width: 50vw;
+        max-height: 30vh;
+        text-align: center;
+        margin: auto;
+    }
+    button{
+        cursor : pointer;
+    }
+
+    #BioHead {
+       width : 7vw;
+       height: 150vh;
+       float: left;
+       padding-top: 5vh;
+    }
+     .inner_sidebar {
+       box-sizing: border-box;
+       background-color: white;
+       border-radius: 25px;
+       height : 72vh;
+       width: 4.5vw;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       position: sticky;
+       top: 0;
+    }
+    .sidebar_box {
+        width : 5vw;
+        height: 32vh;
+        justify-content: center;
+        align-items: center;
+        vertical-align: middle;
+    }
+    .sidebar_index {
+        width : 3vw;
+        height: 5.5vh;
+        border-radius: 50%;
+        background-color: rgb(235,235,235);
+        margin:auto;
+        margin-bottom: 3vh;
+        margin-top: 3vh;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        cursor : pointer;
+    }
+
+    .sidebaricon {
+        width : 1vw;
+        height: 2vh;
+        margin:auto;
+    }
+
+    .sidebar_index:hover{
+        width : 3vw;
+        height: 5.5vh;
+        border-radius: 50%;
+        background-color: rgb(255,220,152);
+        margin:auto;
+        margin-bottom: 3vh;
+        margin-top: 3vh;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        cursor : pointer;
+    }

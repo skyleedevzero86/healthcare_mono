@@ -1,0 +1,78 @@
+@charset "UTF-8";
+
+// Noto San KR - 노토 산스 코리아
+@font-face {
+  font-family: "NotoSansKR";
+  font-style: normal;
+  font-weight: 100;
+  src: url("../fonts/NotoSansKR-Thin.otf") format('opentype');
+}
+@font-face {
+  font-family: "NotoSansKR";
+  font-style: normal;
+  font-weight: 200;
+  src: url("../fonts/NotoSansKR-Light.otf") format('opentype');
+}
+@font-face {
+  font-family: "NotoSansKR";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/NotoSansKR-Regular.otf") format('opentype');
+}
+@font-face {
+  font-family: "NotoSansKR";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../fonts/NotoSansKR-Medium.otf") format('opentype');
+}
+@font-face {
+  font-family: "NotoSansKR";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/NotoSansKR-Bold.otf") format('opentype');
+}
+@font-face {
+  font-family: "NotoSansKR";
+  font-style: normal;
+  font-weight: 900;
+  src: url("../fonts/NotoSansKR-Black.otf") format('opentype');
+}
+
+
+// Roboto
+@font-face {
+	font-family: "Roboto";
+	font-style:normal;
+	font-weight: 100;
+	src:url("../fonts/Roboto-Thin.ttf");
+}
+@font-face {
+	font-family: "Roboto";
+	font-style:normal;
+	font-weight: 300;
+	src:url("../fonts/Roboto-Light.ttf");
+}
+@font-face {
+	font-family: "Roboto";
+	font-style:normal;
+	font-weight: 400;
+	src:url("../fonts/Roboto-Regular.ttf");
+}
+@font-face {
+	font-family: "Roboto";
+	font-style:normal;
+	font-weight: 500;
+	src:url("../fonts/Roboto-Medium.ttf");
+}
+@font-face {
+	font-family: "Roboto";
+	font-style:normal;
+	font-weight: 600;
+	src:url("../fonts/Roboto-Bold.ttf");
+}
+@font-face {
+	font-family: "Roboto";
+	font-style:normal;
+	font-weight: 900;
+	src:url("../fonts/Roboto-Black.ttf");
+}

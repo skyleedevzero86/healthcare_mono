@@ -1,0 +1,30 @@
+    table {
+        width:100%;
+        text-align: center;
+        border-collapse: separate;
+        border-spacing: 1px;
+        line-height: 1.5;
+    }
+
+    #userTable {
+
+        width:100%;
+        text-align: center;
+        border-collapse: separate;
+        border-spacing: 1px;
+        line-height: 1.5;
+    }
+
+    th {
+         width: 150px;
+         padding: 10px;
+         font-weight: bold;
+         vertical-align: top;
+    }
+    td {
+        width: 350px;
+        padding: 10px;
+        vertical-align: top;
+        color: #ccc;
+        border-bottom: 1px solid #ccc;
+    }

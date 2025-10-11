@@ -1,0 +1,35 @@
+
+ * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        list-style: none;
+        font-family: 'Jua', sans-serif;
+    }
+    img{
+        display: table-cell;
+        max-width: 50vw;
+        max-height: 30vh;
+        text-align: center;
+        margin: auto;
+    }
+    button{
+        cursor : pointer;
+    }
+
+    .App{
+        display:flex;
+        padding-left:5vw;
+        padding-right:5vw;
+    }
+
+    #BioInfo {
+        width : 80vw;
+        height: 92vh;
+        float: left;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+<!--공용 layer를 만드는 css-->

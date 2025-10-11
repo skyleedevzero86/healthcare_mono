@@ -1,0 +1,139 @@
+.nav, .nav ul, .nav li {
+	list-style: none;
+}
+.nav{ width: 100%; float: left
+}
+
+.nav ul {
+	padding: 0;
+	margin: 0 0 0 0px;
+}
+
+.nav {
+	padding: 0px;
+	margin: 0px;
+}
+
+.nav > li {
+	margin: 0px 0 !important;  background-color: #fff
+}
+
+.nav > li li {
+	padding: 0px;
+}
+
+.nav a {
+	color: #333!important;
+	display: block;
+	outline: none; background-color: #fff;
+	text-decoration: none;; background-position:228px center; background-repeat: no-repeat;  
+}
+.bigtitle {background-color: #eee!important;  border-bottom: 1px solid #ccc;  border-top: 1px solid #ccc; margin-top: -1px}
+.sub2{position: relative; width: 100%; float: left ; height: 100%;   border-bottom: 1px solid #ccc;  }
+.sub2 a{padding-left:30px!important; box-sizing: border-box; position: relative; }
+.sub2 .inch{position: absolute; left: 10px; top:12px; z-index: 99; width: 10px; height: 10px; border: 1px solid #666; background-color: #fff}
+.sub2 .r_in{position: absolute; left: 10px; top:12px; z-index: 99; width: 10px; height: 10px; border: 1px solid #666; background-color: #fff}
+.Legend_icon1{width: 10px; height: 10px; border: 1px solid #666; background-color: #fff}
+
+
+
+.acc_chbox{  position: absolute; right: 0px; top: 5px;display:flex;justify-content: flex-end;  flex-direction:row; }
+.acc_chbox .checkdesign3{top: -5px;  position: absolute; right: 45px }
+
+.acc_chbox .icon2{top:2px;  position: absolute; right:25px ;border: 1px solid #a2bcde; border-radius: 2px; background-color: #fff; width:20px; height: 20px;   display: flex;
+  justify-content: center;
+  align-items: center;  background: url("../../images/sub/mapch_icon2.png"); background-repeat: no-repeat; background-position: center center; cursor: pointer}
+
+.acc_chbox .icon2:hover{ background: url("../../images/sub/mapch_icon2_ov.png"); background-color: #a2bcde; background-position: center center}
+
+.acc_chbox .icon3{top:2px;  position: absolute; right:0px ;border: 1px solid #a2bcde; border-radius: 2px; background-color: #fff; width:20px; height: 20px;   display: flex;
+  justify-content: center;
+  align-items: center;  background: url("../../images/sub/mapch_icon3.png"); background-repeat: no-repeat; background-position: center center; cursor: pointer}
+
+.acc_chbox .icon3:hover{ background: url("../../images/sub/mapch_icon3_ov.png"); background-color: #a2bcde; background-position: center center}
+
+
+
+
+
+.nav a .caret {
+	float: right;
+	width:15px;
+	height: 10px;
+	display: inline-block;
+	vertical-align: top; margin-right: 10px; margin-top: 10px;
+	content: ""; background: url( "../../images/map/icon_down.png") ;
+}
+
+.nav a:hover .caret {
+	border-top-color: #fff; 
+}
+
+.nav li.open > a > .caret {
+	float: right;
+	width:15px;
+	height: 10px;
+	display: inline-block;
+	vertical-align: top; margin-right: 10px; margin-top: 10px;
+	content: ""; background: url(../../images/map/icon_up.png) ;
+}
+
+.nav li.open > a:hover > .caret {
+	border-bottom-color: #fff;
+}
+
+.nav a:hover, .nav li.active > a {
+	background-color: #fff;
+	color: #333;
+}
+
+.nav a:hover {
+	background-color: #f7f7f7;
+	color: #fff;
+}
+.nav > li.active > a  {
+	background-color: #f7f7f7;
+}
+
+.nav  li>a {
+	font-size: 12px;
+	line-height: 35px;
+	padding: 0px 10px;
+}
+ul.menu2 li a{
+	font-size: 12px;
+	line-height: 35px;
+	 background-color: #fff;
+}
+ul.menu2 li a:hover{
+	font-size: 12px;
+	line-height: 35px;
+	
+}
+
+ul.menu3 li a{
+	font-size: 12px;
+	line-height: 35px;
+	padding: 0px 0px 0px 30px;  background-color: #ddd
+}
+
+ul.menu2 li a.menu_on{ font-size: 12px;
+	line-height: 35px;
+	 background-color: #fff;
+}
+
+
+
+ li a.menu_on .ar_icon{ position: absolute; right: 30px; top: 10px;    background:#fff;
+    width :0px;
+    height:0PX;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #f1f1f1; transform:rotate(45deg)
+}
+
+
+.nav > li > a {
+	font-size: 14px;
+	line-height: 35px;
+	padding: 5px 10px;color: #333!important;
+}

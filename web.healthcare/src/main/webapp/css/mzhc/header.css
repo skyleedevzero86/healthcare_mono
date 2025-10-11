@@ -1,0 +1,110 @@
+    img{
+        display: table-cell;
+        max-width: 50vw;
+        max-height: 30vh;
+        text-align: center;
+        margin: auto;
+    }
+    button{
+        cursor : pointer;
+    }
+
+    #InfoArea {
+        width: 100vw;
+        height: 10vh;
+        float: top;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        font-family: 'Jua', sans-serif;
+        border-bottom: 1px solid rgb(232,228,228);
+    }
+    #Logo{
+	    width: 64vw;
+	    height: 14vh;
+	    float: top;
+	    display: flex;
+        justify-content: center;
+        align-items: center;
+	}
+    .logo{
+        width: 26vw;
+        height: 10vh;
+        padding-right: 4vw;
+        padding-top: 3vh;
+        display: flex;
+        justify-content: right;
+	}
+	.notice {
+        width: 44vw;
+        height: 8vh;
+        display: flex;
+        justify-content: right;
+        align-items: center;
+	}
+	.search {
+        width: 25vw;
+        height: 4vh;
+        background-color: white;
+        border-radius: 25px;
+        margin-top:3vh;
+	}
+
+	#Information {
+        width: 28vw;
+        height: 8vh;
+        float:top;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        }
+    .myProfile {
+       padding-top: 5vh;
+       width: 20vw;
+       height: 8vh;
+       display: flex;
+       justify-content: space-between;
+       padding-left: 2vw;
+   }
+
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+.dropdown{
+  position : relative;
+}
+
+.dropbtn{
+  font-weight: 400;
+  width :1vw;
+  height:1vh;
+  text-align: center;
+  cursor : pointer;
+  border:none;
+  font-size : 15px;
+  background-color:rgb(242,249,255);
+}
+.dropdown-content{
+  display : none;
+  position : absolute;
+  z-index : 1; /*다른 요소들보다 앞에 배치*/
+  font-weight: 400;
+  background-color: #f9f9f9;
+  min-width : 200px;
+}
+
+.dropdown-content a{
+  display : block;
+  text-decoration : none;
+  color : rgb(37, 37, 37);
+  font-size: 12px;
+  padding : 12px 20px;
+}
+
+.dropdown-content a:hover{
+  background-color : #ececec
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}

@@ -1,0 +1,204 @@
+<%-include('../../ejs/_include/_dtd.ejs') %>
+
+  <title>환자 상태</title>
+</head>
+<body>
+  <div class="container sub_container">
+    <!-- header -->
+    <%-include('../../ejs/_include/_header.ejs') %>
+    <!-- header -->
+
+    <!-- content 영역 - 서브 페이지 : main_sub_content_wrap -->
+    <section class="main_content_wrap main_sub_content_wrap">
+      <div class="main_content main_sub_content _inner_wrap">
+
+        <main class="main_wrap sub_wrap">
+
+          <div class="flex_row">
+            <!-- 사용자 정보 -->
+            <section class="flex_item radius_box">
+              <div class="radius_header">
+                <h2 class="radius_header__title">사용자 정보</h2>
+              </div>
+              <div class="radius_body">
+
+                <div class="user_profile">
+                  <div class="user_profile__img">
+                    <img src="../../images/common/img_user.png" alt="">
+                  </div>
+                  <div class="user_profile__name">
+                    <strong>홍길동</strong>
+                    <span>(1234)</span>
+                  </div>
+                </div>
+
+                <ul class="user_info">
+                  <li class="user_info__item">
+                    <strong class="user_info__title">성별</strong>
+                    <div class="user_info__val">
+                      <strong>여</strong>
+                    </div>
+                  </li>
+                  <li class="user_info__item">
+                    <strong class="user_info__title">혈액형</strong>
+                    <div class="user_info__val">
+                      <strong>AB</strong>
+                    </div>
+                  </li>
+                  <li class="user_info__item">
+                    <strong class="user_info__title">키</strong>
+                    <div class="user_info__val">
+                      <strong>168</strong>
+                      <span>cm</span>
+                    </div>
+                  </li>
+                  <li class="user_info__item">
+                    <strong class="user_info__title">몸무게</strong>
+                    <div class="user_info__val">
+                      <strong>48</strong>
+                      <span>kg</span>
+                    </div>
+                  </li>
+                </ul>
+
+              </div>
+            </section>
+            <!-- 실시간 상태 -->
+            <section class="flex_item radius_box">
+              <div class="radius_header">
+                <h2 class="radius_header__title">실시간 상태</h2>
+              </div>
+              <div class="radius_body">
+
+                <ul class="user_state">
+                  <li class="user_state__item">
+                    <div class="user_state__title _state01">
+                      <strong>심박수</strong>
+                      <span>평균(70~75)</span>
+                    </div>
+                    <div class="user_state__num">
+                      <strong class="_state_warning">123</strong>
+                    </div>
+                  </li>
+                  <li class="user_state__item">
+                    <div class="user_state__title _state02">
+                      <strong>혈압</strong>
+                      <span>평균(120~130)</span>
+                    </div>
+                    <div class="user_state__num">
+                      <strong class="_state_warning">123</strong>
+                    </div>
+                  </li>
+                  <li class="user_state__item">
+                    <div class="user_state__title _state03">
+                      <strong>체온</strong>
+                      <span>평균(36.5)</span>
+                    </div>
+                    <div class="user_state__num">
+                      <strong class="_state">36.5</strong>
+                    </div>
+                  </li>
+                  <li class="user_state__item">
+                    <div class="user_state__title _state04">
+                      <strong>스트레스</strong>
+                      <span>평균(20~25)</span>
+                    </div>
+                    <div class="user_state__num">
+                      <strong class="_state">25.6</strong>
+                    </div>
+                  </li>
+                </ul>
+
+              </div>
+            </section>
+            <!-- 오늘의 목표 -->
+            <section class="flex_item radius_box">
+              <div class="radius_header">
+                <h2 class="radius_header__title">오늘의 목표</h2>
+              </div>
+              <div class="radius_body">
+                
+              </div>
+            </section>
+          </div>
+
+          <div class="flex_row">
+            <!-- AI 건강 주치의 -->
+            <section class="flex_item radius_box">
+              <div class="radius_header">
+                <h2 class="radius_header__title">AI 건강 주치의</h2>
+              </div>
+              <div class="radius_body">
+
+                <p class="chat_txt"><img src="../../images/common/img_chat_gpt.png" alt="">가 알려주는 나의 건강상태 <strong class="chat_txt_str">AI 주치의</strong>와 함께하세요.</p>
+                <div class="chat_out_txt">
+                  <p>안녕하세요! 홍길동님 현재 혈압과 스트레스 지수가 나이대 평균 지수보다 높게 나옵니다. 평소에 방울토마도, 시금치, 비트, 브로콜리가 들어간 음식을 자주 섭취해 주시고, 따뜻한 허브티를 마시며 잠시 휴식을 취해보는 것도 좋습니다.</p>
+                  <p class="chat_none_out_txt">건강 상태 정보가 없어서 진단하지 못했습니다.</p>
+                </div>
+
+              </div>
+            </section>
+          </div>
+
+          <div class="flex_row">
+            <!-- 보호자/의사 정보 -->
+            <section class="flex_item__col2 radius_box">
+              <div class="radius_header">
+                <h2 class="radius_header__title">보호자/의사 정보</h2>
+              </div>
+              <div class="radius_body">
+                <section class="board_list_wrap">
+                  <ul class="board_list">
+                    <li class="board_list__box borad_list_hd_wrap">
+                      <div class="board_list__title">
+                        <div class="board_con_hd flex-auto">구분</div>
+                        <div class="board_con_hd flex-auto">소속</div>
+                        <div class="board_con_hd flex-auto">이름</div>
+                        <div class="board_con_hd flex-auto">이메일</div>
+                        <div class="board_con_hd flex-auto">연락처</div>
+                      </div>
+                    </li>
+                    <!-- 게시판 반복 영역 -->
+                    <li class="board_list__box">
+                      <div class="board_list__item">
+                        <div class="board_con flex-auto">의사</div>
+                        <div class="board_con flex-auto">서울대학교병원</div>
+                        <div class="board_con flex-auto">홍길동</div>
+                        <div class="board_con flex-auto">ttt@naver.com</div>
+                        <div class="board_con flex-auto">010-6012-1234</div>
+                      </div>
+                    </li>
+                    <li class="board_list__box">
+                      <div class="board_list__item">
+                        <div class="board_con flex-auto">보호자</div>
+                        <div class="board_con flex-auto">가족</div>
+                        <div class="board_con flex-auto">임꺽정</div>
+                        <div class="board_con flex-auto">ttt@naver.com</div>
+                        <div class="board_con flex-auto">010-6012-1234</div>
+                      </div>
+                    </li>
+                  </ul>
+                </section>
+              </div>
+            </section>
+            <!-- 건강 소식 -->
+            <section class="flex_item radius_box">
+              <div class="radius_header">
+                <h2 class="radius_header__title">건강 소식</h2>
+              </div>
+              <div class="radius_body">
+                
+              </div>
+            </section>
+          </div>
+          
+        </main>
+      </div>
+    </section>
+
+    <!-- footer -->
+    <%-include('../../ejs/_include/_footer.ejs') %>
+    <!-- footer -->
+  </div>
+</body>
+</html>

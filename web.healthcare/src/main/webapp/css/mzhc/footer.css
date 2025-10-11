@@ -1,0 +1,15 @@
+#FooterArea {
+    width: 100vw;
+    height: 25vh;
+    border-top: 1px solid silver;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#footer {
+    width: 50vw;
+    height: 15vh;
+    color: silver;
+}

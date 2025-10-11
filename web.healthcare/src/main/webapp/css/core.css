@@ -1,0 +1,131 @@
+@charset "utf-8";
+/* core.css 사이트 전체 공통 디자인*/
+@font-face{
+	font-family: NanumSquareR;
+	src: url(/css/fonts/NanumSquareR.eot) format("eot"),
+		url(/css/fonts/NanumSquareR.woff) format("woff"),url(/css/fonts/NanumSquareR.ttf) format("ttf");	
+}
+@font-face{
+	font-family: NanumSquareL;
+	src: url(/css/fonts/NanumSquareL.eot) format("eot"),
+		url(/css/fonts/NanumSquareL.woff) format("woff"),url(/css/fonts/NanumSquareL.ttf) format("ttf");	
+}
+@font-face{
+	font-family: NanumSquareB;
+	src: url(/css/fonts/NanumSquareB.eot) format("eot"),
+		url(/css/fonts/NanumSquareB.woff) format("woff"),url(/css/fonts/NanumSquareB.ttf) format("ttf");	
+}
+@font-face{
+	font-family: NanumSquareEB;
+	src: url(/css/fonts/NanumSquareEB.eot) format("eot"),
+		url(/css/fonts/NanumSquareEB.woff) format("woff"),url(/css/fonts/NanumSquareEB.ttf) format("ttf");	
+}
+
+@font-face {
+	font-family: 'NotoSansKR Light';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Light-Hestia.eot);
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Light-Hestia.eot?#iefix) format("embedded-opentype"), url(/css/fonts/notoSans/woff/NotoSansKR-Light-Hestia.woff) format("woff");
+}
+
+@font-face {
+	font-family: 'NotoSansKR DemiLight';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-DemiLight-Hestia.eot);
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-DemiLight-Hestia.eot?#iefix) format("embedded-opentype"), url(/css/fonts/notoSans/woff/NotoSansKR-DemiLight-Hestia.woff) format("woff");
+}
+
+@font-face {
+	font-family: 'NotoSansKR Regular';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Regular-Hestia.eot);
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Regular-Hestia.eot?#iefix) format("embedded-opentype"), url(/css/fonts/notoSans/woff/NotoSansKR-Regular-Hestia.woff) format("woff");
+}
+
+@font-face {
+	font-family: 'NotoSansKR Medium';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Medium-Hestia.eot);
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Medium-Hestia.eot?#iefix) format("embedded-opentype"), url(/css/fonts/notoSans/woff/NotoSansKR-Medium-Hestia.woff) format("woff");
+}
+
+@font-face {
+	font-family: 'NotoSansKR Bold';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Bold-Hestia.eot);
+	src: url(/css/fonts/notoSans/eot/NotoSansKR-Bold-Hestia.eot?#iefix) format("embedded-opentype"), url(/css/fonts/notoSans/woff/NotoSansKR-Bold-Hestia.woff) format("woff");
+}
+
+
+
+
+
+html,body{
+	margin: 0px;
+	padding: 0px;
+	letter-spacing: -0.045em;
+	width: 100%;
+	height: 100%;
+}
+/* body{overflow-x: hidden;가로 스크롤 안생기게함} */
+ul, ol{/*3무*/
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+}
+/*.clb는 공통 float해제용 class임*/
+ul::after, ol::after, .clb::after{/*float해제*/
+	content: "";
+	display: block;
+	clear: both;
+}
+li,dl{
+	float: left;/*옆으로 흐르게*/
+}
+
+a{
+	color: #333;
+	letter-spacing: -1px;/*글자간격*/
+	text-decoration: none;/*밑줄없앰*/
+}
+
+img{
+	border: none;
+	vertical-align: bottom;
+}
+/*글자셋팅*/
+body, button, h1, h2,h3,h4,h5,h6, input, select, table, textarea{
+	font-family: 'NotoSansKR';
+	font-size: 14px;
+	line-height: 1.4rem;
+    word-spacing: -0.01rem;
+}
+
+
+/*태그 초기화 설정*/
+html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,
+blockquote,pre,abbr,address,cite,code,del,dfn,em,img,
+ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,
+fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,
+article,aside,canvas,details,figcaption,figure,footer,header,hgroup,
+menu,nav,section,summary,time,mark,audio,video,button{margin:0; padding:0;}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {  display: block; }
+address{font-style: normal;}
+
+
+body, div, p, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, table, th, td, form, fieldset, legend, input, textarea, a, button, select, ul, li, span, em 
+{
+    margin: 0;
+    padding: 0;
+    line-height: 1.1;
+    box-sizing: border-box;
+}
+.bld{display: none;}
+.hidden{position: absolute;width: 1px;height: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0, 0, 0, 0);border: 0;}
+input[type="password"]{font-family: 'arial';}

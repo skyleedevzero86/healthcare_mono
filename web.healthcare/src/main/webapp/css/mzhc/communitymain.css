@@ -1,0 +1,185 @@
+#CommunityWrap {
+    width: 80vw;
+    height: 100%;
+    padding : 3vw;
+    display: flex;
+
+}
+
+#community{
+
+    width : 75vw;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+
+}
+
+.commuboard {
+    width: 50vw;
+    display:flex;
+    justify-content: center;
+    align-items: top;
+    padding-top: 3vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.card {
+    width: 48vw;
+    height: 48vh;
+    background-color: white;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3vh;
+}
+
+.cardinfo {
+    width: 48vw;
+    height: 8vh;
+    border-bottom: 2px solid rgb(150, 212, 209);
+    flex-direction: column;
+
+}
+.name {
+    padding-top:1vh;
+    width: 6vw;
+    height: 4vh;
+    display: flex;
+    text-align: left;
+    margin: 0;
+    color: grey;
+    font-size: 1vw;
+    padding-left: 2vw;
+}
+
+.cate {
+    padding-left: 2vw;
+
+}
+
+.card-content{
+    width: 48vw;
+    height: 35vh;
+    padding-left: 1vw;
+    padding-top: 2vh;
+    border-bottom: 1px solid rgb(232,228,228);
+}
+
+.social{
+
+    width: 48vw;
+    height: 5vh;
+    padding-left: 41vw;
+
+    padding-right: 3.5vw;
+    display:flex;
+}
+.myInfo{
+    width: 20vw;
+    height: 55vh;
+    padding-top: 3vh;
+    flex-direction: column;
+    float:top;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 3vw;
+}
+
+.profileinfo {
+    width: 18vw;
+    height: 55vh;
+    border-radius: 10px;
+    background-color: white;
+    flex-direction: column;
+    float:top;
+}
+
+.imgArea {
+    width: 18vw;
+    height: 15vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding-right: 3vw;
+    background-color:  rgba(187, 154, 245, 0.3);
+}
+
+.PageDetailArea{
+    width: 18vw;
+
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height: 15vh;
+    border-bottom: 1px solid rgb(232,228,228);
+
+}
+
+.PageDetailArea ul{
+    width: 18vw;
+    height: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.PageDetailArea ul li {
+    width: 6vw;
+    height: 7vh;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.FriendsList {
+    width: 18vw;
+    height: 25vh;
+    border-radius: 10px;
+    flex-direction: column;
+
+    border-bottom: 1px solid rgb(232,228,228);
+}
+
+.title {
+    display: flex;
+    width: 18vw;
+    height: 3vh;
+    padding-left: 1vw;
+    padding-right: 9vw;
+    padding-top: 1vh;
+
+}
+.list{
+
+    width: 18vw;
+    height: 18vh;
+    display:flex;
+    flex-direction: column;
+    float:top;
+    padding-top : 3vh;
+}
+
+.list li {
+    width: 18vw;
+    height: 3vh;
+    display:flex;
+    padding-right: 13vw;
+}
+
+.btn button{
+    width: 5vw;
+    height: 4vh;
+    background-color: rgba(153,209,206, 0.6);
+    border:none;
+    border-radius: 10px;
+    font-size: 1vw;
+    margin-left: 12vw;
+    margin-bottom: 2vh;
+}

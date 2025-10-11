@@ -1,0 +1,174 @@
+#BioMyInfo{
+    width : 80vw;
+    height: 92vh;
+   /* flex-direction: column; // Align children vertically */
+     display: flex;
+     justify-content: left;
+     padding-left: 3vw;
+     align-items: center;
+}
+
+#InfoWrap{
+     width: 80vw;
+     height: 92vh;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+}
+
+#myLoginInfoWrap{
+    width : 40vw;
+    height: 92vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.myLoginInfo {
+    width: 28vw;
+    height: 80vh;
+    background-color: white;
+    border-radius: 15px;
+    float:top;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3vh;
+}
+.myLoin{
+    width: 25vw;
+    height: 78vh;
+    border-radius: 15px;
+    border: 3px solid rgba(188,159,232,0.8);
+
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.imgArea{
+    width: 22vw;
+    height: 28vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left:3vw;
+    flex-direction: column;
+}
+
+.infoArea {
+    width: 24vw;
+    height: 18vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: column; /* Align children vertically */
+    padding-top: 1vh;
+    padding-left: 1vw;
+}
+
+.infoDetailArea{
+    width: 24.6vw;
+    height: 30vh;
+    border-top: 1px solid rgb(232,228,228);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.infoDetailArea ul {
+
+    width: 21vw;
+    height: 25vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.infoDetailArea ul li {
+    width: 7vw;
+    height: 15vh;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+#myDetailInfoWrap{
+    width : 45vw;
+    height: 92vh;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    text-align: center;
+    flex-direction: column; /* Align children vertically */
+}
+.myDetailInfo {
+    width: 43vw;
+    height: 45vh;
+    /*background-color:rgb(244,247,255);*/
+
+    text-align: center;
+    justify-content: center;
+    display:flex;
+}
+/*
+.myDetailInfo::before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 1px; 원하는 세로선의 너비로 조절 */
+    /*background-color: #000;  세로선의 색상을 조절 */
+/*    left: 50%;
+    transform: translateX(-50%);
+}*/
+
+.myDetailInfo ul {
+    width: 45vw;
+    height :42vh;
+    float: left;
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+    display: flex; /* Use flexbox for horizontal alignment */
+    flex-direction: column; /* Arrange items vertically */
+    /*align-items: center;  Center items vertically */
+    margin-top: 5vh;
+}
+
+.myDetailInfo ul li {
+    width: 37vw;
+    height : 10vh;
+    border-radius: 10px;
+    background-color: white;
+    display: flex;
+    padding-left: 2vh;
+    margin-bottom: 2vh; /* 각 항목 간격 조절, 필요에 따라 조절 가능 */
+    border-bottom: 2px solid rgb(153,209,206);
+}
+
+.teal-text {
+    color:grey;
+}
+
+#btnModify{
+    width: 12vw;
+    height: 4vh;
+    align-items:right;
+    position: relative;
+    margin-left:26vw;
+    margin-top:1vh;
+}
+
+#btnModify button {
+    width: 5vw;
+    height: 4vh;
+    background-color: rgba(153,209,206, 0.6);
+    border:none;
+    border-radius: 10px;
+    font-size: 1vw;
+
+}
