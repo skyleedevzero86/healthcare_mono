@@ -40,11 +40,11 @@ class CommunityServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new Usermng("user001", "testUser", "test@example.com", 
-                              "encryptedPassword", "salt", "testUser", "19900101", 
-                              "01012345678", "IT", "170", "70", "A", "M", 
-                              new Date(), "admin", new Date(), "admin", 
-                              "webToken", "mobileToken", "Y", "Y", "profile.jpg");
+        testUser = new Usermng("user001", "testUser", "test@example.com",
+                "encryptedPassword", "salt", "testUser", "19900101",
+                "01012345678", "IT", "170", "70", "A", "M",
+                new Date(), "admin", new Date(), "admin",
+                "webToken", "mobileToken", "Y", "Y", "profile.jpg");
 
         testCommunity = new Community();
         testCommunity.setUserNm("testUser");

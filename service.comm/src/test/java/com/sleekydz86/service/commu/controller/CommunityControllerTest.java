@@ -266,8 +266,7 @@ class CommunityControllerTest {
         Community incompleteCommunity = new Community();
         incompleteCommunity.setUserNm("testUser");
 
-        when(communityService.writeBoard(any(Community.class))).thenReturn(1);
-
+        
         // when & then
         mockMvc.perform(post("/community/v1/writeBoard")
                 .contentType(MediaType.APPLICATION_JSON)
