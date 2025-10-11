@@ -1,5 +1,6 @@
 package com.sleekydz86.service.commu.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.commu.domain.Community;
 import com.sleekydz86.service.commu.domain.dto.ApiResponse;
 import com.sleekydz86.service.commu.domain.dto.ApiResultCode;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -23,10 +25,14 @@ public class CommunityController {
      * 커뮤니티 보드 INSERT
      */
     @PostMapping("writeBoard")
-    public ResponseEntity<ApiResponse> writeBoard(@RequestBody Community community) {
+    public ResponseEntity<ApiResponse> writeBoard(@RequestBody Map<String, Object> map) {
         try {
-            log.info("ash param "+ community.toString());
+            log.info("ash get param " + map.toString());
+
+            ObjectMapper obj = new ObjectMapper();
+            Community community = obj.convertValue(map, Community.class);
             int result = communityService.writeBoard(community);
+
             if (result == 1) {
                 return ApiResponse.ok();
             } else {
@@ -56,9 +62,18 @@ public class CommunityController {
      * @return
      */
     @PostMapping("findBoardList")
-    public ResponseEntity<ApiResponse> findBoardList() {
-        List<Community> items = communityService.findBoardList();
-        return ApiResponse.ok(items);
+    public ResponseEntity<ApiResponse> findBoardList(@RequestBody(required = false) Map<String, Object> map) {
+        try {
+            if (map == null) {
+                map = new java.util.HashMap<>();
+            }
+
+            List<Community> items = communityService.findBoardList(map);
+            return ApiResponse.ok(items);
+        } catch (Exception e) {
+            log.error("게시글 목록 조회 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("updateBoard")
@@ -66,7 +81,7 @@ public class CommunityController {
         try {
             Community updatedCommu = communityService.findBoard(community.getCommuSeq());
             updatedCommu.setContent(community.getContent());
-            //updatedCommu.setCategory(community.getCategory());
+            // updatedCommu.setCategory(community.getCategory());
             communityService.writeBoard(updatedCommu);
 
             return ApiResponse.ok(community);
