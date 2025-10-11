@@ -25,6 +25,15 @@ public class Community {
     @Temporal(TemporalType.TIMESTAMP) //날짜 시간
     private Date regDate;
 
+    @Column()
+    private String heartrate;
+
+    @Column()
+    private String temperature;
+
+    @Column()
+    private String bloodpress;
+
     // 내장타입
     @Enumerated(EnumType.STRING) //enum 을 String으로 저장
     private DiseaseCategory category;
