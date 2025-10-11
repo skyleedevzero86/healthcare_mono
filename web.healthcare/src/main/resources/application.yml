@@ -1,0 +1,129 @@
+spring:
+  application:
+    name: web.healthcare
+  profiles:
+    active: dev
+
+  # JSP ??
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+    static-path-pattern: /static/**
+
+  # ?? ??? ??
+  web:
+    resources:
+      static-locations: classpath:/static/,classpath:/public/,file:src/main/webapp/
+      cache:
+        period: 3600
+
+  # JPA ??
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          time_zone: Asia/Seoul
+
+  # MyBatis ??
+  mybatis:
+    mapper-locations: classpath:mapper/*.xml
+    type-aliases-package: mz.hc.web.dto
+    configuration:
+      map-underscore-to-camel-case: true
+      default-fetch-size: 100
+      default-statement-timeout: 30
+
+  # Security ??
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
+
+  # Cloud Config ??
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: false
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 2000
+        multiplier: 1.1
+
+# Eureka Client ??
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Management & Actuator ??
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,configprops
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# Logging ??
+logging:
+  config: classpath:log4j2-spring.xml
+  level:
+    root: INFO
+    mz.hc: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: DEBUG
+
+# ?? ??? ??
+spring.servlet.multipart:
+  max-file-size: 10MB
+  max-request-size: 10MB
+  enabled: true
+
+# ?? ??
+spring.cache:
+  type: simple
+  cache-names:
+    - userCache
+    - healthcareCache
+
+# ??? ??
+spring.messages:
+  basename: messages
+  encoding: UTF-8
+  cache-duration: 3600
+
+# ?? ??
+info:
+  app:
+    name: Healthcare Web Application
+    description: Healthcare LifeLink Web Frontend
+    version: 1.0.0
+    encoding: UTF-8
+    java:
+      version: ${java.version}
