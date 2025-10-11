@@ -34,6 +34,16 @@ public class Community {
     @Column()
     private String bloodpress;
 
+    @Column()
+    private String smoking;
+
+    @Column()
+    private String drinking;
+
+    @Column()
+    private String exercise;
+
+
     // 내장타입
     @Enumerated(EnumType.STRING) //enum 을 String으로 저장
     private DiseaseCategory category;
