@@ -38,7 +38,8 @@ public class CommunityRepository {
     }
 
     public List<Community> findBoardList(Map<String,Object> map) {
-        String jpql = "select c from health_community h where c.age/10 ="+ Integer.parseInt((String) map.get("age"))/10;
+        int ageAvg = (Integer)map.get("age") /10;
+        String jpql = "select c from health_community c where c.age/10 =" + ageAvg;
         return em.createQuery(jpql, Community.class)
                 .getResultList();
     }

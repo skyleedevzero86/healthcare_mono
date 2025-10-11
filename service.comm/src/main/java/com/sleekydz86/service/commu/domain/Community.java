@@ -7,12 +7,13 @@ import lombok.Setter;
 import java.util.Date;
 
 @Getter @Setter
-@Entity(name = "health_community") //이클래스를 테이블과 매핑
+//@SequenceGenerator(    name = "community_id_generator",
+//        sequenceName = "health_community_seq",
+//        allocationSize = 1)
 public class Community {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "community_seq")//기본키에 매핑, @Access (AccessType.FIELD) 생략됨
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) //기본키에 매핑, @Access (AccessType.FIELD) 생략됨
+    @Column(name = "community_seq")
     private int commuSeq;
 
     //@Column(length = 100000000)
