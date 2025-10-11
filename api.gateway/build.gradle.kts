@@ -27,18 +27,15 @@ configurations {
 }
 
 dependencies {
-    dependencies {
-        implementation ("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux") 
-        implementation ("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-        implementation ("org.springframework.cloud:spring-cloud-starter-config")
-        implementation ("org.springframework.boot:spring-boot-starter-actuator")
-        implementation ("org.projectlombok:lombok")
-        annotationProcessor ("org.projectlombok:lombok")
-        implementation ("org.springframework.boot:spring-boot-starter-validation")
-        implementation ("org.springframework.boot:spring-boot-starter-log4j2")
-        testImplementation ("org.springframework.boot:spring-boot-starter-test")
-    }
-
+    implementation ("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux")
+    implementation ("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation ("org.springframework.cloud:spring-cloud-starter-config")
+    implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation ("org.projectlombok:lombok")
+    annotationProcessor ("org.projectlombok:lombok")
+    implementation ("org.springframework.boot:spring-boot-starter-validation")
+    implementation ("org.springframework.boot:spring-boot-starter-log4j2")
+    testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 dependencyManagement {
