@@ -54,7 +54,7 @@ public class CommunityController {
      * 
      * @return
      */
-    @GetMapping("findBoardList")
+    @PostMapping("findBoardList")
     public ResponseEntity<ApiResponse> findBoardList() {
         List<Community> items = communityService.findBoardList();
         return ApiResponse.ok(items);

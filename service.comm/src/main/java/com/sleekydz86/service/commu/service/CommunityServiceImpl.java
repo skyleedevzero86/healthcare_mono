@@ -30,6 +30,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    @Transactional
     public List<Community> findBoardList() {
         return communityRepository.findBoardList();
     }
