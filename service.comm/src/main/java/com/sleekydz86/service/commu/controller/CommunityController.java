@@ -26,7 +26,7 @@ public class CommunityController {
     public ResponseEntity<ApiResponse> writeBoard(@RequestBody Community community) {
         try {
             int result = communityService.writeBoard(community);
-            if(result == 1) {
+            if (result == 1) {
                 return ApiResponse.ok();
             } else {
                 return ApiResponse.error(ApiResultCode.INSERT_FAIL);
@@ -39,6 +39,7 @@ public class CommunityController {
 
     /**
      * community 게시글 상세보기
+     * 
      * @param commuId
      * @return
      */
@@ -50,6 +51,7 @@ public class CommunityController {
 
     /**
      * community 게시글 전체 보기
+     * 
      * @return
      */
     @GetMapping("findBoardList")
