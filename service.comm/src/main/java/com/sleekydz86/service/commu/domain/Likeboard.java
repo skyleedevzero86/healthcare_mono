@@ -1,10 +1,7 @@
 package com.sleekydz86.service.commu.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
-@Entity
-@Data
 public class Likeboard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

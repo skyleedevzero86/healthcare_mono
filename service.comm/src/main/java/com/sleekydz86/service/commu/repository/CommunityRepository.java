@@ -31,13 +31,13 @@ public class CommunityRepository {
         }
     }
 
-    public Community findBoard(Long id) {
-        Community community = em.find(Community.class, id);
+    public Community findBoard(int commuSeq) {
+        Community community = em.find(Community.class, commuSeq);
         return community;
     }
 
     public List<Community> findBoardList() {
-        return em.createQuery("select c from health_community c", Community.class)
+        return em.createQuery("select h from health_community h", Community.class)
                 .getResultList();
     }
 }

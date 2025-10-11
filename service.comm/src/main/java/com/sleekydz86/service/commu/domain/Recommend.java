@@ -1,11 +1,8 @@
 package com.sleekydz86.service.commu.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
-@Entity
 @Table(name = "recommends")
-@Data
 public class Recommend {
 
     @Id

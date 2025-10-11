@@ -41,13 +41,13 @@ public class CommunityController {
     /**
      * community 게시글 상세보기
      * 
-     * @param commuId
+     * @param commuSeq
      * @return
      */
 
     @PostMapping("findBoard")
-    public ResponseEntity<ApiResponse> findBoard(Long commuId) {
-        return ApiResponse.ok(communityService.findBoard(commuId));
+    public ResponseEntity<ApiResponse> findBoard(int commuSeq) {
+        return ApiResponse.ok(communityService.findBoard(commuSeq));
     }
 
     /**
@@ -64,7 +64,7 @@ public class CommunityController {
     @PostMapping("updateBoard")
     public ResponseEntity<ApiResponse> updateBoard(@ModelAttribute Community community) {
         try {
-            Community updatedCommu = communityService.findBoard(community.getCommuId());
+            Community updatedCommu = communityService.findBoard(community.getCommuSeq());
             updatedCommu.setContent(community.getContent());
             //updatedCommu.setCategory(community.getCategory());
             communityService.writeBoard(updatedCommu);
