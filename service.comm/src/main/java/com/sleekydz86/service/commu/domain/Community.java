@@ -29,8 +29,10 @@ public class Community {
     @Enumerated(EnumType.STRING) //enum 을 String으로 저장
     private DiseaseCategory category;
 
-    @ManyToOne(fetch = FetchType.EAGER) // 기본전략
-    @JoinColumn(name="user_seq") //실제디비엔 user_seq 칼럼명으로 들어감
-    private Usermng user;
+    @Column(name = "user_seq")
+    String userSeq;
+    //@ManyToOne(fetch = FetchType.EAGER) // 기본전략
+    //@JoinColumn(name="user_seq") //실제디비엔 user_seq 칼럼명으로 들어감
+    //private Usermng user;
     // DB는 오브젝트를 저장 할 수 없다.FK는 자바는 오브젝트를 저장할 수 없다.
 }
