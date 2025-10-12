@@ -36,7 +36,7 @@ public class UserInfoController {
     @Value("${gateway.version}")
     private String version;
 
-    @Value("${gateway.management.uri}")
+    @Value("${gateway.usermanagement.uri}")
     private String uri;
 
     @Autowired
