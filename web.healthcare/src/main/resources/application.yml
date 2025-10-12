@@ -4,21 +4,21 @@ spring:
   profiles:
     active: dev
 
-  # JSP ??
+  # JSP 설정
   mvc:
     view:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
     static-path-pattern: /static/**
 
-  # ?? ??? ??
+  # 정적 리소스 설정
   web:
     resources:
       static-locations: classpath:/static/,classpath:/public/,file:src/main/webapp/
       cache:
         period: 3600
 
-  # JPA ??
+  # JPA 설정
   jpa:
     hibernate:
       ddl-auto: validate
@@ -32,7 +32,7 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
 
-  # MyBatis ??
+  # MyBatis 설정
   mybatis:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: mz.hc.web.dto
@@ -41,14 +41,14 @@ spring:
       default-fetch-size: 100
       default-statement-timeout: 30
 
-  # Security ??
+  # Security 설정
   security:
     user:
       name: admin
       password: admin123
       roles: ADMIN
 
-  # Cloud Config ??
+  # Cloud Config 설정
   config:
     import: "optional:configserver:http://localhost:8888"
   cloud:
@@ -61,7 +61,27 @@ spring:
         max-interval: 2000
         multiplier: 1.1
 
-# Eureka Client ??
+# Gateway (백엔드 서비스) 설정
+gateway:
+  version: /v1
+  auth:
+    uri: http://localhost:8085
+  healthcare:
+    uri: http://localhost:8081
+  usermanagement:
+    uri: http://localhost:8086
+
+# HTTP 요청 타임아웃 설정
+request:
+  timeout: 30
+
+# JWT Token 설정
+token:
+  secret: healthcare-lifelink-jwt-secret-key-for-authentication-service-2025-dev
+  access-expired-time: 3600000
+  refresh-expired-time: 86400000
+
+# Eureka Client 설정
 eureka:
   client:
     service-url:
@@ -74,7 +94,7 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
-# Management & Actuator ??
+# Management & Actuator 설정
 management:
   endpoints:
     web:
@@ -88,7 +108,7 @@ management:
     env:
       enabled: true
 
-# Logging ??
+# Logging 설정
 logging:
   config: classpath:log4j2-spring.xml
   level:
@@ -99,26 +119,26 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.web: DEBUG
 
-# ?? ??? ??
+# 파일 업로드 설정
 spring.servlet.multipart:
   max-file-size: 10MB
   max-request-size: 10MB
   enabled: true
 
-# ?? ??
+# 캐시 설정
 spring.cache:
   type: simple
   cache-names:
     - userCache
     - healthcareCache
 
-# ??? ??
+# 메시지 설정
 spring.messages:
   basename: messages
   encoding: UTF-8
   cache-duration: 3600
 
-# ?? ??
+# 앱 정보
 info:
   app:
     name: Healthcare Web Application
