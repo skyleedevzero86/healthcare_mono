@@ -155,4 +155,6 @@ info:
 
 # 파일 저장 경로
 imgPath: C:/healthcare/images
+imgTmp: C:/healthcare/tmp 
 # imgPath: /var/healthcare/images
+# imgTmp: /var/healthcare/tmp
