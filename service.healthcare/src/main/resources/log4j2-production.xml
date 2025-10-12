@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_FILE_PATH">logs/healthcare-core-prod</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <RollingFile name="ProdFileAppender" fileName="${LOG_FILE_PATH}.log"
+                     filePattern="${LOG_FILE_PATH}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="200MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="60" compressionLevel="9"/>
+        </RollingFile>
+
+        <RollingFile name="ErrorFileAppender" fileName="${LOG_FILE_PATH}-error.log"
+                     filePattern="${LOG_FILE_PATH}-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30" compressionLevel="9"/>
+        </RollingFile>
+
+        <RollingFile name="AuditFileAppender" fileName="${LOG_FILE_PATH}-audit.log"
+                     filePattern="${LOG_FILE_PATH}-audit-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="90" compressionLevel="9"/>
+        </RollingFile>
+
+        <AsyncAppender name="AsyncProdAppender" bufferSize="2048">
+            <AppenderRef ref="ProdFileAppender"/>
+        </AsyncAppender>
+
+        <AsyncAppender name="AsyncErrorAppender" bufferSize="1024">
+            <AppenderRef ref="ErrorFileAppender"/>
+        </AsyncAppender>
+
+        <AsyncAppender name="AsyncAuditAppender" bufferSize="1024">
+            <AppenderRef ref="AuditFileAppender"/>
+        </AsyncAppender>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.sleekydz86" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+            <AppenderRef ref="AsyncErrorAppender"/>
+        </Logger>
+
+        <Logger name="com.sleekydz86.service.healthcare.controller" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+            <AppenderRef ref="AsyncAuditAppender"/>
+        </Logger>
+
+        <Logger name="com.sleekydz86.service.healthcare.service" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+            <AppenderRef ref="AsyncAuditAppender"/>
+        </Logger>
+
+        <Logger name="org.springframework" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+        </Logger>
+
+        <Logger name="org.springframework.security" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+        </Logger>
+
+        <Logger name="org.mybatis" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+        </Logger>
+
+        <Logger name="com.netflix" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+        </Logger>
+
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncProdAppender"/>
+            <AppenderRef ref="AsyncErrorAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

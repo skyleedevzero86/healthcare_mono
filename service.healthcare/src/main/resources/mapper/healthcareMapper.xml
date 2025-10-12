@@ -1,0 +1,1717 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sleekydz86.service.healthcare.global.mapper.HealthcareMapper">
+    <insert id="insMonthDayData" parameterType="MDDataDto">
+        INSERT INTO health_data
+        (user_seq, heartrate_min, heartrate_max, heartrate_avg, temperature_min, temperature_max, temperature_avg
+        , spo2_min, spo2_max, spo2_avg, step, stress_min, stress_max, stress_avg, bloodpress_min, bloodpress_max
+        , repiratory_min, repiratory_max, repiratory_avg, sleep, time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE")
+        VALUES((select user_seq from user_mng um
+                where um.USER_ID = #{userId}),
+               #{heartrateMin}, #{heartrateMax}, #{heartrateAvg}, #{temperatureMin}, #{temperatureMax}, #{temperatureAvg}
+              , #{spo2Min}, #{spo2Max}, #{spo2Avg}, #{step}, #{stressMin}, #{stressMax}, #{stressAvg}
+              , #{bloodpressMin}, #{bloodpressMax}, #{repiratoryMin}, #{repiratoryMax}, #{repiratoryAvg}, #{sleep}, #{time}
+              , to_date(concat(#{year},'-',#{month},'-',#{day}),'YYYY-MM-DD') , #{year}, #{month}, #{day}, #{hour}, #{minute})
+    </insert>
+
+    <insert id="insMinuteData" parameterType="minDataDto">
+        INSERT INTO health_data_minute
+        (user_seq, tid, heartrate, temperature, spo2, step, stress, bloodpress_max, bloodpress_min, repiratory
+        , time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE")
+        VALUES((select user_seq from user_mng um
+                where um.USER_ID = #{userId}), #{tid}
+              , #{heartrate}, #{temper}, #{spo2}, #{step}, #{stress}, #{bloodpressMin}, #{bloodpressMax}, #{repiratory}, #{time}
+              , to_date(concat(#{year},'-',#{month},'-',#{day}),'YYYY-MM-DD'), #{year}, #{month}, #{day}, #{hour}, #{minute})
+    </insert>
+    <select id="minmaxHealthInfo" parameterType="Map" resultType="camelMap">
+        select
+        "YEAR"
+        , "MONTH"
+        , "DAY"
+        , "HOUR"
+        , "MINUTE"
+        , RECEIVE_TIME
+        <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                , ${searchWrd}_min as ${searchWrd}_min
+                , ${searchWrd}_max as ${searchWrd}_max
+            </when>
+            <otherwise>
+                , heartrate_MIN
+                , heartrate_MAX
+                , TEMPERATURE_MIN
+                , TEMPERATURE_MAX
+                , SPO2_MIN
+                , SPO2_MAX
+                , STRESS_MIN
+                , STRESS_MAX
+                , bloodpress_MIN
+                , bloodpress_MAX
+                , REPIRATORY_MIN
+                , REPIRATORY_MAX
+            </otherwise>
+        </choose>
+        from health_data
+    </select>
+
+    <select id="healthInfo" parameterType="Map" resultType="camelMap">
+        select
+            "YEAR"
+             , "MONTH"
+             , "DAY"
+             , "HOUR"
+             , "MINUTE"
+             , RECEIVE_TIME
+             , ${searchWrd}
+        from health_data
+    </select>
+
+    <select id="minmaxHealthInfoChartMinute" parameterType="Map" resultType="camelMap">
+        select
+        array_agg(concat(a.lv,'시')) as lv
+        <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                ,array_agg(a.${searchWrd}_MIN) as data_min
+                ,array_agg(a.${searchWrd}_MAX) as data_max
+            </when>
+            <otherwise>
+                , array_agg(a.heartrate_MIN) as heartrate_MIN
+                , array_agg(a.heartrate_MAX) as heartrate_MAX
+                , array_agg(a.TEMPERATURE_MIN) as TEMPERATURE_MIN
+                , array_agg(a.TEMPERATURE_MAX) as TEMPERATURE_MAX
+                , array_agg(a.SPO2_MIN) as SPO2_MIN
+                , array_agg(a.SPO2_MAX) as SPO2_MAX
+                , array_agg(a.STRESS_MIN) as STRESS_MIN
+                , array_agg(a.STRESS_MAX) as STRESS_MAX
+                , array_agg(a.bloodpress_MIN) as bloodpress_MIN
+                , array_agg(a.bloodpress_MAX) as bloodpress_MAX
+                , array_agg(a.REPIRATORY_MIN) as REPIRATORY_MIN
+                , array_agg(a.REPIRATORY_MAX) as REPIRATORY_MAX
+                , array_agg(a.STEP) as STEP
+                , array_agg(a.SLEEP_min) as SLEEP_min
+                , array_agg(a.SLEEP_max) as SLEEP_max
+            </otherwise>
+        </choose>
+        from
+        (select
+        lv
+        <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                , cast(${searchWrd}_MIN as varchar)	as ${searchWrd}_MIN
+                , cast(${searchWrd}_MAX as varchar)  as ${searchWrd}_MAX
+            </when>
+            <otherwise>
+                , heartrate_MIN
+                , heartrate_MAX
+                , TEMPERATURE_MIN
+                , TEMPERATURE_MAX
+                , SPO2_MIN
+                , SPO2_MAX
+                , STRESS_MIN
+                , STRESS_MAX
+                , bloodpress_MIN
+                , bloodpress_MAX
+                , REPIRATORY_MIN
+                , REPIRATORY_MAX
+                , STEP
+                , sleep_min
+                , sleep_max
+            </otherwise>
+        </choose>
+        from
+        (select
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                , cast(${searchWrd}_MIN as varchar)	as ${searchWrd}_MIN
+                , cast(${searchWrd}_MAX as varchar)  as ${searchWrd}_MAX
+            </when>
+            <otherwise>
+                , heartrate_MIN
+                , heartrate_MAX
+                , TEMPERATURE_MIN
+                , TEMPERATURE_MAX
+                , SPO2_MIN
+                , SPO2_MAX
+                , STRESS_MIN
+                , STRESS_MAX
+                , bloodpress_MIN
+                , bloodpress_MAX
+                , REPIRATORY_MIN
+                , REPIRATORY_MAX
+                , STEP
+                , sleep_min
+                , sleep_max
+            </otherwise>
+        </choose>
+        from (select
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                , min(${searchWrd}) as ${searchWrd}_min
+                , max(${searchWrd}) as ${searchWrd}_max
+            </when>
+            <otherwise>
+                , min(heartrate) as heartrate_min
+                , max(heartrate) as heartrate_max
+                , min(TEMPERATURE) as TEMPERATURE_MIN
+                , max(TEMPERATURE) as TEMPERATURE_MAX
+                , min(SPO2) as SPO2_MIN
+                , max(SPO2) as SPO2_MAX
+                , min(STRESS) as STRESS_MIN
+                , max(STRESS) as STRESS_MAX
+                , min(bloodpress_max) as bloodpress_MIN
+                , max(bloodpress_max) as bloodpress_MAX
+                , min(REPIRATORY) as REPIRATORY_MIN
+                , max(REPIRATORY) as REPIRATORY_MAX
+                , sum(STEP) as STEP
+                , min(SLEEP) as SLEEP_min
+                , max(SLEEP) as SLEEP_max
+            </otherwise>
+        </choose>
+        from health_data_minute
+        where user_seq = (select user_seq from user_mng um
+        where um.user_id = #{userId})
+        and to_char(RECEIVE_TIME,'YYYY-MM-DD') = #{date}
+        group by
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        order by
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR" asc
+        ) A
+        ) A
+        right OUTER JOIN (SELECT level as lv FROM GENERATE_SERIES(0,23) level) b
+        ON (SELECT CAST ("HOUR" AS INTEGER)) = b.lv
+        order by lv asc
+        )A
+    </select>
+
+    <select id="halfChartData" parameterType="Map" resultType="camelMap">
+        select
+            count(lv) as count
+				,array_agg(concat(a.lv)) as lv
+				,array_agg(a.stress_avg) as stress_avg
+				,array_agg(a.bloodpress_min) as bloodpress_min
+				,array_agg(a.bloodpress_max) as bloodpress_max
+				,array_agg(a.spo2_min) as spo2_min
+				,array_agg(a.spo2_max) as spo2_max
+				,array_agg(a.spo2_avg) as spo2_avg
+        from
+            (
+            select
+            concat(cast(A."HOUR" as varchar),':',lpad(cast(A."MINUTE"*30 as varchar),2,'0')) as lv,
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                , "MINUTE"*30 as "MINUTE"
+                , cast(round(avg(A.stress)) as varchar) as stress_avg
+                , min(A.bloodpress_min) as bloodpress_min
+                , max(A.bloodpress_max) as bloodpress_max
+                , cast(min(A.spo2) as varchar) as spo2_min
+                , cast(max(A.spo2) as varchar) as spo2_max
+                , cast(round(avg(A.spo2)) as varchar) as spo2_avg
+            from (select
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / 30 as "MINUTE"
+                ,stress
+                ,bloodpress_min
+                ,bloodpress_max
+                ,spo2
+            from health_data_minute
+            where user_seq = (select user_seq from user_mng um
+            where um.user_id = #{userId})
+            and to_char(RECEIVE_TIME,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')) A
+            group by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,"MINUTE"
+            order by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,"MINUTE"
+            asc
+            )A
+    </select>
+
+    <!-- <select id="minmaxHealthInfoChartDay" parameterType="Map" resultType="camelMap">
+        select
+             array_agg(concat(a.lv,'시')) as lv
+         <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                ,array_agg(a.${searchWrd}_MIN) as data_min
+                ,array_agg(a.${searchWrd}_MAX) as data_max
+            </when>
+            <otherwise>
+                , array_agg(a.heartrate_MIN) as heartrate_MIN
+                , array_agg(a.heartrate_MAX) as heartrate_MAX
+                , array_agg(a.TEMPERATURE_MIN) as TEMPERATURE_MIN
+                , array_agg(a.TEMPERATURE_MAX) as TEMPERATURE_MAX
+                , array_agg(a.SPO2_MIN) as SPO2_MIN
+                , array_agg(a.SPO2_MAX) as SPO2_MAX
+                , array_agg(a.STRESS_MIN) as STRESS_MIN
+                , array_agg(a.STRESS_MAX) as STRESS_MAX
+                , array_agg(a.bloodpress_MIN) as bloodpress_MIN
+                , array_agg(a.bloodpress_MAX) as bloodpress_MAX
+                , array_agg(a.REPIRATORY_MIN) as REPIRATORY_MIN
+                , array_agg(a.REPIRATORY_MAX) as REPIRATORY_MAX
+                , array_agg(a.STEP) as STEP
+                , array_agg(a.SLEEP) as SLEEP
+            </otherwise>
+        </choose>
+            from
+                (select
+                    lv
+                <choose>
+                    <when test='searchWrd != null and searchWrd != ""'>
+                        , cast(${searchWrd}_MIN as varchar)	as ${searchWrd}_MIN
+                        , cast(${searchWrd}_MAX as varchar)  as ${searchWrd}_MAX
+                    </when>
+                    <otherwise>
+                        , heartrate_MIN
+                        , heartrate_MAX
+                        , TEMPERATURE_MIN
+                        , TEMPERATURE_MAX
+                        , SPO2_MIN
+                        , SPO2_MAX
+                        , STRESS_MIN
+                        , STRESS_MAX
+                        , bloodpress_MIN
+                        , bloodpress_MAX
+                        , REPIRATORY_MIN
+                        , REPIRATORY_MAX
+                        , STEP
+                        , SLEEP
+                    </otherwise>
+                </choose>
+                from
+                (select
+                    "YEAR"
+                    ,"MONTH"
+                    ,"DAY"
+                    ,"HOUR"
+                <choose>
+                    <when test='searchWrd != null and searchWrd != ""'>
+                        , cast(${searchWrd}_MIN as varchar)	as ${searchWrd}_MIN
+                        , cast(${searchWrd}_MAX as varchar)  as ${searchWrd}_MAX
+                    </when>
+                    <otherwise>
+                        , heartrate_MIN
+                        , heartrate_MAX
+                        , TEMPERATURE_MIN
+                        , TEMPERATURE_MAX
+                        , SPO2_MIN
+                        , SPO2_MAX
+                        , STRESS_MIN
+                        , STRESS_MAX
+                        , bloodpress_MIN
+                        , bloodpress_MAX
+                        , REPIRATORY_MIN
+                        , REPIRATORY_MAX
+                        , STEP
+                        , SLEEP
+                    </otherwise>
+                </choose>
+                from (select
+                        "YEAR"
+                        ,"MONTH"
+                        ,"DAY"
+                        ,"HOUR"
+                <choose>
+                    <when test='searchWrd != null and searchWrd != ""'>
+                        , cast(round(avg(cast(${searchWrd}_MIN as float) )) as varchar) as ${searchWrd}_MIN
+                        , cast(round(avg(cast(${searchWrd}_MAX as float) )) as varchar) as ${searchWrd}_MAX
+                    </when>
+                    <otherwise>
+                        , round(avg(heartrate_MIN)) as heartrate_MIN
+                        , round(avg(heartrate_MAX)) as heartrate_MAX
+                        , round(avg(TEMPERATURE_MIN)) as TEMPERATURE_MIN
+                        , round(avg(TEMPERATURE_MAX)) as TEMPERATURE_MAX
+                        , round(avg(SPO2_MIN)) as SPO2_MIN
+                        , round(avg(SPO2_MAX)) as SPO2_MAX
+                        , round(avg(STRESS_MIN)) as STRESS_MIN
+                        , round(avg(STRESS_MAX)) as STRESS_MAX
+                        , round(avg(bloodpress_MIN)) as bloodpress_MIN
+                        , round(avg(bloodpress_MAX)) as bloodpress_MAX
+                        , round(avg(REPIRATORY_MIN)) as REPIRATORY_MIN
+                        , round(avg(REPIRATORY_MAX)) as REPIRATORY_MAX
+                        , round(sum(STEP)) as STEP
+                        , round(avg(SLEEP)) as SLEEP
+                    </otherwise>
+                </choose>
+                    from health_data
+                    where user_seq = (select user_seq from user_mng um
+                                where um.user_id = #{userId})
+                        and to_char(RECEIVE_TIME,'YYYY-MM-DD') = #{date}
+                    group by
+                        "YEAR"
+                        ,"MONTH"
+                        ,"DAY"
+                        ,"HOUR"
+                    order by
+                        "YEAR"
+                        ,"MONTH"
+                        ,"DAY"
+                        ,"HOUR" asc
+                    ) A
+                ) A
+                right OUTER JOIN (SELECT level as lv FROM GENERATE_SERIES(0,23) level) b
+                    ON (SELECT CAST ("HOUR" AS INTEGER)) = b.lv
+                order by lv asc
+            )A
+    </select> -->
+
+    <select id="minmaxHealthInfoChart" parameterType="Map" resultType="camelMap">
+        select
+        <choose>
+            <when test='query == "Y"'>
+                array_agg(a.lv) as lv
+                ,concat(
+                (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                - interval
+                '1year'
+                + interval
+                '1month'
+                , 'YYYY-MM'))),' ~ ', to_char(to_date(#{date},'YYYY-MM-DD'),'YYYY-MM')
+                ) as start_dt
+                ,array_agg(a.years) as year
+            </when>
+            <otherwise>
+                array_agg(a.lv) as lv
+                ,array_agg(a.months) as month
+                <if test='query == "W"'>
+                    ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                    '6day'
+                    , 'YYYY-MM-DD'))),' ~ ', to_date(#{date},'YYYY-MM-DD')
+                    ) as start_dt
+                </if>
+                <if test='query == "M"'>
+                    ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                    '29day'
+                    , 'YYYY-MM-DD'))),' ~ ', to_date(#{date},'YYYY-MM-DD')
+                    ) as start_dt
+                </if>
+            </otherwise>
+        </choose>
+        ,array_agg(a.${searchWrd}_MIN) as data_min
+        ,array_agg(a.${searchWrd}_MAX) as data_max
+        <if test='searchWrd != "temperature"'>
+            <if test='searchWrd != "bloodpress"'>
+                ,cast(AVG(a.${searchWrd}_AVG) as int) as data_AVG
+            </if>
+        </if>
+        <if test='searchWrd == "temperature"'>
+            ,cast(AVG(a.${searchWrd}_AVG) as float) as data_AVG
+        </if>
+        from (select
+        b.lv
+        <choose>
+            <when test='query == "Y"'>
+                ,b.YYYY as years
+            </when>
+            <otherwise>
+                ,b.MM as months
+            </otherwise>
+        </choose>
+        , cast(${searchWrd}_MIN as varchar)	as ${searchWrd}_MIN
+        , cast(${searchWrd}_MAX as varchar)  as ${searchWrd}_MAX
+        <if test='searchWrd != "bloodpress"'>
+            , ${searchWrd}_AVG  as ${searchWrd}_AVG
+        </if>
+        from(
+        <if test='query == "Y"'>
+            select
+            "YEAR"
+            ,"MONTH"
+            ,min(${searchWrd}_min) as ${searchWrd}_min
+            ,max(${searchWrd}_max) as ${searchWrd}_max
+            <if test='searchWrd != "bloodpress"'>
+                ,avg(${searchWrd}_AVG) as ${searchWrd}_AVG
+            </if>
+            from(
+        </if>
+        select
+        "YEAR"::text
+        ,"MONTH"::text
+        <if test='query != "Y"'>
+            ,cast("DAY" as varchar)::text as "DAY"
+        </if>
+        ,min(${searchWrd}_min) as ${searchWrd}_min
+        ,max(${searchWrd}_max) as ${searchWrd}_max
+        <if test='searchWrd != "bloodpress"'>
+            , avg(cast(${searchWrd}_AVG as float)) as ${searchWrd}_AVG
+        </if>
+        from health_data
+        where to_char(RECEIVE_TIME,'YYYY-MM-DD')
+        between (select (to_char(to_date(#{date},'YYYY-MM-DD')
+        - interval
+        <if test='query == "W"'>
+            '7day'
+        </if>
+        <if test='query == "M"'>
+            '29day'
+        </if>
+        <if test='query == "Y"'>
+            '1year'
+        </if>
+        , 'YYYY-MM-DD')))
+        and #{date}
+        and user_seq = (select user_seq from user_mng um
+        where um.user_id = #{userId})
+        group by
+        "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,"DAY"
+        </if>
+        union
+        SELECT
+        to_char(now(),'YYYY')::text as "YEAR"
+        ,to_char(now(),'MM')::text as "MONTH"
+        <if test='query != "Y"'>
+            ,to_char(now(),'dd')::text as "DAY"
+        </if>
+        <if test='searchWrd == "bloodpress"'>
+            ,min(${searchWrd}_min) as ${searchWrd}_min
+            ,max(${searchWrd}_max) as ${searchWrd}_max
+        </if>
+        <if test='searchWrd != "bloodpress"'>
+            ,min(${searchWrd}) as ${searchWrd}_min
+            ,max(${searchWrd}) as ${searchWrd}_max
+            ,trunc(avg(cast(${searchWrd} as float))::numeric,0) as ${searchWrd}avg
+        </if>
+        FROM health_data_minute
+        where user_seq = (select user_seq from user_mng um
+        where um.user_id = #{userId})
+        and "YEAR" = to_char(now(),'YYYY')
+        and "MONTH" = to_char(now(),'MM')
+        <if test='query != "Y"'>
+            and "DAY" = to_char(now(),'dd')
+        </if>
+        group by
+        "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,"DAY"
+        </if>
+        order by
+        "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,"DAY"
+        </if>
+        asc
+        ) A
+        <if test='query == "Y"'>
+            group by
+            "YEAR"
+            ,"MONTH"
+            ) A
+            right OUTER JOIN (select
+            to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 month'::INTERVAL)),'YYYY') as YYYY
+            ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 month'::INTERVAL)),'MM') as lv) b
+            ON (SELECT "MONTH") = b.lv
+            and (SELECT "YEAR") = b.YYYY
+        </if>
+        <if test='query == "M"'>
+            right OUTER JOIN (select
+            to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '29day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+            ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '29day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv)b
+            ON (SELECT "DAY") = b.lv
+            and (SELECT "MONTH") = b.MM
+        </if>
+        <if test='query == "W"'>
+            right OUTER JOIN (select
+            to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+            ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv)b
+            ON (SELECT "DAY") = b.lv
+            and (SELECT "MONTH") = b.MM
+        </if>
+        )A
+    </select>
+
+
+    <!-- <select id="minmaxHealthInfoChart" parameterType="Map" resultType="camelMap">
+        select
+        <choose>
+            <when test='query == "Y"'>
+                array_agg(concat(a.lv,'월')) as lv
+                ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                        '1year'
+                    + interval
+                        '1month'
+                    , 'YYYY-MM'))),' ~ ', to_char(to_date(#{date},'YYYY-MM-DD'),'YYYY-MM')
+                    ) as start_dt
+            </when>
+            <otherwise>
+                array_agg(concat(a.lv,'일')) as lv
+                <if test='query == "W"'>
+                ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                        '6day'
+                    , 'YYYY-MM-DD'))),' ~ ', to_date(#{date},'YYYY-MM-DD')
+                ) as start_dt
+                </if>
+                <if test='query == "M"'>
+                ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                        '1month' + interval '1day'
+                    , 'YYYY-MM-DD'))),' ~ ', to_date(#{date},'YYYY-MM-DD')
+                ) as start_dt
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test='searchWrd != null and searchWrd != ""'>
+                ,array_agg(a.${searchWrd}_MIN) as data_min
+                ,array_agg(a.${searchWrd}_MAX) as data_max
+                <if test='searchWrd != "temperature"'>
+                    ,cast(AVG(a.${searchWrd}_AVG) as int) as data_AVG
+                </if>
+                <if test='searchWrd == "temperature"'>
+                    ,cast(AVG(a.${searchWrd}_AVG) as float) as data_AVG
+                </if>
+            </when>
+            <otherwise>
+                , array_agg(a.heartrate_MIN) as heartrate_MIN
+                , array_agg(a.heartrate_MAX) as heartrate_MAX
+                , AVG(a.heartrate_AVG) as heartrate_AVG
+                , array_agg(a.TEMPERATURE_MIN) as TEMPERATURE_MIN
+                , array_agg(a.TEMPERATURE_MAX) as TEMPERATURE_MAX
+                , AVG(a.TEMPERATURE_AVG) as TEMPERATURE_AVG
+                , array_agg(a.SPO2_MIN) as SPO2_MIN
+                , array_agg(a.SPO2_MAX) as SPO2_MAX
+                , AVG(a.SPO2_AVG) as SPO2_AVG
+                , array_agg(a.STRESS_MIN) as STRESS_MIN
+                , array_agg(a.STRESS_MAX) as STRESS_MAX
+                , AVG(a.STRESS_AVG) as STRESS_AVG
+                , array_agg(a.bloodpress_MIN) as bloodpress_MIN
+                , array_agg(a.bloodpress_MAX) as bloodpress_MAX
+                , AVG(a.bloodpress_AVG) as bloodpress_AVG
+                , array_agg(a.REPIRATORY_MIN) as REPIRATORY_MIN
+                , array_agg(a.REPIRATORY_MAX) as REPIRATORY_MAX
+                , AVG(a.REPIRATORY_AVG) as REPIRATORY_AVG
+                , array_agg(a.STEP) as STEP
+                , array_agg(a.SLEEP) as SLEEP
+            </otherwise>
+        </choose>
+            from (select
+                        b.lv
+                <choose>
+                    <when test='searchWrd != null and searchWrd != ""'>
+                        , cast(${searchWrd}_MIN as varchar)	as ${searchWrd}_MIN
+                        , cast(${searchWrd}_MAX as varchar)  as ${searchWrd}_MAX
+                        , ${searchWrd}_AVG  as ${searchWrd}_AVG
+                    </when>
+                    <otherwise>
+                        , heartrate_MIN
+                        , heartrate_MAX
+                        , heartrate_AVG
+                        , TEMPERATURE_MIN
+                        , TEMPERATURE_MAX
+                        , TEMPERATURE_AVG
+                        , SPO2_MIN
+                        , SPO2_MAX
+                        , SPO2_AVG
+                        , STRESS_MIN
+                        , STRESS_MAX
+                        , STRESS_AVG
+                        , bloodpress_MIN
+                        , bloodpress_MAX
+                        , bloodpress_AVG
+                        , REPIRATORY_MIN
+                        , REPIRATORY_MAX
+                        , REPIRATORY_AVG
+                        , STEP
+                        , SLEEP
+                    </otherwise>
+                </choose>
+            from(select
+                    "YEAR"
+                    ,"MONTH"
+                    <if test='query != "Y"'>
+                        ,cast("DAY" as varchar)
+                    </if>
+                <choose>
+                    <when test='searchWrd != null and searchWrd != ""'>
+                        , cast(round(avg(cast(${searchWrd}_MIN as float) )) as varchar) as ${searchWrd}_MIN
+                        , cast(round(avg(cast(${searchWrd}_MAX as float) )) as varchar) as ${searchWrd}_MAX
+                        , avg(cast(${searchWrd}_AVG as float)) as ${searchWrd}_AVG
+                    </when>
+                    <otherwise>
+                        , round(avg(heartrate_MIN)) as heartrate_MIN
+                        , round(avg(heartrate_MAX)) as heartrate_MAX
+                        , avg(heartrate_AVG) as heartrate_AVG
+                        , round(avg(TEMPERATURE_MIN)) as TEMPERATURE_MIN
+                        , round(avg(TEMPERATURE_MAX)) as TEMPERATURE_MAX
+                        , avg(TEMPERATURE_AVG) as TEMPERATURE_AVG
+                        , round(avg(SPO2_MIN)) as SPO2_MIN
+                        , round(avg(SPO2_MAX)) as SPO2_MAX
+                        , avg(SPO2_AVG) as SPO2_AVG
+                        , round(avg(STRESS_MIN)) as STRESS_MIN
+                        , round(avg(STRESS_MAX)) as STRESS_MAX
+                        , avg(STRESS_AVG) as STRESS_AVG
+                        , round(avg(bloodpress_MIN)) as bloodpress_MIN
+                        , round(avg(bloodpress_MAX)) as bloodpress_MAX
+                        , avg(bloodpress_AVG) as bloodpress_AVG
+                        , round(avg(REPIRATORY_MIN)) as REPIRATORY_MIN
+                        , round(avg(REPIRATORY_MAX)) as REPIRATORY_MAX
+                        , avg(REPIRATORY_AVG) as REPIRATORY_AVG
+                        , sum(STEP) as STEP
+                        , sum(SLEEP) as SLEEP
+                    </otherwise>
+                </choose>
+                from health_data
+                where to_char(RECEIVE_TIME,'YYYY-MM-DD')
+                    between (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                    <if test='query == "W"'>
+                        '7day'
+                    </if>
+                    <if test='query == "M"'>
+                        '1month'
+                    </if>
+                    <if test='query == "Y"'>
+                        '1year'
+                    </if>
+                    , 'YYYY-MM-DD')))
+                    and #{date}
+                    and user_seq = (select user_seq from user_mng um
+                                                    where um.user_id = #{userId})
+                group by
+                        "YEAR"
+                        ,"MONTH"
+                    <if test='query != "Y"'>
+                        ,"DAY"
+                    </if>
+                order by
+                        "YEAR" ASC
+                        ,"MONTH" ASC
+                    <if test='query != "Y"'>
+                        ,"DAY" ASC
+                    </if>) A
+                    <if test='query == "Y"'>
+                    right OUTER JOIN (select
+                        to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 month'::INTERVAL)),'YYYY') as YYYY
+                        ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 month'::INTERVAL)),'MM') as lv) b
+                    ON (SELECT "MONTH") = b.lv
+                    and (SELECT "YEAR") = b.YYYY
+                    </if>
+                    <if test='query == "M"'>
+                        right OUTER JOIN (select
+                        to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '1 month' + interval '1 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+                        ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '1 month' + interval '1 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv)b
+                    ON (SELECT "DAY") = b.lv
+                    and (SELECT "MONTH") = b.MM
+                    </if>
+                    <if test='query == "W"'>
+                        right OUTER JOIN (select
+                        to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+                        ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv)b
+                    ON (SELECT "DAY") = b.lv
+                    and (SELECT "MONTH") = b.MM
+                    </if>
+                )A
+    </select> -->
+
+    <select id="healthInfoChart" parameterType="Map" resultType="camelMap">
+        select
+        <choose>
+            <when test='query == "Y"'>
+                array_agg(a.lv) as lv
+                ,concat(
+                (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                - interval
+                '1year'
+                + interval
+                '1month'
+                , 'YYYY-MM'))),' ~ ', to_char(to_date(#{date},'YYYY-MM-DD'),'YYYY-MM')
+                ) as start_dt
+                ,array_agg(a.years) as year
+            </when>
+            <otherwise>
+                array_agg(a.lv) as lv
+                ,array_agg(a.months) as month
+                <if test='query == "W"'>
+                    ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                    '6day'
+                    , 'YYYY-MM-DD'))),' ~ ', to_date(#{date},'YYYY-MM-DD')
+                    ) as start_dt
+                </if>
+                <if test='query == "M"'>
+                    ,concat(
+                    (select (to_char(to_date(#{date},'YYYY-MM-DD')
+                    - interval
+                    '29day'
+                    , 'YYYY-MM-DD'))),' ~ ', to_date(#{date},'YYYY-MM-DD')
+                    ) as start_dt
+                </if>
+            </otherwise>
+        </choose>
+        ,array_agg(a.data) as data
+        ,avg(cast(a.data as int)) as data_avg
+        from (select
+        A.${searchWrd} as data
+        ,b.lv
+        <if test='query == "Y"'>
+            ,b.YYYY as years
+            from( select
+            "YEAR"
+            ,"MONTH"
+            <choose>
+                <when test='searchWrd == "step"'>
+                    ,sum(${searchWrd}::int) as ${searchWrd}
+                </when>
+                <otherwise>
+                    , avg(${searchWrd}::int) as ${searchWrd}
+                </otherwise>
+            </choose>
+        </if>
+        <if test='query != "Y"'>
+            ,b.MM as months
+        </if>
+        from(select
+        "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,cast("DAY" as varchar)
+        </if>
+        <choose>
+            <when test='searchWrd == "step"'>
+                , cast(round(sum(${searchWrd})) as varchar) as ${searchWrd}
+            </when>
+            <otherwise>
+                , cast(round(avg(${searchWrd})) as varchar) as ${searchWrd}
+            </otherwise>
+        </choose>
+        from health_data
+        where to_char(RECEIVE_TIME,'YYYY-MM-DD')
+        between (select (to_char(to_date(#{date},'YYYY-MM-DD')
+        - interval
+        <if test='query == "W"'>
+            '7day'
+        </if>
+        <if test='query == "M"'>
+            '30day'
+        </if>
+        <if test='query == "Y"'>
+            '1year'
+        </if>
+        , 'YYYY-MM-DD')))
+        and #{date}
+        and user_seq = (select user_seq from user_mng um
+        where um.user_id = #{userId})
+        group by
+        "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,"DAY"
+        </if>
+        union
+        SELECT
+        to_char(now(),'YYYY')::text as "YEAR"
+        ,to_char(now(),'MM')::text as "MONTH"
+        <if test='query != "Y"'>
+            ,to_char(now(),'dd')::text as "DAY"
+        </if>
+        ,cast(sum(${searchWrd}) as varchar) as ${searchWrd}
+        FROM health_data_minute where user_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+        and "YEAR" = to_char(now(),'YYYY')
+        and "MONTH" = to_char(now(),'MM')
+        <if test='query != "Y"'>
+            and "DAY" = to_char(now(),'DD')
+        </if>
+        group by "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,"DAY"
+        </if>
+        order by
+        "YEAR"
+        ,"MONTH"
+        <if test='query != "Y"'>
+            ,"DAY"
+        </if>
+        ASC
+        ) A
+        <if test='query == "Y"'>
+            group by "YEAR" ,"MONTH" ) A
+            right OUTER JOIN (select
+            to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 month'::INTERVAL)),'YYYY') as YYYY
+            ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 month'::INTERVAL)),'MM') as lv) b
+            ON (SELECT "MONTH") = b.lv
+            and (SELECT "YEAR") = b.YYYY
+        </if>
+        <if test='query == "M"'>
+            right OUTER JOIN (select
+            to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '29 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+            ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '29 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv)b
+            ON (SELECT "DAY") = b.lv
+            and (SELECT "MONTH") = b.MM
+        </if>
+        <if test='query == "W"'>
+            right OUTER JOIN (select
+            to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+            ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv)b
+            ON (SELECT "DAY") = b.lv
+            and (SELECT "MONTH") = b.MM
+        </if>
+        )A
+    </select>
+
+    <select id="healthInfoChartMinute" parameterType="Map" resultType="camelMap">
+        select
+        array_agg(concat(a.lv,'시')) as lv
+        ,array_agg(a.${searchWrd}) as data
+        from
+        (select
+        lv
+        ,a.${searchWrd}
+        from
+        (select
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        ,a.${searchWrd} as ${searchWrd}
+        from (select
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        <choose>
+            <when test='searchWrd == "step"'>
+                , cast(sum(${searchWrd}) as varchar) as ${searchWrd}
+            </when>
+            <otherwise>
+                , cast(round(avg(${searchWrd})) as varchar) as ${searchWrd}
+            </otherwise>
+        </choose>
+        from health_data
+        where user_seq = (select user_seq from user_mng um
+        where um.user_id = #{userId})
+        and to_char(RECEIVE_TIME,'YYYY-MM-DD') = #{date}
+        group by
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        order by
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR" asc
+        ) A
+        ) A
+        right OUTER JOIN (SELECT level as lv FROM GENERATE_SERIES(0,23) level) b
+        ON (SELECT CAST ("HOUR" AS INTEGER)) = b.lv
+        order by lv asc
+        )A
+    </select>
+
+    <!-- <select id="healthInfoChartDay" parameterType="Map" resultType="camelMap">
+            select
+                 array_agg(concat(a.lv,'시')) as lv
+                ,array_agg(a.${searchWrd}) as data
+            from
+                (select
+                    lv
+                    ,a.${searchWrd}
+                from
+                (select
+                    "YEAR"
+                    ,"MONTH"
+                    ,"DAY"
+                    ,"HOUR"
+                    ,a.${searchWrd} as ${searchWrd}
+                from (select
+                        "YEAR"
+                        ,"MONTH"
+                        ,"DAY"
+                        ,"HOUR"
+                        <choose>
+                            <when test='searchWrd == "step"'>
+                                , cast(sum(${searchWrd}) as varchar) as ${searchWrd}
+                            </when>
+                            <otherwise>
+                                , cast(round(avg(${searchWrd})) as varchar) as ${searchWrd}
+                            </otherwise>
+                        </choose>
+                    from health_data
+                    where user_seq = (select user_seq from user_mng um
+                                where um.user_id = #{userId})
+                        and to_char(RECEIVE_TIME,'YYYY-MM-DD') = #{date}
+                    group by
+                        "YEAR"
+                        ,"MONTH"
+                        ,"DAY"
+                        ,"HOUR"
+                    order by
+                        "YEAR"
+                        ,"MONTH"
+                        ,"DAY"
+                        ,"HOUR" asc
+                    ) A
+                ) A
+                right OUTER JOIN (SELECT level as lv FROM GENERATE_SERIES(0,23) level) b
+                    ON (SELECT CAST ("HOUR" AS INTEGER)) = b.lv
+                order by lv asc
+            )A
+    </select> -->
+
+    <select id="customMinuteChartData" parameterType="Map" resultType="CamelMap">
+        select
+        count(b.lv) as count
+        ,array_agg(b.lv) as lv
+        <choose>
+            <when test='type == "minmax"'>
+                ,array_agg(a.${searchWrd}_min) as data_min
+                ,array_agg(a.${searchWrd}_max) as data_max
+                , min(a.min) as min
+                , max(a.max) as max
+            </when>
+            <when test='type == "avg"'>
+                <if test='searchWrd == "step"'>
+                    ,array_agg(a.${searchWrd}) as data
+                    ,trunc(avg(a.avg)::numeric,1) as avg
+                </if>
+                <if test='searchWrd != "step"'>
+                    ,array_agg(a.${searchWrd}_avg) as data
+                    ,trunc(avg(a.avg)::numeric,1) as avg
+                </if>
+            </when>
+            <otherwise>
+                ,array_agg(a.${searchWrd}_min) as data_min
+                ,array_agg(a.${searchWrd}_max) as data_max
+                ,array_agg(a.${searchWrd}_avg) as data_avg
+                ,trunc(avg(a.avg)::numeric,1) as avg
+            </otherwise>
+        </choose>
+        from
+        (select
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        ,("MINUTE"::int/cast(${condition} as int)) as "MINUTE"
+        <choose>
+            <when test='type == "minmax"'>
+                ,min(${searchWrd}_min) as ${searchWrd}_min
+                ,max(${searchWrd}_max) as ${searchWrd}_max
+                ,min(${searchWrd}_min) as min
+                ,max(${searchWrd}_max) as max
+            </when>
+            <when test='type == "avg"'>
+                <if test='searchWrd == "step"'>
+                    , cast(sum(${searchWrd}) as varchar) as ${searchWrd}
+                    , avg(${searchWrd}) as avg
+                </if>
+                <if test='searchWrd != "step"'>
+                    , cast(round(avg(${searchWrd})) as varchar) as ${searchWrd}_avg
+                    , avg(${searchWrd}) as avg
+                </if>
+            </when>
+            <otherwise>
+                , min(${searchWrd}) as ${searchWrd}_min
+                , max(${searchWrd}) as ${searchWrd}_max
+                , avg(${searchWrd}) as ${searchWrd}_avg
+                , avg(${searchWrd}) as avg
+            </otherwise>
+        </choose>
+        from health_data_minute
+        where user_seq = (select user_seq from user_mng um
+        where um.user_id = #{userId})
+        and to_char(RECEIVE_TIME,'YYYY-MM-DD') = #{date}
+        group by
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        , ("MINUTE"::int/cast(${condition} as int))
+        order by
+        "YEAR"
+        ,"MONTH"
+        ,"DAY"
+        ,"HOUR"
+        ,("MINUTE"::int/cast(${condition} as int))
+        asc
+        ) A
+        right OUTER JOIN (select
+        to_char(generate_series(concat(#{date},' ','00:00')::timestamp, concat(#{date},' ','23:59')::timestamp, '${condition}minute'),'HH24') as hours
+        ,to_char(generate_series(concat(#{date},' ','00:00')::timestamp, concat(#{date},' ','23:59')::timestamp, '${condition}minute'),'MI') as minutes
+        ,to_char(generate_series(concat(#{date},' ','00:00')::timestamp, concat(#{date},' ','23:59')::timestamp, '${condition}minute'),'HH24시MI분') as lv ) b
+        on "HOUR"::int = b.hours::int
+        and "MINUTE"::int = b.minutes::int/cast(${condition} as int)
+    </select>
+
+    <select id="halfDashBRDChart" parameterType="Map" resultType="CamelMap">
+        select
+            count(b.lv) as count
+			,array_agg(concat(b.lv)) as lv
+			,array_agg(a.stress_min) as stress_min
+			,array_agg(a.stress_max) as stress_max
+			,array_agg(a.stress_avg) as stress_avg
+			,array_agg(a.bloodpress_min) as bloodpress_min
+			,array_agg(a.bloodpress_max) as bloodpress_max
+			,array_agg(a.repiratory_min) as repiratory_min
+			,array_agg(a.repiratory_max) as repiratory_max
+			,array_agg(a.repiratory_avg) as repiratory_avg
+			,array_agg(a.temperature_min) as temperature_min
+			,array_agg(a.temperature_max) as temperature_max
+			,array_agg(a.temperature_avg) as temperature_avg
+        from
+            (select
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / cast('30' as int) as "MINUTE"
+                , cast(min(stress) as varchar) as stress_min
+                , cast(max(stress) as varchar) as stress_max
+                , cast(round(avg(stress)) as varchar) as stress_avg
+                , cast(min(bloodpress_min) as varchar) as bloodpress_min
+                , cast(max(bloodpress_max) as varchar) as bloodpress_max
+                , cast(min(repiratory) as varchar) as repiratory_min
+                , cast(max(repiratory) as varchar) as repiratory_max
+                , cast(round(avg(repiratory)) as varchar) as repiratory_avg
+                , cast(min(temperature) as varchar) as temperature_min
+                , cast(max(temperature) as varchar) as temperature_max
+                , cast(round(avg(temperature)) as varchar) as temperature_avg
+            from health_data_minute
+            where user_seq = (select user_seq from user_mng um
+            where um.user_id = #{userId})
+            and to_char(RECEIVE_TIME,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
+            group by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                , cast("MINUTE" as int) / cast('30' as int)
+            order by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / cast('30' as int)
+            asc
+            ) A
+            right OUTER JOIN (select
+            to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '30''minute'),'HH24') as hours
+                ,to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '30''minute'),'MI') as minutes
+                ,to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '30''minute'),'HH24시MI분') as lv ) b
+        on "HOUR"::int = b.hours::int
+            and "MINUTE"::int = b.minutes::int/'30'::int
+    </select>
+    <select id="fiveMinuteDashBRDChart" parameterType="Map" resultType="CamelMap">
+        select
+            count(b.lv) as count
+			,array_agg(concat(b.lv)) as lv
+			,array_agg(a.heartrate_min) as heartrate_min
+			,array_agg(a.heartrate_max) as heartrate_max
+			,array_agg(a.heartrate_avg) as heartrate_avg
+        from
+            (select
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / cast('5' as int) as "MINUTE"
+                , cast(min(heartrate) as varchar) as heartrate_min
+                , cast(max(heartrate) as varchar) as heartrate_max
+                , cast(round(avg(heartrate)) as varchar) as heartrate_avg
+            from health_data_minute
+            where user_seq = (select user_seq from user_mng um
+            where um.user_id = #{userId})
+            and to_char(RECEIVE_TIME,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
+            group by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                , cast("MINUTE" as int) / cast('5' as int)
+            order by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / cast('5' as int)
+            asc
+            ) A
+            right OUTER JOIN (select
+            to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '5''minute'),'HH24') as hours
+                ,to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '5''minute'),'MI') as minutes
+                ,to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '5''minute'),'HH24시MI분') as lv ) b
+        on "HOUR"::int = b.hours::int
+            and "MINUTE"::int = b.minutes::int/'5'::int
+    </select>
+    <select id="hourDashBRDChart" parameterType="Map" resultType="CamelMap">
+        select
+            count(b.lv) as count
+			,array_agg(concat(b.lv)) as lv
+			,array_agg(a.spo2_min) as spo2_min
+			,array_agg(a.spo2_max) as spo2_max
+			,array_agg(a.spo2_avg) as spo2_avg
+			,array_agg(a.sleep_min) as sleep_min
+			,array_agg(a.sleep_max) as sleep_max
+			,array_agg(a.sleep_avg) as sleep_avg
+			,array_agg(a.step) as step
+        from
+            (select
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / cast('60' as int) as "MINUTE"
+                , cast(min(spo2) as varchar) as spo2_min
+                , cast(max(spo2) as varchar) as spo2_max
+                , cast(round(avg(spo2)) as varchar) as spo2_avg
+                , cast(min(sleep) as varchar) as sleep_min
+                , cast(max(sleep) as varchar) as sleep_max
+                , cast(round(avg(sleep)) as varchar) as sleep_avg
+                , sum(step) as step
+            from health_data_minute
+            where user_seq = (select user_seq from user_mng um
+            where um.user_id = #{userId})
+            and to_char(RECEIVE_TIME,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
+            group by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                , cast("MINUTE" as int) / cast('60' as int)
+            order by
+            "YEAR"
+                ,"MONTH"
+                ,"DAY"
+                ,"HOUR"
+                ,cast("MINUTE" as int) / cast('60' as int)
+            asc
+            ) A
+            right OUTER JOIN (select
+            to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '60''minute'),'HH24') as hours
+                ,to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '60''minute'),'MI') as minutes
+                ,to_char(generate_series(concat(to_char(now(),'YYYY-MM-DD'),' ','00:00')::timestamp, concat(to_char(now(),'YYYY-MM-DD'),' ','23:59')::timestamp, '60''minute'),'HH24시MI분') as lv ) b
+        on "HOUR"::int = b.hours::int
+            and "MINUTE"::int = b.minutes::int/'60'::int
+    </select>
+
+    <insert id="insHealthInfoTest" parameterType="testDto">
+        INSERT INTO health_data
+        (user_seq
+        , heartrate_min, heartrate_max, heartrate_avg, temperature_min, temperature_max, temperature_avg
+        , spo2_min, spo2_max, spo2_avg, step, stress_min, stress_max, stress_avg
+        , bloodpress_min, bloodpress_max, bloodpress_avg, repiratory_min, repiratory_max, repiratory_avg
+        , time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE", week_cnt)
+        VALUES((select user_seq from user_mng um
+        where USER_ID = #{userId}),
+        #{heartrateMin}, #{heartrateMax}, #{heartrateAvg},#{temperatureMin}, #{temperatureMax}, #{temperatureAvg}
+        , #{spo2Min}, #{spo2Max}, #{spo2Avg}, #{step}, #{stressMin}, #{stressMax}, #{stressAvg}
+        , #{bloodpressMin}, #{bloodpressMax}, #{bloodpressAvg}, #{repiratoryMin}, #{repiratoryMax}, #{repiratoryAvg}
+        <!-- , (select
+               CASE WHEN EXTRACT(ISODOW FROM CAST(to_date(#{date},'YYYY-MM-DD') AS DATE)) = 1 THEN '월'
+                   WHEN EXTRACT(ISODOW FROM CAST(to_date(#{date},'YYYY-MM-DD') AS DATE)) = 2 THEN '화'
+                   WHEN EXTRACT(ISODOW FROM CAST(to_date(#{date},'YYYY-MM-DD') AS DATE)) = 3 THEN '수'
+                   WHEN EXTRACT(ISODOW FROM CAST(to_date(#{date},'YYYY-MM-DD') AS DATE)) = 4 THEN '목'
+                   WHEN EXTRACT(ISODOW FROM CAST(to_date(#{date},'YYYY-MM-DD') AS DATE)) = 5 THEN '금'
+                   WHEN EXTRACT(ISODOW FROM CAST(to_date(#{date},'YYYY-MM-DD') AS DATE)) = 6 THEN '토'
+                   ELSE '일'
+           END) -->
+        , #{time}
+        , #{receiveTime}, #{year}, #{month}
+        , #{day}, #{hour}, to_char(now(), 'MI'), date_part('week'::text, to_date(#{date},'YYYY-MM-DD')))
+    </insert>
+
+    <insert id="testInsertMinute" parameterType="testDto">
+        INSERT INTO healthcare.health_data_minute
+        (user_seq, tid, heartrate, temperature, spo2, step, stress, bloodpress_min, bloodpress_max, repiratory, sleep, "time", receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE", week_cnt)
+        VALUES((select user_seq from user_mng um
+                where USER_ID = #{userId}), '1234', #{heartrate}, #{temperature}, #{spo2}, #{step}, #{stress}, #{bloodpressMin}, #{bloodpressMax}, #{repiratory}, #{sleep}, #{time}
+              , #{receiveTime}, to_char(now(),'YYYY'), to_char(now(),'MM')
+              , to_char(now(),'DD'), #{hour}, #{minute}, date_part('week'::text, to_date(#{date},'YYYY-MM-DD')))
+    </insert>
+
+    <select id="todaySleepdata" parameterType="Map" resultType="CamelMap">
+        SELECT
+            sleep_total_time as sleep
+        FROM
+            daily_sleep
+        WHERE user_seq_fk =  (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+        ORDER BY calendar DESC
+            LIMIT 1
+    </select>
+
+    <select id ="realtimeBiodata" parameterType="Map" resultType="CamelMap">
+        with realtimedata as(
+            SELECT
+                *
+            FROM
+                health_data_minute
+            WHERE DATE(receive_time) = #{todayDate}
+            AND user_seq = (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+        ORDER BY reg_dt DESC
+            )
+        SELECT
+                (SELECT heartrate FROM realtimedata WHERE heartrate &lt;&gt; 0 LIMIT 1) AS heartrate,
+			(SELECT temperature FROM realtimedata WHERE temperature &lt;&gt; 0 LIMIT 1) AS temperature,
+			(SELECT step FROM realtimedata WHERE step &lt;&gt; 0 LIMIT 1) AS step,
+			(SELECT bloodpress_max FROM realtimedata WHERE bloodpress_max &lt;&gt; 0 LIMIT 1) AS bloodpress_max,
+			(SELECT bloodpress_min FROM realtimedata WHERE bloodpress_min &lt;&gt; 0 LIMIT 1) AS bloodpress_min,
+			(SELECT stress FROM realtimedata WHERE stress &lt;&gt; 0 LIMIT 1) AS stress,
+			(SELECT repiratory FROM realtimedata WHERE repiratory &lt;&gt; 0 LIMIT 1) AS repiratory,
+			(SELECT spo2 FROM realtimedata WHERE spo2 &lt;&gt; 0 LIMIT 1) AS spo2
+    </select>
+
+    <select id= "graphBiodata" parameterType="Map" resultType="CamelMap">
+        <choose>
+            <when test='query == "D"'>
+                SELECT array_agg(c.lv) AS lv, array_agg(C.data) AS data
+                FROM
+                (
+                SELECT DISTINCT b.lv AS lv, a."HOUR", a."MINUTE", a.${searchWrd} AS data
+                FROM
+                (
+                SELECT * FROM health_data_minute hm
+                WHERE  user_seq = (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+                AND to_char(RECEIVE_TIME,'YYYY-MM-DD') = #{date}
+                ORDER BY
+                hm."HOUR" ,
+                hm."MINUTE"
+                asc
+                )a
+                RIGHT OUTER JOIN
+                (
+                SELECT to_char(generate_series(concat(#{date},' ',#{startTime})::timestamp, concat(#{date},' ','23:59')::timestamp, '${condition}minute'),'HH24:MI' )as lv,
+                to_char(generate_series(concat(#{date},' ',#{startTime})::timestamp, concat(#{date},' ','23:59')::timestamp,'${condition}minute'),'MI' )as M,
+                to_char(generate_series(concat(#{date},' ',#{startTime})::timestamp, concat(#{date},' ','23:59')::timestamp, '${condition}minute'),'HH24' )as H
+                ORDER BY
+                lv asc
+                )b
+                ON b.H= a."HOUR" AND b.M = a."MINUTE"
+                ) c
+            </when>
+            <when test='query == "W"'>
+                SELECT
+                array_agg(b.lv)AS lv,
+                array_agg(a.${searchWrd}) as data
+                FROM
+                (
+                SELECT *
+                FROM
+                (
+                SELECT
+                ${searchWrd},
+                "DAY",
+                ROW_NUMBER() OVER (PARTITION BY to_char(RECEIVE_TIME, 'YYYY-MM-DD') ORDER BY RECEIVE_TIME DESC) AS row_num
+                FROM
+                health_data
+                WHERE user_seq =(SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+                AND
+                to_char(receive_time, 'YYYY-MM-DD')
+                BETWEEN
+                (
+                SELECT to_char(to_date(#{date}, 'YYYY-MM-DD') - interval '6 days', 'YYYY-MM-DD')
+                )
+                AND
+                to_char(to_date(#{date}, 'YYYY-MM-DD'), 'YYYY-MM-DD')
+                )AS ranked_data
+                WHERE row_num = 1
+                ) a
+                RIGHT OUTER JOIN
+                (
+                SELECT to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+                ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv
+                ORDER BY
+                mm,
+                lv asc
+                )b
+                on a."DAY" = b.lv
+            </when>
+            <when test='query == "M"'>
+                SELECT
+                array_agg(c.month) as lv,
+                array_agg(c.data) as data
+                FROM
+                (
+                SELECT
+                *
+                FROM
+                (
+                (
+                SELECT
+                "YEAR",
+                "MONTH",
+                EXTRACT(WEEK FROM receive_time) AS week ,
+                trunc(avg(cast(${searchWrd} as float))::numeric,0) as data
+                FROM
+                health_data
+                WHERE
+                date_trunc('year',receive_time) = date_trunc('year',TO_TIMESTAMP(#{date},'YYYY-MM-DD'))
+                AND
+                user_seq = (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+                GROUP BY "YEAR",  "MONTH", week
+                ORDER BY "YEAR", "MONTH", week asc
+                )as a
+                RIGHT OUTER JOIN
+                (
+                SELECT
+                EXTRACT(MONTH FROM lv) as month,
+                EXTRACT(WEEK FROM lv) as weekd
+                FROM
+                (
+                SELECT
+                GENERATE_SERIES(TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD'), '1 week'::interval)::date as lv
+                )lv
+                )as b
+                ON a.week = b.weekd
+                )c
+                Order by c.month, c."MONTH", c.week
+                )c
+            </when>
+        </choose>
+
+    </select>
+
+    <select id= "healthinfoDailySleep" parameterType="Map" resultType="CamelMap">
+        <choose>
+            <when test='query == "D"'>
+                SELECT
+                sleep_info_list AS data
+                FROM
+                daily_sleep
+                WHERE
+                calendar = date_trunc('day',TO_TIMESTAMP(#{date},'YY-MM-DD'))
+                AND
+                user_seq_fk = (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+            </when>
+            <when test='query == "W"'>
+                select array_agg(b.lv)AS lv,
+                array_agg(a.sleep_total_time) as data from
+                (SELECT  ds.calendar, ds.sleep_total_time, EXTRACT(YEAR FROM calendar) as year,   CONCAT('0', CAST(EXTRACT(MONTH FROM calendar) AS TEXT)) as mm, CAST(EXTRACT(DAY FROM calendar)AS TEXT)as day_column  FROM HEALTHCARE.DAILY_SLEEP ds WHERE USER_SEQ_FK = (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+                ORDER BY
+                calendar asc
+                )a
+                right outer JOIN
+                (
+                SELECT to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+                ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv
+                ORDER BY
+                mm,
+                lv asc
+                )b
+                ON a.day_column =b.lv and a.mm = b.mm
+            </when>
+            <when test='query == "M"'>
+                SELECT
+                array_agg(c.month) as lv,
+                array_agg(c.data) as data
+                FROM
+                (
+                SELECT
+                *
+                FROM
+                (
+                (
+                SELECT
+                EXTRACT(WEEK FROM calendar) AS week ,
+                trunc(avg(cast(sleep_total_time as float))::numeric,0) as data
+                FROM
+                healthcare.daily_sleep
+                WHERE
+                date_trunc('year',calendar) = date_trunc('year',TO_TIMESTAMP(#{date},'YYYY-MM-DD'))
+                AND
+                user_seq_fk = (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+                GROUP BY week
+                ORDER BY week asc
+                )as a
+                RIGHT OUTER JOIN
+                (
+                SELECT
+                EXTRACT(MONTH FROM lv) as month,
+                EXTRACT(WEEK FROM lv) as weekd
+                FROM
+                (
+                SELECT
+                GENERATE_SERIES(TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '11 month' , TO_TIMESTAMP(#{date},'YYYY-MM-DD'), '1 week'::interval)::date as lv
+                )lv
+                )as b
+                ON a.week = b.weekd
+                )c
+                )c
+            </when>
+
+        </choose>
+    </select>
+
+
+    <insert id="insertDailyStep" parameterType="Map">
+        INSERT INTO healthcare.daily_step
+        (user_seq_fk, tid, m_calendar, total_steps, total_calories, total_distance, run_steps, run_calories, run_distance, run_duration, walk_steps, walk_calories, walk_distance, walk_duration, hour_details, run_hour_details, walk_hour_details)
+        VALUES((select user_seq from user_mng um where USER_ID = #{userId}), #{tid}, to_date(#{mCalendar},'YYYYMMDD'), #{totalSteps}, #{totalCalories}, #{totalDistance}, #{runSteps}, #{runCalories}, #{runDistance}, #{runDuration}, #{walkSteps}, #{walkCalories}, #{walkDistance}, #{walkDuration}, #{hourDetails} , #{runHourDetails} , #{walkHourDetails} )
+        ON CONFLICT (user_seq_fk, m_calendar)
+        DO UPDATE
+        SET tid = #{tid},
+        total_steps = #{totalSteps},
+        total_calories = #{totalCalories},
+        total_distance = #{totalDistance},
+        run_steps = #{runSteps},
+        run_calories = #{runCalories},
+        run_distance = #{runDistance},
+        run_duration = #{runDuration},
+        walk_steps = #{walkSteps},
+        walk_calories = #{walkCalories},
+        walk_distance = #{walkDistance},
+        walk_duration = #{walkDuration},
+        hour_details = #{hourDetails} ,
+        run_hour_details = #{runHourDetails} ,
+        walk_hour_details = #{walkHourDetails}
+    </insert>
+
+    <insert id="insertDailySleep" parameterType="Map">
+
+        INSERT INTO healthcare.daily_sleep
+        (user_seq_fk, tid, awake_count, awake_time, begin_time, calendar, color_index_out, deep_time, end_time, light_time, rem_time, sleep_info_list, sleep_total_time, time_array, time_point)
+        VALUES((select user_seq from user_mng um where USER_ID = #{userId}), #{tid}, #{awakeCount}, #{awakeTime}, #{beginTime}, to_date(#{calendar},'YYYYMMDD'), #{colorIndexOut} , #{deepTime}, #{endTime}, #{lightTime}, #{remTime}, #{sleepInfoList} , #{sleepTotalTime}, #{timeArray} , #{timePoint} )
+        ON CONFLICT (user_seq_fk, calendar)
+        DO UPDATE
+        SET tid = #{tid},
+        awake_count = #{awakeCount},
+        awake_time = #{awakeTime},
+        begin_time = #{beginTime},
+        color_index_out = #{colorIndexOut} ,
+        deep_time = #{deepTime},
+        end_time = #{endTime},
+        light_time = #{lightTime},
+        rem_time = #{remTime},
+        sleep_info_list = #{sleepInfoList} ,
+        sleep_total_time = #{sleepTotalTime},
+        time_array = #{timeArray} ,
+        time_point = #{timePoint}
+    </insert>
+
+    <select id="getSleepScore" parameterType="Map" resultType="int">
+        SELECT
+            COALESCE(
+                    (SELECT sleep_score FROM sleep_score_info WHERE sleep_criteria &lt;
+                                                                    (SELECT sleep_total_time FROM daily_sleep WHERE user_seq_fk = (select user_seq from user_mng um where USER_ID = #{userId}) and calendar = to_date(#{date},'YYYY-MM-DD') )
+                     ORDER BY sleep_criteria DESC LIMIT 1),
+			0
+		) +
+            COALESCE(
+                    (SELECT deepsleep_score FROM  sleep_score_info WHERE deepsleep_criteria &lt;
+                                                                         (SELECT deep_time FROM daily_sleep WHERE user_seq_fk = (select user_seq from user_mng um where USER_ID = #{userId}) and calendar = to_date(#{date},'YYYY-MM-DD') )
+                     ORDER BY deepsleep_criteria DESC LIMIT 1),
+			0
+		) +
+            COALESCE(
+                    (SELECT remsleep_score FROM  sleep_score_info WHERE remsleep_criteria &lt;
+                                                                        (SELECT light_time FROM daily_sleep WHERE user_seq_fk = (select user_seq from user_mng um where USER_ID = #{userId}) and calendar = to_date(#{date},'YYYY-MM-DD') )
+                     ORDER BY remsleep_criteria DESC LIMIT 1),
+			0
+		) AS sleepScore
+        FROM sleep_score_info
+                 LIMIT 1
+    </select>
+
+    <insert id = "insScore" parameterType="scoreDto">
+        INSERT INTO
+        user_health_info
+        <if test='scoreField == "sleep"'>
+            (user_seq_fk, user_sleep_score, daily_date)
+        </if>
+        <if test = 'scoreField == "exercise"'>
+            (user_seq_fk, user_exercise_score, daily_date)
+        </if>
+        <if test = 'scoreField == "stress"'>
+            (user_seq_fk, user_stress_score, daily_date)
+        </if>
+        VALUES(
+        (select user_seq from user_mng um where USER_ID = #{userId}),
+        #{userScore},
+        to_date(#{date},'YYYY-MM-DD')
+        )
+        ON CONFLICT (user_seq_fk, daily_date)
+        DO UPDATE
+        SET
+        <if test='scoreField == "sleep"'>
+            user_sleep_score = #{userScore}
+        </if>
+        <if test = 'scoreField == "exercise"'>
+            user_exercise_score = #{userScore}
+        </if>
+        <if test = 'scoreField == "stress"'>
+            user_stress_score = #{userScore}
+        </if>
+    </insert>
+
+    <select id="weeklyPersonalExerciseScore" parameterType="Map" resultType="double">
+        SELECT
+            ROUND((a.total_steps * 0.45 * b.height) / 100000, 2) AS score
+        FROM(
+                SELECT
+                    SUM(DISTINCT step) AS total_steps
+                FROM
+                    health_data_minute
+                WHERE user_seq = (select user_seq from user_mng um where USER_ID = #{userId})
+                  AND
+                    to_char(receive_time, 'YYYY-MM-DD')
+                        BETWEEN
+                        (
+                            SELECT to_char( to_date(#{date}, 'YYYY-MM-DD') - interval '6 days', 'YYYY-MM-DD')
+                        )
+                        AND
+                        to_char( to_date(#{date}, 'YYYY-MM-DD'), 'YYYY-MM-DD')
+            )a
+                CROSS JOIN
+            (
+                select  CAST(height AS INT) as height from user_mng where user_seq = (select user_seq from user_mng um where USER_ID = #{userId})
+            )b
+    </select>
+    <select id = "criteriaToCalculate" parameterType="String" resultType="double">
+        SELECT
+            exercise_criteria
+        FROM
+            exercise_score_info
+        WHERE
+            (exercise_age &lt;
+             (
+                 SELECT age
+                 FROM user_age
+                 WHERE user_seq = (select user_seq from user_mng um where USER_ID = #{userId})
+                LIMIT 1
+                )
+            )
+        ORDER BY exercise_criteria asc
+            limit 1
+    </select>
+
+    <select id = "StressScore" parameterType="String" resultType="Integer">
+        SELECT
+            stress_score
+        FROM
+            stress_score_info
+        WHERE
+            stress_criteria &lt;
+            (
+                SELECT
+                    stress_max
+                FROM
+                    health_data
+                WHERE
+                    user_seq =  (select user_seq from user_mng um where USER_ID = #{userId})
+                ORDER BY
+                    receive_time
+                    DESC
+            LIMIT 1
+            )
+        ORDER BY stress_score desc
+            limit 1
+    </select>
+
+    <select id = "infoHealthScore" parameterType="String" resultType="CamelMap">
+        SELECT
+            *
+        FROM
+            user_health_info
+        WHERE
+            user_seq_fk =  (select user_seq from user_mng um where USER_ID = #{userId})
+        ORDER BY
+            daily_date
+            desc
+            LIMIT 1
+    </select>
+
+    <select id ="healthScoreList" parameterType="Map" resultType="CamelMap">
+        SELECT
+            array_agg(health_score) as data, array_agg(lv) as lv
+        FROM
+            (
+                SELECT	health_score, daily_date
+                FROM user_health_info
+                WHERE
+                    user_seq_fk = (select user_seq from user_mng um where USER_ID = #{userId})
+            )a
+                RIGHT OUTER JOIN
+            (
+                SELECT to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'MM') as MM
+                     ,to_char((GENERATE_SERIES( TO_TIMESTAMP(#{date},'YYYY-MM-DD') - interval '6 day' , TO_TIMESTAMP(#{date},'YYYY-MM-DD') , '1 day'::INTERVAL)),'dd') as lv
+                ORDER BY
+                    mm,
+                    lv asc
+            )b
+            on TO_CHAR(date_trunc('day', daily_date ),'DD') = b.lv
+    </select>
+
+    <select id="birthlisttest"  resultType="CamelMap">
+        select birth_enc, user_seq from user_mng
+    </select>
+
+    <insert id="ageinsert"  parameterType="Map">
+        insert into user_age (user_seq, age) values (#{userSeq},#{age})
+    </insert>
+
+    <select id="getTarget" parameterType="targetdto" resultType="CamelMap">
+        select * from (select active_target as sleeptarget, comment as sleepcomment from healthcare.active_target where active_category = 'sleep' and active_target >= #{totalSleep}
+                       order by active_target asc limit 1)a
+                          cross join
+                      (select active_target as steptarget, comment as stepcomment  from healthcare.active_target where active_category = 'step' and active_target >= #{currentStep}
+                       order by active_target asc limit 1)b
+                          cross join
+                      (select active_target as stresstarget, comment as stresscomment  from healthcare.active_target where active_category = 'stress' and active_target >= #{currentStress}
+                       order by active_target asc limit 1)c
+    </select>
+
+    <insert id="inscommunity" parameterType="Map">
+
+        insert into healthcare.community_temp
+        (user_seq, comment, heartrate, temperature, bloodpress, smoking,drinking,exercise,age)
+        values
+            ((select user_seq from user_mng um where USER_ID = #{userId}), #{comment}, #{heartrate}, #{temperature}, #{bloodpress}, #{smoking}, #{drinking}, #{exercise}, #{age})
+    </insert>
+
+    <select id ="commulist" parameterType="Map" resultType="camelMap">
+        select * from (select * from healthcare.community_temp where age/10 = #{age}/10 )a
+                          left outer join
+                          (select user_nm,user_seq from healthcare.user_mng)b
+                          on a.user_seq =b.user_seq
+    </select>
+
+    <select id="getAiResponse" parameterType="Map" resultType="camelMap">
+        select ai_response as aiResponse from healthcare_ai_handler
+        where user_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+          and reg_date=  TO_TIMESTAMP(#{regDate},'YYYY-MM-DD')
+    </select>
+
+    <insert id="insAiResponse" parameterType="Map">
+        insert into healthcare_ai_handler (user_seq, ai_response)
+        values ((select user_seq from user_mng where user_id = #{userId}), #{aiResponse})
+    </insert>
+</mapper>
