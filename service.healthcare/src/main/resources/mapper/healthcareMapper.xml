@@ -15,7 +15,7 @@
               , to_date(concat(#{year},'-',#{month},'-',#{day}),'YYYY-MM-DD') , #{year}, #{month}, #{day}, #{hour}, #{minute})
     </insert>
 
-    <insert id="insMinuteData" parameterType="minDataDto">
+    <insert id="insMinuteData" parameterType="MinuteDataDto">
         INSERT INTO health_data_minute
         (user_seq, tid, heartrate, temperature, spo2, step, stress, bloodpress_max, bloodpress_min, repiratory
         , time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE")
