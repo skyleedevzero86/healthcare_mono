@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_PATTERN_COLOR">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight{%-5level} %style{%logger{36}}{cyan} - %msg%n</Property>
+        <Property name="LOG_FILE_PATH">logs/healthcare-usermanagement-dev</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN_COLOR}"/>
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <RollingFile name="DevFileAppender" fileName="${LOG_FILE_PATH}.log"
+                     filePattern="${LOG_FILE_PATH}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10" compressionLevel="9"/>
+        </RollingFile>
+
+        <RollingFile name="SqlFileAppender" fileName="${LOG_FILE_PATH}-sql.log"
+                     filePattern="${LOG_FILE_PATH}-sql-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="25MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5" compressionLevel="9"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.sleekydz86" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DevFileAppender"/>
+        </Logger>
+
+        <Logger name="org.mybatis" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="SqlFileAppender"/>
+        </Logger>
+
+        <Logger name="jdbc.sqltiming" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="SqlFileAppender"/>
+        </Logger>
+
+        <Logger name="org.springframework" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DevFileAppender"/>
+        </Logger>
+
+        <Logger name="org.springframework.security" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DevFileAppender"/>
+        </Logger>
+
+        <Root level="DEBUG">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DevFileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
