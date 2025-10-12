@@ -1,8 +1,10 @@
 package com.sleekydz86.web.global.exception;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+@Getter
 @NoArgsConstructor
 public class ResponseException extends RuntimeException {
     private String message;

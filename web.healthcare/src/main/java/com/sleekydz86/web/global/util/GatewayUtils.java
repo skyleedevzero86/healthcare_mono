@@ -19,14 +19,12 @@ import java.util.concurrent.TimeUnit;
 public class GatewayUtils {
 
     private static String version;
-
     private static String authUri;
     private static String secret;
-
     private static int timeout;
 
     public GatewayUtils(@Value("${token.secret}") String SECRET, @Value("${gateway.auth.uri}") String AUTHURI,
-            @Value("${gateway.version}") String VERSION, @Value("${request.timeout}") int TIMEOUT) {
+                        @Value("${gateway.version}") String VERSION, @Value("${request.timeout}") int TIMEOUT) {
         secret = SECRET;
         authUri = AUTHURI;
         version = VERSION;
@@ -34,10 +32,11 @@ public class GatewayUtils {
     }
 
     public static Object get(URL url, String tokenKey) {
-        OkHttpClient client = new OkHttpClient();
-        client.setConnectTimeout(timeout, TimeUnit.SECONDS);
-        client.setReadTimeout(timeout, TimeUnit.SECONDS);
-        client.setWriteTimeout(timeout, TimeUnit.SECONDS);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.SECONDS)
+                .writeTimeout(timeout, TimeUnit.SECONDS)
+                .build();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -61,10 +60,11 @@ public class GatewayUtils {
 
     @SuppressWarnings("deprecation")
     public static Object post(URL url, String tokenKey, String bodyStr) {
-        OkHttpClient client = new OkHttpClient();
-        client.setConnectTimeout(timeout, TimeUnit.SECONDS);
-        client.setReadTimeout(timeout, TimeUnit.SECONDS);
-        client.setWriteTimeout(timeout, TimeUnit.SECONDS);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.SECONDS)
+                .writeTimeout(timeout, TimeUnit.SECONDS)
+                .build();
 
         MediaType mediaType = MediaType.parse("application/json");
 
@@ -92,11 +92,11 @@ public class GatewayUtils {
 
     @SuppressWarnings("deprecation")
     public static Object post(URL url, String bodyStr) {
-
-        OkHttpClient client = new OkHttpClient();
-        client.setConnectTimeout(timeout, TimeUnit.SECONDS);
-        client.setReadTimeout(timeout, TimeUnit.SECONDS);
-        client.setWriteTimeout(timeout, TimeUnit.SECONDS);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.SECONDS)
+                .writeTimeout(timeout, TimeUnit.SECONDS)
+                .build();
 
         MediaType mediaType = MediaType.parse("application/json");
 
@@ -131,15 +131,15 @@ public class GatewayUtils {
         JSONObject jwt = new JSONObject(jwtTokenUtils.parseClaims(acToken));
 
         Date exp = new Date((Integer) jwt.get("exp") * 1000L);
-
         Date now = new Date();
 
         if (!exp.after(now)) {
             if (acToken != null && !acToken.isEmpty()) {
-                OkHttpClient client = new OkHttpClient();
-                client.setConnectTimeout(timeout, TimeUnit.SECONDS);
-                client.setReadTimeout(timeout, TimeUnit.SECONDS);
-                client.setWriteTimeout(timeout, TimeUnit.SECONDS);
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .connectTimeout(timeout, TimeUnit.SECONDS)
+                        .readTimeout(timeout, TimeUnit.SECONDS)
+                        .writeTimeout(timeout, TimeUnit.SECONDS)
+                        .build();
 
                 MediaType mediaType = MediaType.parse("application/json");
                 JSONObject obj = new JSONObject();
