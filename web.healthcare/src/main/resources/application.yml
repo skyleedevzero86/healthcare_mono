@@ -65,11 +65,13 @@ spring:
 gateway:
   version: /v1
   auth:
-    uri: http://localhost:8085
+    uri: http://localhost:8082
   healthcare:
     uri: http://localhost:8081
   usermanagement:
     uri: http://localhost:8086
+  community:
+    uri: http://localhost:8085
 
 # HTTP 요청 타임아웃 설정
 request:
