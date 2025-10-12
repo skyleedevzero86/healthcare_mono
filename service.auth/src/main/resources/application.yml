@@ -35,6 +35,8 @@ spring:
         max-attempts: 6
         max-interval: 2000
         multiplier: 1.1
+  config:
+    import: configserver:http://localhost:8888
 
 eureka:
   client:

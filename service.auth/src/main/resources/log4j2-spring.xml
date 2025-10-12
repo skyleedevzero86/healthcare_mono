@@ -47,22 +47,14 @@
             <DefaultRolloverStrategy max="30" compressionLevel="9"/>
         </RollingFile>
 
-        <!-- Async Appender for Performance -->
-        <AsyncAppender name="AsyncFileAppender" bufferSize="1024">
-            <AppenderRef ref="FileAppender"/>
-        </AsyncAppender>
-
-        <AsyncAppender name="AsyncErrorAppender" bufferSize="512">
-            <AppenderRef ref="ErrorFileAppender"/>
-        </AsyncAppender>
     </Appenders>
 
     <Loggers>
         <!-- Application Loggers -->
         <Logger name="com.sleekydz86" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
-            <AppenderRef ref="AsyncErrorAppender"/>
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="ErrorFileAppender"/>
         </Logger>
 
         <!-- SQL Logging -->
@@ -84,23 +76,23 @@
         <!-- Spring Framework Loggers -->
         <Logger name="org.springframework" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <Logger name="org.springframework.security" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <Logger name="org.springframework.web" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <!-- Hibernate/JPA Loggers -->
         <Logger name="org.hibernate" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <Logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
@@ -116,26 +108,26 @@
         <!-- Eureka Client Loggers -->
         <Logger name="com.netflix" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <!-- HTTP Client Loggers -->
         <Logger name="org.apache.http" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <!-- JWT Loggers -->
         <Logger name="io.jsonwebtoken" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Logger>
 
         <!-- Root Logger -->
         <Root level="INFO">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="AsyncFileAppender"/>
-            <AppenderRef ref="AsyncErrorAppender"/>
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="ErrorFileAppender"/>
         </Root>
     </Loggers>
 </Configuration>

@@ -18,7 +18,7 @@ import java.util.UUID;
 @Component
 public class JwtTokenProvider {
 
-    private final Key KEY;
+    private final SecretKey KEY;
 
     private long ACCESS_EXPIRED_TIME;
 
