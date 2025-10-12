@@ -25,7 +25,7 @@ public class DashboardController {
         model.addAttribute("url", req.getRequestURL());
         model.addAttribute("searchUserId", map.getOrDefault("searchUserId", session.getAttribute("userId")));
         model.addAttribute("searchWrd", map.getOrDefault("userId", session.getAttribute("userId")));
-        return "/health/healthInfo";
+        return "health/healthInfo";
     }
 
     @RequestMapping("/hello")
@@ -38,9 +38,9 @@ public class DashboardController {
         model.addAttribute("userNm", map.getOrDefault("userNm", null));
 
         if (session.getAttribute("userRoleFk").equals("1")) {
-            return "/user/dashboard";
+            return "user/dashboard";
         } else {
-            return "/userInfo/user_manage_list";
+            return "userInfo/user_manage_list";
         }
 
     }
@@ -49,19 +49,19 @@ public class DashboardController {
     public String addform(HttpServletRequest req, HttpServletResponse res, HttpSession session,
             @RequestParam Map<String, Object> map, Model model) {
 
-        return "/userInfo/user_add_detail";
+        return "userInfo/user_add_detail";
     }
 
     @RequestMapping("/write")
     public String write(HttpServletRequest req, HttpServletResponse res, HttpSession session,
             @RequestParam Map<String, Object> map, Model model) {
 
-        return "/community/communitymain";
+        return "community/communitymain";
     }
 
     @RequestMapping("/helloo")
     public ModelAndView Helloo() {
-        return new ModelAndView("/health/healthInfoList");
+        return new ModelAndView("health/healthInfoList");
     }
 
     @GetMapping("/dashboard")
@@ -72,7 +72,7 @@ public class DashboardController {
         model.addAttribute("url", req.getRequestURL());
         model.addAttribute("searchUserId", map.getOrDefault("searchUserId", session.getAttribute("userId")));
         model.addAttribute("userNm", map.getOrDefault("userNm", null));
-        return "/health/healthInfoList";
+        return "health/healthInfoList";
     }
 
     @GetMapping("/analysis")
