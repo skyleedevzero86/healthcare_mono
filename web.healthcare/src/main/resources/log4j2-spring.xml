@@ -17,7 +17,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="mz.hc" level="DEBUG" additivity="false">
+        <Logger name="com.sleekydz86" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
         </Logger>

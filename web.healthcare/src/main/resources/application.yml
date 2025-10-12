@@ -1,10 +1,11 @@
+# 스프링 애플리케이션 기본 설정
 spring:
   application:
     name: web.healthcare
   profiles:
     active: dev
 
-  # JSP 설정
+  # JSP 뷰 설정
   mvc:
     view:
       prefix: /WEB-INF/jsp/
@@ -35,22 +36,22 @@ spring:
   # MyBatis 설정
   mybatis:
     mapper-locations: classpath:mapper/*.xml
-    type-aliases-package: mz.hc.web.dto
+    type-aliases-package: com.sleekydz86.web.dto
     configuration:
       map-underscore-to-camel-case: true
       default-fetch-size: 100
       default-statement-timeout: 30
 
-  # Security 설정
+  # Spring Security 설정
   security:
     user:
       name: admin
       password: admin123
       roles: ADMIN
 
-  # Cloud Config 설정
+  # Spring Cloud Config 설정
   config:
-    import: "optional:configserver:http://localhost:8888"
+    import: optional:configserver:http://localhost:8888
   cloud:
     config:
       uri: http://localhost:8888
@@ -60,6 +61,27 @@ spring:
         max-attempts: 6
         max-interval: 2000
         multiplier: 1.1
+
+  # 파일 업로드 설정 (중복 제거)
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      location: ${imgPath}
+
+  # 캐시 설정
+  cache:
+    type: simple
+    cache-names:
+      - userCache
+      - healthcareCache
+
+  # 메시지 설정
+  messages:
+    basename: messages
+    encoding: UTF-8
+    cache-duration: 3600
 
 # Gateway (백엔드 서비스) 설정
 gateway:
@@ -77,7 +99,7 @@ gateway:
 request:
   timeout: 30
 
-# JWT Token 설정
+# JWT 토큰 설정
 token:
   secret: healthcare-lifelink-jwt-secret-key-for-authentication-service-2025-dev
   access-expired-time: 3600000
@@ -110,37 +132,18 @@ management:
     env:
       enabled: true
 
-# Logging 설정
+# 로깅 설정
 logging:
   config: classpath:log4j2-spring.xml
   level:
     root: INFO
-    mz.hc: DEBUG
+    com.sleekydz86: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.web: DEBUG
 
-# 파일 업로드 설정
-spring.servlet.multipart:
-  max-file-size: 10MB
-  max-request-size: 10MB
-  enabled: true
-
-# 캐시 설정
-spring.cache:
-  type: simple
-  cache-names:
-    - userCache
-    - healthcareCache
-
-# 메시지 설정
-spring.messages:
-  basename: messages
-  encoding: UTF-8
-  cache-duration: 3600
-
-# 앱 정보
+# 애플리케이션 정보
 info:
   app:
     name: Healthcare Web Application
@@ -149,3 +152,7 @@ info:
     encoding: UTF-8
     java:
       version: ${java.version}
+
+# 파일 저장 경로
+imgPath: C:/healthcare/images
+# imgPath: /var/healthcare/images

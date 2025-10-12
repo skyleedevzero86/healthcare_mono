@@ -36,7 +36,7 @@ spring:
 logging:
   level:
     root: WARN
-    mz.hc: INFO
+    com.sleekydz86: INFO
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
 

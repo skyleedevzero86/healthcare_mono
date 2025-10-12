@@ -43,7 +43,7 @@ spring:
 # 개발 환경 로깅
 logging:
   level:
-    mz.hc: DEBUG
+    com.sleekydz86: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
