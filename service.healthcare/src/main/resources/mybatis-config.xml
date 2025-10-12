@@ -21,12 +21,14 @@
         <setting name="autoMappingBehavior" value="PARTIAL"/>
         <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
         <setting name="defaultResultSetType" value="DEFAULT"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
 
     <typeAliases>
+        <typeAlias type="java.util.LinkedHashMap" alias="camelMap"/>
+        <typeAlias type="java.util.LinkedHashMap" alias="CamelMap"/>
         <package name="com.sleekydz86.service.healthcare.dto"/>
     </typeAliases>
-
 
     <environments default="development">
         <environment id="development">
