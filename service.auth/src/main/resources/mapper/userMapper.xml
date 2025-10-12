@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.sleekydz86.service.auth.mapper.UserMapper">
+
+    <select id="signin" parameterType="signinDto" resultType="userDto">
+        SELECT
+        UM.USER_ID, UM.USER_PW_ENC, UA.USER_ROLE_FK, UM.USER_NM
+        FROM
+        USER_MNG UM
+        LEFT JOIN USER_AUTH_INFO UA on UA.USER_SEQ = UM.USER_SEQ
+        WHERE
+        UM.USER_ID = #{userId}
+        AND
+        UM.USER_PW_ENC = #{userPwEnc}
+        AND
+        UA.USE_YN = 'Y'
+    </select>
+
+    <update id="updateToken" parameterType="java.lang.String">
+        UPDATE
+        USER_MNG
+        SET
+        <if test='source eq "W"'>
+            WEB_TOKEN = #{token}
+        </if>
+        <if test='source eq "M"'>
+            MOBILE_TOKEN = #{token}
+        </if>
+        WHERE
+        USER_ID = #{userId}
+    </update>
+
+    <select id="selectRefreshToken" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        <if test='source eq "W"'>
+            UM.WEB_TOKEN
+        </if>
+        <if test='source eq "M"'>
+            UM.MOBILE_TOKEN
+        </if>
+        FROM
+        USER_MNG UM
+        LEFT JOIN USER_AUTH_INFO UA on UA.USER_SEQ = UM.USER_SEQ
+        WHERE
+        UM.USER_ID = #{userId}
+        AND
+        UA.USER_ROLE_FK = #{userRoleFk}
+    </select>
+
+    <insert id="signup" useGeneratedKeys="true" keyProperty="userSeq" parameterType="signupDto">
+        INSERT INTO
+            USER_MNG
+        ( USER_SEQ, USER_ID, USER_NM, USER_PW_ENC, BIRTH_ENC, TEL_NUM_ENC, EMAIL, DEPT_NM, REG_DT, REG_ID, HEIGHT, WEIGHT, GENDER, BLOOD_TYPE, USER_PROFILE )
+        VALUES
+            ( NEXTVAL('USER_MNG_SEQ'), #{userId}, #{userNm}, #{userPwEnc}, #{birthEnc}, #{telNumEnc}, #{email}, #{deptNm}, NOW(), #{userId}, #{height}, #{weight}, #{gender}, #{bloodType}, #{imgFileName} )
+    </insert>
+
+    <insert id="insUserAuth" parameterType="signupDto">
+        INSERT INTO healthcare.user_auth_info
+            (user_seq, user_role_fk)
+        VALUES((select user_seq from user_mng where user_id = #{userId}), #{userRoleFk});
+    </insert>
+
+    <insert id="insDoctorMapping" parameterType="signupDto">
+        INSERT INTO doctor_mapping_info
+        (user_seq_fk, user_id_fk, doctor_seq, doctor_id, use_yn, reg_dt, reg_id)
+        VALUES( #{userSeq}, #{userId}, #{doctorSeq}, #{doctorId}, 'Y', now(), #{userId});
+    </insert>
+
+    <insert id="insGuardianMapping" parameterType="signupDto">
+        INSERT INTO guardian_mapping_info
+        (user_seq_fk, user_id_fk, guardian_seq, guardian_id, use_yn, reg_dt, reg_id)
+        VALUES(#{userSeq}, #{userId}, #{guardianSeq}, #{guardianId}, 'Y', now(), #{userId})
+    </insert>
+
+    <select id="findUserId" parameterType="findDto" resultType="camelMap">
+        select
+            um.user_id
+        from user_auth_info ua
+                 left join user_mng um ON ua.user_seq = um.user_seq
+        where ua.user_role_fk = #{userRoleFk}
+          and um.user_nm = #{userNm}
+          and um.tel_num_enc = #{telNumEnc}
+          and um.birth_enc = #{birthEnc}
+          and ua.use_yn = 'Y'
+    </select>
+
+    <select id="findUserPw" parameterType="findDto" resultType="camelMap">
+        select
+            count(um.*)
+        from user_auth_info ua
+                 left join user_mng um ON ua.user_seq = um.user_seq
+        where ua.user_role_fk = #{userRoleFk}
+          and um.user_nm = #{userNm}
+          and um.tel_num_enc = #{telNumEnc}
+          and um.birth_enc = #{birthEnc}
+          and um.user_id = #{userId}
+          and ua.use_yn = 'Y'
+    </select>
+
+    <update id="updateUserPw" parameterType="findDto">
+        UPDATE user_mng
+        SET user_pw_enc = #{userPwEnc}
+          , upt_dt = now()
+          , upt_id = #{userId}
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="duplicateId" parameterType="userDto" resultType="String">
+        SELECT USER_ID FROM USER_MNG
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <select id="duplicateEmail" parameterType="userDto" resultType="String">
+        SELECT USER_ID FROM USER_MNG
+        WHERE EMAIL = #{email}
+    </select>
+
+    <select id="searchDoctor" parameterType="userDto" resultType="camelMap">
+        SELECT
+            UM.USER_SEQ ,
+            UM.USER_ID ,
+            UM.USER_NM ,
+            UM.TEL_NUM_ENC ,
+            UM.EMAIL ,
+            UM.DEPT_NM
+        FROM USER_MNG UM
+                 LEFT JOIN USER_AUTH_INFO UA on UA.USER_SEQ = UM.USER_SEQ
+        WHERE
+            UA.USER_ROLE_FK = (
+                SELECT
+                    user_role_fk
+                FROM auth_mng
+                WHERE role_nm = '담당자'
+            )
+          AND UM.USER_NM = #{userNm}
+          AND UA.USE_YN = 'Y'
+    </select>
+
+    <select id="searchParent" parameterType="userDto" resultType="camelMap">
+        SELECT
+            UM.USER_SEQ ,
+            UM.USER_ID ,
+            UM.USER_NM ,
+            UM.TEL_NUM_ENC ,
+            UM.BIRTH_ENC,
+            UM.EMAIL
+        FROM USER_MNG UM
+                 LEFT JOIN USER_AUTH_INFO UA on UA.USER_SEQ = UM.USER_SEQ
+        WHERE
+            UA.USER_ROLE_FK = (
+                SELECT
+                    user_role_fk
+                FROM auth_mng
+                WHERE role_nm = '보호자'
+            )
+          AND UM.USER_NM = #{userNm}
+          AND UM.TEL_NUM_ENC = #{telNumEnc}
+          AND UM.BIRTH_ENC = #{birthEnc}
+          AND UA.USE_YN = 'Y'
+    </select>
+</mapper>

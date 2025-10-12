@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:healthcare_auth}
+    username: ${DB_USERNAME:healthcare_auth_user}
+    password: ${DB_PASSWORD:healthcare_auth_pass}
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+logging:
+  level:
+    root: WARN
+    com.sleekydz86: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+
+debug: false
+
+token:
+  secret: ${JWT_SECRET:healthcare-lifelink-jwt-secret-key-for-authentication-service-2025-prod}
+  access-expired-time: 1800000
+  refresh-expired-time: 604800000
