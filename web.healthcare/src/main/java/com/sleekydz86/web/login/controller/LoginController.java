@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -207,7 +208,7 @@ public class LoginController {
     public String logout(HttpServletRequest req, HttpServletResponse res, Model model, HttpSession session,
             @RequestParam Map<String, Object> map) throws Exception {
         // 세션 확인(인증 값 존재 여부)
-        if (session.getValueNames().length == 0)
+        if (!session.getAttributeNames().hasMoreElements())
             return "redirect:/user/signin";
         JSONObject body = new JSONObject();
 

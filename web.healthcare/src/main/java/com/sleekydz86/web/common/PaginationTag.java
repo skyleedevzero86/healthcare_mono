@@ -9,7 +9,7 @@ import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.TagSupport;
-import org.springframework.context.WebApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.io.IOException;
