@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +34,7 @@ public class JwtTokenProvider {
         this.SECRET = secret;
         this.ACCESS_EXPIRED_TIME = accessExpiredTime;
         this.REFRESH_EXPIRED_TIME = refreshExpiredTime;
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = SECRET.getBytes(StandardCharsets.UTF_8);
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 
