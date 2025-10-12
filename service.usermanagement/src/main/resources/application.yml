@@ -12,6 +12,8 @@ server:
     min-spare-threads: 10
 
 spring:
+  config:
+    import: optional:configserver:http://localhost:8888
   application:
     name: service.usermanagement
   profiles:
