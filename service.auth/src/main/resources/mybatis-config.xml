@@ -21,31 +21,12 @@
         <setting name="autoMappingBehavior" value="PARTIAL"/>
         <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
         <setting name="defaultResultSetType" value="DEFAULT"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
 
     <typeAliases>
+        <typeAlias type="java.util.LinkedHashMap" alias="camelMap"/>
+        <typeAlias type="java.util.LinkedHashMap" alias="CamelMap"/>
         <package name="com.sleekydz86.service.auth.dto"/>
     </typeAliases>
-
-    <typeHandlers>
-    </typeHandlers>
-
-    <plugins>
-    </plugins>
-
-    <environments default="development">
-        <environment id="development">
-            <transactionManager type="JDBC"/>
-            <dataSource type="POOLED">
-                <property name="driver" value="org.h2.Driver"/>
-                <property name="url" value="jdbc:h2:mem:auth;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"/>
-                <property name="username" value="sa"/>
-                <property name="password" value=""/>
-            </dataSource>
-        </environment>
-    </environments>
-
-    <mappers>
-        <mapper resource="mapper/userMapper.xml"/>
-    </mappers>
 </configuration>
