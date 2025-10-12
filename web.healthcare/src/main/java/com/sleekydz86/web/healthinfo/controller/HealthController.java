@@ -44,7 +44,7 @@ public class HealthController {
         }
         model.addAttribute("searchUserId", map.getOrDefault("searchUserId", session.getAttribute("userId")));
         model.addAttribute("userNm", map.getOrDefault("userNm", null));
-        return "/health/healthInfo";
+        return "health/healthInfo";
     }
 
     @PostMapping("/healthInfoChart")
