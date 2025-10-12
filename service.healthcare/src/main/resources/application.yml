@@ -18,6 +18,9 @@ spring:
     active: dev
     include: common
 
+  config:
+    import: optional:configserver:http://localhost:8888
+
   mybatis:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.sleekydz86.service.healthcare.dto
