@@ -27,12 +27,6 @@
         <package name="com.sleekydz86.service.usermanagement.dto"/>
     </typeAliases>
 
-    <typeHandlers>
-    </typeHandlers>
-
-    <plugins>
-    </plugins>
-
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
