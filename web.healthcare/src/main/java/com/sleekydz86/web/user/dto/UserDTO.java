@@ -3,9 +3,11 @@ package com.sleekydz86.web.user.dto;
 import com.sleekydz86.web.common.vo.SearchVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO extends SearchVO {

@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-tomcat")
+    implementation("org.springframework:spring-context")
     implementation("org.apache.tomcat.embed:tomcat-embed-jasper")
     implementation("javax.servlet:jstl")
     implementation("org.springframework.boot:spring-boot-starter-security")
