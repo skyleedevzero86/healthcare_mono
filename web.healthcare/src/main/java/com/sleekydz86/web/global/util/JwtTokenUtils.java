@@ -20,7 +20,7 @@ public class JwtTokenUtils {
     public JwtTokenUtils(@Value("${token.secret}") String secret) {
         this.SECRET = secret;
         byte[] keyBytes = Base64.getDecoder().decode(SECRET);
-        this.KEY = Keys.hmacShaKeyFor(keyBytes);
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public Claims parseClaims(String accessToken) {
