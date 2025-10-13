@@ -67,8 +67,15 @@ public class HealthController {
             }
         }
         try {
-            String str = (String) GatewayUtils.post(new URL(uri + version + url), GatewayUtils.tokenCheck(session, res),
-                    body.toString());
+            String token = GatewayUtils.tokenCheck(session, res);
+            if (token == null) {
+                // 토큰이 없으면 로그인 필요 응답
+                result.put("resultCode", "1003");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
+
+            String str = (String) GatewayUtils.post(new URL(uri + version + url), token, body.toString());
             ObjectMapper obj = new ObjectMapper();
             result = obj.readValue(str, Map.class);
             if (result.containsKey("resultCode") && result.get("resultCode").equals("1003")) {
@@ -92,8 +99,15 @@ public class HealthController {
 
         String url = "/realtimeBiodata";
         try {
-            String str = (String) GatewayUtils.post(new URL(uri + version + url), GatewayUtils.tokenCheck(session, res),
-                    body.toString());
+            String token = GatewayUtils.tokenCheck(session, res);
+            if (token == null) {
+                // 토큰이 없으면 로그인 필요 응답
+                result.put("resultCode", "1003");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
+
+            String str = (String) GatewayUtils.post(new URL(uri + version + url), token, body.toString());
             log.info(str);
             ObjectMapper obj = new ObjectMapper();
             result = obj.readValue(str, Map.class);
@@ -122,8 +136,15 @@ public class HealthController {
         JSONObject body = new JSONObject(map);
         Map<String, Object> result = new HashMap<>();
         try {
-            String str = (String) GatewayUtils.post(new URL(uri + version + url), GatewayUtils.tokenCheck(session, res),
-                    body.toString());
+            String token = GatewayUtils.tokenCheck(session, res);
+            if (token == null) {
+                // 토큰이 없으면 로그인 필요 응답
+                result.put("resultCode", "1003");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
+
+            String str = (String) GatewayUtils.post(new URL(uri + version + url), token, body.toString());
             ObjectMapper obj = new ObjectMapper();
 
             result = obj.readValue(str, Map.class);
@@ -151,8 +172,15 @@ public class HealthController {
         JSONObject body = new JSONObject(map);
         Map<String, Object> result = new HashMap<>();
         try {
-            String str = (String) GatewayUtils.post(new URL(uri + version + url), GatewayUtils.tokenCheck(session, res),
-                    body.toString());
+            String token = GatewayUtils.tokenCheck(session, res);
+            if (token == null) {
+                // 토큰이 없으면 로그인 필요 응답
+                result.put("resultCode", "1003");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
+
+            String str = (String) GatewayUtils.post(new URL(uri + version + url), token, body.toString());
             ObjectMapper obj = new ObjectMapper();
 
             result = obj.readValue(str, Map.class);
@@ -179,8 +207,15 @@ public class HealthController {
         JSONObject body = new JSONObject(map);
         Map<String, Object> result = new HashMap<>();
         try {
-            String str = (String) GatewayUtils.post(new URL(uri + version + url), GatewayUtils.tokenCheck(session, res),
-                    body.toString());
+            String token = GatewayUtils.tokenCheck(session, res);
+            if (token == null) {
+                // 토큰이 없으면 로그인 필요 응답
+                result.put("resultCode", "1003");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
+
+            String str = (String) GatewayUtils.post(new URL(uri + version + url), token, body.toString());
 
             ObjectMapper obj = new ObjectMapper();
             result = obj.readValue(str, Map.class);
@@ -208,8 +243,15 @@ public class HealthController {
         String url = "";
         url = "/healthScoreList";
         try {
-            String str = (String) GatewayUtils.post(new URL(uri + version + url), GatewayUtils.tokenCheck(session, res),
-                    body.toString());
+            String token = GatewayUtils.tokenCheck(session, res);
+            if (token == null) {
+                // 토큰이 없으면 로그인 필요 응답
+                result.put("resultCode", "1003");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
+
+            String str = (String) GatewayUtils.post(new URL(uri + version + url), token, body.toString());
 
             ObjectMapper obj = new ObjectMapper();
             result = obj.readValue(str, Map.class);

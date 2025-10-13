@@ -3,11 +3,11 @@
 <%@ include file="/WEB-INF/jsp/include/_dtd.jsp" %>
 
 <head>
-<link rel="stylesheet" href="../css/mzhc/common.css" type="text/css">
-<link rel="stylesheet" href="../css/mzhc/Sidebar.css" type="text/css">
-<link rel="stylesheet" href="../css/mzhc/header.css" type="text/css">
-<link rel="stylesheet" href="../css/mzhc/myPage.css" type="text/css">
-<link rel="stylesheet" href="../css/mzhc/footer.css" type="text/css">
+<link rel="stylesheet" href="/css/mzhc/common.css" type="text/css">
+<link rel="stylesheet" href="/css/mzhc/Sidebar.css" type="text/css">
+<link rel="stylesheet" href="/css/mzhc/header.css" type="text/css">
+<link rel="stylesheet" href="/css/mzhc/myPage.css" type="text/css">
+<link rel="stylesheet" href="/css/mzhc/footer.css" type="text/css">
 <link href="https://fonts.googleapis.com/css2?family==Noto+Sans+KR&Black+Han+Sans&family=Gowun+Dodum&family=Jua&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
 
 <jsp:include page='/WEB-INF/jsp/layout/mainHeader_dev.jsp' />
@@ -25,10 +25,10 @@
                     <div class = "myLoin">
                         <div class = "imgArea">
                             <c:if test="${not empty userProfile}">
-                                <img src="../images/userProfile/${userProfile}" alt = "" style= "width:10vw;height:19vh; border-radius: 50%;">
+                                <img src="/images/userProfile/${userProfile}" alt = "" style= "width:10vw;height:19vh; border-radius: 50%;">
                             </c:if>
                             <c:if test="${empty userProfile}">
-                                 <img src="../images/main/big_profile.png" alt="" style = "width:10vw;height:19vh;">
+                                 <img src="/images/main/big_profile.png" alt="" style = "width:10vw;height:19vh;">
                             </c:if>
                             <h2> <c:out value="${userId }" /> </h2>
                          </div>
@@ -70,19 +70,19 @@
                 <div class = "myDetailInfo">
                     <ul>
                         <li><span class="teal-text">
-                            <img src="../images/layout/icons8-email-48.png" style="width:2vw; align-self: flex-start " alt="">
+                            <img src="/images/layout/icons8-email-48.png" style="width:2vw; align-self: flex-start " alt="">
                             E-mail</span>
                             <h3 style="padding-left: 3vw;padding-top: 2vh;"><c:out value="${email }" /></h3></li>
                         <li><span class="teal-text">
-                             <img src="../images/layout/icons8-cake-40.png" style="width:2vw; align-self: flex-start " alt="">
+                             <img src="/images/layout/icons8-cake-40.png" style="width:2vw; align-self: flex-start " alt="">
                              생일</span>
                             <h3 style="padding-left: 3.5vw;padding-top: 2vh;"><c:out value="${birthEnc }" /> </h3></li>
                         <li><span class="teal-text">
-                            <img src="../images/layout/icons8_iphon_48.png" style="width:2vw; align-self: flex-start " alt="">
+                            <img src="/images/layout/icons8_iphon_48.png" style="width:2vw; align-self: flex-start " alt="">
                             연락처</span>
                             <h3 style="padding-left: 3vw;padding-top: 2vh;"><c:out value="${telNumEnc }" /> </h3></li>
                         <li><span class="teal-text">
-                             <img src="../images/layout/icons8-gender-48.png" style="width:2vw; align-self: flex-start " alt="">
+                             <img src="/images/layout/icons8-gender-48.png" style="width:2vw; align-self: flex-start " alt="">
                              성별</span>
                            <h3 style="padding-left: 3.5vw;padding-top: 2vh;"> <c:if test="${gender eq 'M'}">남</c:if>
                             <c:if test="${gender eq 'F'}">여</c:if>
@@ -166,9 +166,6 @@
 		$('#ValidataionPwCheck_fail').hide()
 		$('#ValidataionPwCheck_success').hide();
 	});
-// 	$('#newUserPwEnc').keyup(function(){
-		
-// 	});
 	$('.pwCheck').keyup(function(){
 		if(!/^(?=.*[A-Za-z@$!%*#?&])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test($('#newUserPwEnc').val())){
 			$('#ValidataionPw_fail').prop('hidden',false);
@@ -221,27 +218,21 @@
 		$.ajax({
 	           type:"Post",
 	           url:"/userInfo/updatePasswd",
-	           dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+	           dataType:"JSON",
 	           data: {
 	        	   "userPwEnc": $('input[name="userPwEnc"]').val(),
 	        	   "newUserPwEnc": $('input[name="newUserPwEnc"]').val()
 	           },
 	           success : function(data) {
-               // 통신이 성공적으로 이루어졌을 때 이 함수를 타게 된다.
-               // TODO
                	   if(data.resultCode == '0000'){
                			alert('비밀번호가 변경되었습니다.\n다시 로그인 해주세요.')
                			$('.modal').popModal('hide');
-//                			$('.modal').modal('hide');
                	   		window.location.href = '/';
                	   }else if(data.resultCode = '3002'){
                			alert('비밀번호를 확인해주세요.');
                	   }
 	           },
 	           complete : function(data) {
-	                 // 통신이 실패했어도 완료가 되었을 때 이 함수를 타게 된다.
-	                 // TODO
-	                 
 	           },
 	           error : function(xhr, status, error) {
 	                 alert("에러발생");
@@ -260,11 +251,9 @@
 			$.ajax({
 		           type:"Post",
 		           url:"/userInfo/secession",
-		           dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+		           dataType:"JSON",
 		           data: {},
 		           success : function(data) {
-	            // 통신이 성공적으로 이루어졌을 때 이 함수를 타게 된다.
-	            // TODO
 	            	   if(data.resultCode == '0000'){
 	            			alert('회원탈퇴 되었습니다.')
 	            	   		window.location.href = '/';
@@ -273,9 +262,6 @@
 	            	   }
 		           },
 		           complete : function(data) {
-		                 // 통신이 실패했어도 완료가 되었을 때 이 함수를 타게 된다.
-		                 // TODO
-		                 
 		           },
 		           error : function(xhr, status, error) {
 		        	   

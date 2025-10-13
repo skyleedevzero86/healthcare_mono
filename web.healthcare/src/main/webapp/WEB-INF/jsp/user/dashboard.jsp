@@ -8,18 +8,14 @@
 </head>
 <body>
   <div class="container sub_container">
-    <!-- header -->
     <jsp:include page='/WEB-INF/jsp/include/header.jsp' />
-    <!-- header -->
 
-    <!-- content 영역 - 서브 페이지 : main_sub_content_wrap -->
     <section class="main_content_wrap main_sub_content_wrap">
       <div class="main_content main_sub_content _inner_wrap">
 
         <main class="main_wrap sub_wrap">
 
           <div class="flex_row">
-            <!-- 사용자 정보 -->
             <section class="flex_item radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">사용자 정보</h2>
@@ -29,10 +25,10 @@
                 <div class="user_profile">
                   <div class="user_profile__img">
                       <c:if test="${userProfile ne null and userProfile ne 'null'}">
-                          <img src="../images/userProfile/${userProfile}" alt = "" style= "width:10vw;height:19vh; border-radius: 50%;">
+                          <img src="/images/userProfile/${userProfile}" alt = "" style= "width:10vw;height:19vh; border-radius: 50%;">
                       </c:if>
                       <c:if test="${userProfile eq null or userProfile eq 'null' }">
-                          <img src="../modules/images/common/img_user.png" alt="">
+                          <img src="/modules/images/common/img_user.png" alt="">
                       </c:if>
                   </div>
                   <div class="user_profile__name">
@@ -85,7 +81,6 @@
 
               </div>
             </section>
-            <!-- 실시간 상태 -->
             <section class="flex_item radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">실시간 상태</h2>
@@ -141,7 +136,6 @@
 
               </div>
             </section>
-            <!-- 오늘의 목표 -->
             <section class="flex_item radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">오늘의 목표</h2>
@@ -171,15 +165,13 @@
           </div>
 
           <div class="flex_row">
-            <!-- AI 건강 주치의 -->
             <section class="flex_item radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">AI 건강 주치의</h2>
               </div>
               <div class="radius_body">
-                <p class="chat_txt"><img src="../modules/images/common/img_chat_gpt.png" alt="">가 알려주는 나의 건강상태 <strong class="chat_txt_str">AI 주치의</strong>와 함께하세요.</p>
+                <p class="chat_txt"><img src="/modules/images/common/img_chat_gpt.png" alt="">가 알려주는 나의 건강상태 <strong class="chat_txt_str">AI 주치의</strong>와 함께하세요.</p>
                 <div class="chat_out_txt result_airesponse">
-                  <!-- <p class="chat_none_out_txt">건강 상태 정보가 없어서 진단하지 못했습니다.</p> -->
                   <p class="chat_none_out_txt"></p>
                 </div>
               </div>
@@ -187,7 +179,6 @@
           </div>
 
           <div class="flex_row">
-            <!-- 보호자/의사 정보 -->
             <section class="flex_item__col2 radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">보호자/의사 정보</h2>
@@ -204,7 +195,6 @@
                         <div class="board_con_hd flex-auto">연락처</div>
                       </div>
                     </li>
-                    <!-- 게시판 반복 영역 -->
                     <c:if test="${!empty userRolelist}">
                         <c:forEach items="${userRolelist}" var="item">
                             <li class="board_list__box">
@@ -232,7 +222,6 @@
                 </section>
               </div>
             </section>
-            <!-- 건강 소식 -->
             <section class="flex_item radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">건강 소식</h2>
@@ -240,7 +229,7 @@
               <div class="radius_body">
                 <div class="img_box">
                   <a href ="https://www.nhis.or.kr/nhis/together/wbhaea01600m01.do?mode=view&articleNo=10841393" target="_blank">
-                  <img src="../modules/images/common/img_sample001.jpg" alt="">
+                  <img src="/modules/images/common/img_sample001.jpg" alt="">
                   </a>
                 </div>
               </div>
@@ -250,13 +239,10 @@
         </main>
       </div>
     </section>
-    <!-- footer -->
         <jsp:include page="/WEB-INF/jsp/include/footer.jsp" />
-    <!-- footer -->
   </div>
 
 
-<!--custom js-->
 <script src="/js/biodata/realtimeBiodata.js" type="text/javascript"></script>
 <script src="/js/AI_chatgpt/getAIResult.js" type="text/javascript"></script>
 <script>
@@ -273,11 +259,10 @@
 
         if(${!empty acToken}){
            getHealthdata(searchUserId);
-           setInterval(() => realtimeBiodata(searchUserId), 60000); //1분마다 갱신
+           setInterval(() => realtimeBiodata(searchUserId), 60000);
 
         }
         else {
-            //로그인 안한 유저가 들어온경우
             location.href = 'redirect:/user/signin';
         }
     });

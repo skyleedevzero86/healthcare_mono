@@ -24,7 +24,7 @@ public class GatewayUtils {
     private static int timeout;
 
     public GatewayUtils(@Value("${token.secret}") String SECRET, @Value("${gateway.auth.uri}") String AUTHURI,
-                        @Value("${gateway.version}") String VERSION, @Value("${request.timeout}") int TIMEOUT) {
+            @Value("${gateway.version}") String VERSION, @Value("${request.timeout}") int TIMEOUT) {
         secret = SECRET;
         authUri = AUTHURI;
         version = VERSION;
@@ -126,6 +126,11 @@ public class GatewayUtils {
     public static String tokenCheck(HttpSession session, HttpServletResponse res) {
         String acToken = (String) session.getAttribute("acToken");
         String rfToken = (String) session.getAttribute("rfToken");
+
+        // 토큰이 null이거나 비어있으면 null 반환
+        if (acToken == null || acToken.isEmpty()) {
+            return null;
+        }
 
         JwtTokenUtils jwtTokenUtils = new JwtTokenUtils(secret);
         JSONObject jwt = new JSONObject(jwtTokenUtils.parseClaims(acToken));

@@ -3,17 +3,14 @@
       pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/jsp/include/_dtd.jsp" %>
 <html lang="en">
-<link rel="stylesheet" href="../css/mzhc/healthgraph.css" type="text/css">
+<link rel="stylesheet" href="/css/mzhc/healthgraph.css" type="text/css">
 
   <title>분석</title>
 </head>
 <body>
   <div class="container sub_container">
-    <!-- header -->
     <jsp:include page='/WEB-INF/jsp/include/header.jsp' />
-    <!-- header -->
 
-    <!-- content 영역 - 서브 페이지 : main_sub_content_wrap -->
     <section class="main_content_wrap main_sub_content_wrap">
       <div class="main_content main_sub_content _inner_wrap">
 
@@ -73,13 +70,11 @@
           </div>
 
           <div class="flex_row">
-            <!-- AI 건강 주치의 -->
             <section class="flex_item radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">상세 정보</h2>
               </div>
               <div class="radius_body">
-                <!-- 날짜 선택 -->
                 <section class="chart_search">
                   <div class="form_inline_group">
                     <button type="button" class="form_button searchType" value='M'>월별</button>
@@ -88,7 +83,6 @@
                   </div>
                 </section>
 
-                <!-- 탭 -->
                 <ul class="user_state _row mb10">
                   <li class="user_state__item heartrate" onclick=graphBiodata('heartrate')>
                       <div class="user_state__title _state01">
@@ -121,7 +115,6 @@
                       </div>
                   </li>
                 </ul>
-                <!-- //탭 -->
 
                      <div id="chat" style="height: 300px">
                          <canvas id="myChart"></canvas>
@@ -132,7 +125,6 @@
           </div>
 
           <div class="flex_row">
-            <!-- 건강 점수 -->
             <section class="flex_item__col1 radius_box _relative">
               <div class="radius_header">
                 <h2 class="radius_header__title">나의 건강 점수</h2>
@@ -145,7 +137,6 @@
               </div>
             </section>
 
-            <!-- 건강 그래프 -->
             <section class="flex_item__col2 radius_box">
               <div class="radius_header">
                 <h2 class="radius_header__title">이번주 건강 그래프</h2>
@@ -164,21 +155,15 @@
       </div>
     </section>
 
-    <!-- footer -->
         <jsp:include page="/WEB-INF/jsp/include/footer.jsp" />
-    <!-- footer -->
   </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-circle-progress/1.2.2/circle-progress.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-<!--datePicker-->
-<script src="./jquery-3.1.1.min.js"></script> <!-- 값 제어를 위해 jquery -->
+<script src="/datepicker/jquery-3.1.1.min.js"></script>
 <link href="/datepicker/air-datepicker/dist/css/datepicker.min.css" rel="stylesheet" type="text/css" media="all">
-<!-- Air datepicker css -->
-<script src="/datepicker/air-datepicker/dist/js/datepicker.js"></script> <!-- Air datepicker js -->
-<script src="/datepicker/air-datepicker/dist/js/i18n/datepicker.ko.js"></script> <!-- 달력 한글 추가를 위해 커스텀 -->
-
-<!--custom js-->
+<script src="/datepicker/air-datepicker/dist/js/datepicker.js"></script>
+<script src="/datepicker/air-datepicker/dist/js/i18n/datepicker.ko.js"></script>
 <script src="/js/biodata/realtimeBiodata.js" type="text/javascript"></script>
 <script src="/js/biodata/graphBiodata.js" type="text/javascript"></script>
 <script src="/js/biodata/graphSleepdata.js" type="text/javascript"></script>

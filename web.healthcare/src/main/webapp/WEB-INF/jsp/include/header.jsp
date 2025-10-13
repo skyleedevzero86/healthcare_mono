@@ -1,21 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/jsp/include/_dtd.jsp" %>
-<!-- skip nav -->
     <div class="skip_nav">
       <a href="#skipnav_target">본문 영역 바로가기</a>
     </div>
-    <!-- skip nav -->
-
-    <!-- header_wrap -->
     <header class="header_wrap">
       <div class="header">
         <div class="main_logo_wrap">
-          <h1><a href="/userInfo/userBoardInfo?userinfoId=${UserinfoId}" class="main_logo"><img src="../modules/images/common/main_logo.png" alt="1"></a></h1>
+          <h1><a href="/userInfo/userBoardInfo?userinfoId=${UserinfoId}" class="main_logo"><img src="/modules/images/common/main_logo.png" alt="1"></a></h1>
         </div>
 
         <nav class="gnb_wrap">
           <ul class="gnb">
-            <!-- gnb_link _active 클래스 넣으면 색 바뀜 -->
               <c:if test="${sessuserRoleFk ne '1'}">
 
                <li class="gnb_item">
@@ -45,4 +40,3 @@
         </div>
       </div>
     </header>
-    <!-- header_wrap -->

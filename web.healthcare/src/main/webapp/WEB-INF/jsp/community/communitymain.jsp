@@ -6,11 +6,8 @@
 </head>
 <body>
   <div class="container sub_container">
-    <!-- header -->
     <jsp:include page='/WEB-INF/jsp/include/header.jsp' />
-    <!-- header -->
 
-    <!-- content 영역 - 서브 페이지 : main_sub_content_wrap -->
     <section class="main_content_wrap main_sub_content_wrap">
       <div class="main_content main_sub_content _inner_wrap">
 
@@ -23,7 +20,6 @@
               </div>
               <div class="radius_body">
                 <div class="age_group">
-                  <!-- 카드반복 -->
                   <section class="age_group_card">
                     <div class="age_card__name">
                       <strong class="_my">(나)<c:out value="${userNm }" /></strong>
@@ -36,7 +32,6 @@
                       </div>
                       <div class="age_card__is">
                         <span id = "bodyAge_info" class=" _age">
-                          <!-- <span class="_red">00</span> -->
                           <span class="_blue">00</span>
                         </span>
                         <span class="_txt">건강나이</span>
@@ -62,7 +57,6 @@
                       <a href="#none" class="btn_save js-pop-open" data-target=".pop02">공유하기</a>
                     </div>
                   </section>
-                  <!-- // 카드반복 -->
                   <c:if test="${!empty commulist}">
                     <c:forEach items="${commulist}" var="item">
                       <section class="age_group_card">
@@ -145,7 +139,6 @@
                 </div>
                 <div class="radius_body">
                   <div class="age_group">
-                    <!-- 카드반복 -->
                     <section class="age_group_card">
                       <div class="age_card__name">
                         <strong class="">김지영 </strong>
@@ -190,7 +183,6 @@
                         </div>
                       </div>
                     </section>
-                    <!-- // 카드반복 -->
 
                     <section class="age_group_card">
                       <div class="age_card__name">
@@ -338,7 +330,6 @@
                 </div>
                 <div class="radius_body">
                   <div class="age_group">
-                    <!-- 카드반복 -->
                     <section class="age_group_card">
                       <div class="age_card__name">
                         <strong class="">최민지</strong>
@@ -383,7 +374,6 @@
                         </div>
                       </div>
                     </section>
-                    <!-- // 카드반복 -->
 
                     <section class="age_group_card">
                       <div class="age_card__name">
@@ -527,9 +517,7 @@
       </div>
     </section>
 
-    <!-- footer -->
         <jsp:include page="/WEB-INF/jsp/include/footer.jsp" />
-    <!-- footer -->
   </div>
   
   <section class="popup_dim pop02" style="display: none;">
@@ -572,9 +560,9 @@
 
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
-<link rel="stylesheet" href="../../../css/vender/jquery.mCustomScrollbar.css">
+<link rel="stylesheet" href="/css/vender/jquery.mCustomScrollbar.css">
 
-<script src="../../../modules/js/vendor/jquery.mCustomScrollbar.js"></script>
+<script src="/modules/js/vendor/jquery.mCustomScrollbar.js"></script>
 <script>
 
     var searchUserId = '${UserinfoId}';
