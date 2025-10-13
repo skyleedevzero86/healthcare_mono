@@ -34,6 +34,11 @@ dependencies {
     implementation("org.apache.tomcat.embed:tomcat-embed-jasper")
     implementation("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0")
     implementation("org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1")
+
+    implementation("org.apache.tiles:tiles-jsp:3.0.8")
+    implementation("org.apache.tiles:tiles-core:3.0.8")
+    implementation("org.apache.tiles:tiles-servlet:3.0.8")
+
     //implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-starter")
