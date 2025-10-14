@@ -1,6 +1,11 @@
 # healthcare_mono
 
-![System Architecture](https://github.com/user-attachments/assets/a2a4ebde-590b-4b29-81d2-6c5b06395ef9)
+## 웹버전
+![System Architecture](https://github.com/user-attachments/assets/a2a4ebde-590b-4b29-81d2-6c5b06395ef9)<br/>
+
+## 모바일버전
+<img width="399" height="869" alt="image" src="https://github.com/user-attachments/assets/6a8a2b7c-ee65-401b-a4e3-5d13dc01477b" /><br/>
+
 
 ## 📋 프로젝트 개요
 `healthcare_mono`는 스마트워치를 통해 수집된 사용자의 생체 데이터를 활용하여 실시간 건강 모니터링과 AI 기반 건강 분석을 제공하는 웹 기반 헬스케어 플랫폼입니다.
