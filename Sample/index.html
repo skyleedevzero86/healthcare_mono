@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>헬스케어 - 건강한 삶을 위한 동반자</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="loading-screen" class="loading-screen">
+      <div class="loading-spinner">
+        <i class="fas fa-heartbeat"></i>
+        <p>로딩 중...</p>
+      </div>
+    </div>
+
+    <div id="auth-container" class="screen-container hidden">
+      <div id="login-screen" class="auth-screen">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <img src="img/main_logo.png" alt="헬스케어 로고" class="app-logo" />
+          </div>
+          <p class="app-subtitle">건강한 삶을 위한 동반자</p>
+        </div>
+
+        <form class="auth-form" id="login-form">
+          <div class="input-group">
+            <label for="login-userId">아이디</label>
+            <input
+              type="text"
+              id="login-userId"
+              placeholder="아이디를 입력하세요"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="login-password">비밀번호</label>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="비밀번호를 입력하세요"
+              required
+            />
+          </div>
+
+          <button type="submit" class="auth-button">
+            <span class="button-text">로그인</span>
+            <span class="button-loading hidden">로그인 중...</span>
+          </button>
+
+          <div class="auth-link">
+            <span>계정이 없으신가요? </span>
+            <a href="#" id="show-signup">회원가입</a>
+          </div>
+        </form>
+      </div>
+
+      <div id="signup-screen" class="auth-screen hidden">
+        <div class="auth-header">
+          <button class="back-button" id="back-to-login">← 뒤로</button>
+          <h1 class="auth-title">회원가입</h1>
+        </div>
+
+        <form class="auth-form" id="signup-form">
+          <div class="input-group">
+            <label for="signup-userId">아이디 *</label>
+            <input
+              type="text"
+              id="signup-userId"
+              placeholder="아이디를 입력하세요"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="signup-password">비밀번호 *</label>
+            <input
+              type="password"
+              id="signup-password"
+              placeholder="비밀번호를 입력하세요"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="signup-name">이름 *</label>
+            <input
+              type="text"
+              id="signup-name"
+              placeholder="이름을 입력하세요"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="signup-email">이메일 *</label>
+            <input
+              type="email"
+              id="signup-email"
+              placeholder="이메일을 입력하세요"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="signup-birth">생년월일</label>
+            <input type="date" id="signup-birth" />
+          </div>
+
+          <div class="input-group">
+            <label for="signup-phone">전화번호</label>
+            <input
+              type="tel"
+              id="signup-phone"
+              placeholder="전화번호를 입력하세요"
+            />
+          </div>
+
+          <div class="input-group">
+            <label>성별</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="gender" value="M" />
+                <span>남성</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="gender" value="F" />
+                <span>여성</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>혈액형</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="bloodType" value="A" />
+                <span>A형</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="bloodType" value="B" />
+                <span>B형</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="bloodType" value="AB" />
+                <span>AB형</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="bloodType" value="O" />
+                <span>O형</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="agreement-group">
+            <label class="agreement-option">
+              <input type="checkbox" id="agreement" required />
+              <span>개인정보 처리방침에 동의합니다 *</span>
+            </label>
+          </div>
+
+          <button type="submit" class="auth-button">
+            <span class="button-text">회원가입</span>
+            <span class="button-loading hidden">가입 중...</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div id="main-container" class="screen-container hidden">
+      <header class="app-header">
+        <div class="header-logo">
+          <img src="img/main_logo.png" alt="헬스케어 로고" id="header-logo" />
+        </div>
+        <div class="header-actions">
+          <button class="header-button" id="refresh-btn">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div id="dashboard-screen" class="main-screen">
+          <div class="welcome-section">
+            <h2 id="welcome-message">안녕하세요, 사용자님!</h2>
+            <p>오늘의 건강 상태를 확인해보세요</p>
+          </div>
+
+          <div class="health-card" id="realtime-health">
+            <div class="card-header">
+              <h3>실시간 건강 데이터</h3>
+              <button class="chart-button" data-chart="health-data">
+                <i class="fas fa-chart-bar"></i>
+                <span>차트</span>
+              </button>
+            </div>
+            <div class="health-grid">
+              <div class="health-item">
+                <span class="health-label">심박수</span>
+                <span class="health-value" id="heartrate-value">72 bpm</span>
+              </div>
+              <div class="health-item">
+                <span class="health-label">체온</span>
+                <span class="health-value" id="temperature-value">36.5°C</span>
+              </div>
+              <div class="health-item">
+                <span class="health-label">혈압</span>
+                <span class="health-value" id="bloodpress-value">120/80</span>
+              </div>
+              <div class="health-item">
+                <span class="health-label">산소포화도</span>
+                <span class="health-value" id="spo2-value">98%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="health-card" id="health-score">
+            <div class="card-header">
+              <h3>건강 점수</h3>
+              <button class="chart-button" data-chart="health-score">
+                <i class="fas fa-chart-pie"></i>
+                <span>차트</span>
+              </button>
+            </div>
+            <div class="score-container">
+              <div class="main-score">
+                <span id="total-score">85</span>
+                <span class="score-label">점</span>
+              </div>
+              <div class="score-breakdown">
+                <div class="score-item">
+                  <span class="score-label">수면</span>
+                  <span class="score-value" id="sleep-score">90</span>
+                </div>
+                <div class="score-item">
+                  <span class="score-label">운동</span>
+                  <span class="score-value" id="exercise-score">80</span>
+                </div>
+                <div class="score-item">
+                  <span class="score-label">스트레스</span>
+                  <span class="score-value" id="stress-score">85</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="health-card" id="ai-advice">
+            <div class="card-header">
+              <h3>
+                <img
+                  src="img/img_chat_gpt.png"
+                  alt="ChatGPT"
+                  class="chatgpt-logo"
+                />
+                건강 조언
+              </h3>
+            </div>
+            <div class="ai-advice-content">
+              <div class="ai-loading" id="ai-loading" style="display: none">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>AI가 건강 데이터를 분석 중...</span>
+              </div>
+              <div class="ai-advice-text" id="ai-advice-text">
+                <p>
+                  최근 건강 데이터를 분석한 결과, 전반적으로 양호한 상태입니다.
+                </p>
+                <ul>
+                  <li>심박수가 정상 범위에 있어 심혈관 건강이 좋습니다.</li>
+                  <li>체온이 정상이므로 감염 증상은 없어 보입니다.</li>
+                  <li>산소포화도가 양호하여 호흡 기능이 정상입니다.</li>
+                </ul>
+                <div class="ai-recommendation">
+                  <strong>추천사항:</strong> 규칙적인 운동과 충분한 수면을
+                  유지하세요.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="healthinfo-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>건강 정보</h2>
+            <button class="add-button" id="show-health-input">
+              <i class="fas fa-plus"></i>
+              데이터 입력
+            </button>
+          </div>
+
+          <div class="data-list" id="health-data-list">
+            <h3>최근 건강 데이터</h3>
+            <div class="data-cards" id="health-data-cards"></div>
+            <div
+              class="loading-more"
+              id="loading-more-health"
+              style="display: none"
+            >
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>더 많은 데이터를 불러오는 중...</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="community-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>커뮤니티</h2>
+            <button class="add-button" id="show-write-form">
+              <i class="fas fa-edit"></i>
+              글쓰기
+            </button>
+          </div>
+
+          <div class="posts-list" id="posts-list">
+            <h3>최근 게시글</h3>
+            <div class="posts-container" id="posts-container"></div>
+            <div class="loading-more" id="loading-more" style="display: none">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>더 많은 게시글을 불러오는 중...</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="profile-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>프로필</h2>
+          </div>
+
+          <div class="profile-card">
+            <div class="profile-info">
+              <div class="avatar">
+                <span id="avatar-text">U</span>
+              </div>
+              <div class="user-info">
+                <h3 id="profile-name">사용자</h3>
+                <p id="profile-email">user@example.com</p>
+                <p id="profile-role">USER</p>
+              </div>
+              <div class="profile-buttons">
+                <button
+                  class="mini-action-btn edit-btn"
+                  id="edit-profile"
+                  title="정보 수정"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="mini-action-btn password-btn"
+                  id="change-password"
+                  title="비밀번호 변경"
+                >
+                  <i class="fas fa-key"></i>
+                </button>
+                <button
+                  class="mini-logout-btn"
+                  id="mini-logout-btn"
+                  title="로그아웃"
+                >
+                  <i class="fas fa-sign-out-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h3>계정 정보</h3>
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-label">아이디</span>
+                <span class="info-value" id="profile-userid">user123</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">이름</span>
+                <span class="info-value" id="profile-username">홍길동</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">이메일</span>
+                <span class="info-value" id="profile-useremail"
+                  >user@example.com</span
+                >
+              </div>
+              <div class="info-item">
+                <span class="info-label">전화번호</span>
+                <span class="info-value" id="profile-phone">010-1234-5678</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">생년월일</span>
+                <span class="info-value" id="profile-birth">1990-01-01</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">성별</span>
+                <span class="info-value" id="profile-gender">남성</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">혈액형</span>
+                <span class="info-value" id="profile-bloodtype">A형</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">키</span>
+                <span class="info-value" id="profile-height">175cm</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">몸무게</span>
+                <span class="info-value" id="profile-weight">70kg</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-item active" data-screen="dashboard">
+          <i class="fas fa-home"></i>
+          <span>대시보드</span>
+        </button>
+        <button class="nav-item" data-screen="healthinfo">
+          <i class="fas fa-heart"></i>
+          <span>건강정보</span>
+        </button>
+        <button class="nav-item" data-screen="community">
+          <i class="fas fa-users"></i>
+          <span>커뮤니티</span>
+        </button>
+        <button class="nav-item" data-screen="profile">
+          <i class="fas fa-user"></i>
+          <span>프로필</span>
+        </button>
+      </nav>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <div id="chart-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-title">차트</h3>
+          <button class="modal-close" id="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="chart-container">
+            <canvas id="health-chart" width="600" height="450"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="write-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>새 게시글 작성</h3>
+          <button class="modal-close" id="close-write-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <textarea
+              id="post-content"
+              placeholder="건강 정보나 경험을 공유해보세요..."
+              rows="4"
+            ></textarea>
+
+            <h4>건강 데이터 (선택사항)</h4>
+            <div class="input-row">
+              <div class="input-group">
+                <label>심박수</label>
+                <input
+                  type="number"
+                  id="post-heartrate"
+                  placeholder="70"
+                  disabled
+                />
+              </div>
+              <div class="input-group">
+                <label>체온</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  id="post-temperature"
+                  placeholder="36.5"
+                  disabled
+                />
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>혈압</label>
+                <input
+                  type="number"
+                  id="post-bloodpress"
+                  placeholder="120"
+                  disabled
+                />
+              </div>
+              <div class="input-group">
+                <label>나이</label>
+                <input type="number" id="post-age" placeholder="30" disabled />
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-post">
+                취소
+              </button>
+              <button class="form-button save-button" id="submit-post">
+                게시하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="health-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>건강 데이터 입력</h3>
+          <button class="modal-close" id="close-health-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-row">
+              <div class="input-group">
+                <label>심박수 (bpm)</label>
+                <input type="number" id="input-heartrate" placeholder="70" />
+              </div>
+              <div class="input-group">
+                <label>체온 (°C)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  id="input-temperature"
+                  placeholder="36.5"
+                />
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>산소포화도 (%)</label>
+                <input type="number" id="input-spo2" placeholder="98" />
+              </div>
+              <div class="input-group">
+                <label>걸음수</label>
+                <input type="number" id="input-step" placeholder="8000" />
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>수축기 혈압</label>
+                <input type="number" id="input-bp-max" placeholder="120" />
+              </div>
+              <div class="input-group">
+                <label>이완기 혈압</label>
+                <input type="number" id="input-bp-min" placeholder="80" />
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-health">
+                취소
+              </button>
+              <button class="form-button save-button" id="submit-health-data">
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="edit-profile-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>정보 수정</h3>
+          <button class="modal-close" id="close-edit-profile-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-group">
+              <label>이름</label>
+              <input type="text" id="edit-name" />
+            </div>
+            <div class="input-group">
+              <label>이메일</label>
+              <input type="email" id="edit-email" />
+            </div>
+            <div class="input-group">
+              <label>전화번호</label>
+              <input type="tel" id="edit-phone" />
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>키 (cm)</label>
+                <input type="number" id="edit-height" />
+              </div>
+              <div class="input-group">
+                <label>몸무게 (kg)</label>
+                <input type="number" id="edit-weight" />
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button
+                class="form-button cancel-button"
+                id="cancel-edit-profile"
+              >
+                취소
+              </button>
+              <button class="form-button save-button" id="save-profile-changes">
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="change-password-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>비밀번호 변경</h3>
+          <button class="modal-close" id="close-change-password-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-group">
+              <label>현재 비밀번호</label>
+              <input type="password" id="current-password" />
+            </div>
+            <div class="input-group">
+              <label>새 비밀번호</label>
+              <input type="password" id="new-password" />
+            </div>
+            <div class="input-group">
+              <label>새 비밀번호 확인</label>
+              <input type="password" id="confirm-password" />
+            </div>
+            <div class="modal-actions">
+              <button
+                class="form-button cancel-button"
+                id="cancel-change-password"
+              >
+                취소
+              </button>
+              <button
+                class="form-button save-button"
+                id="save-password-changes"
+              >
+                변경
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="post-detail-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>게시글 상세</h3>
+          <button class="modal-close" id="close-post-detail-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="post-detail-header">
+              <div class="post-author-info">
+                <div class="author-avatar">
+                  <span id="detail-author-initial">U</span>
+                </div>
+                <div class="author-details">
+                  <span class="author-name" id="detail-author-name"
+                    >작성자</span
+                  >
+                  <span class="post-date" id="detail-post-date">날짜</span>
+                </div>
+              </div>
+            </div>
+            <div class="post-detail-content" id="detail-post-content">
+              게시글 내용이 여기에 표시됩니다.
+            </div>
+            <div class="post-detail-health-data" id="detail-health-data"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
