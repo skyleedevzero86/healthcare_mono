@@ -5,8 +5,8 @@ const getEnvVar = (key: string, defaultValue: string = ''): string => {
 };
 
 export const API_CONFIG = {
-  baseURL: getEnvVar('EXPO_PUBLIC_API_BASE_URL', 'http://localhost:8080'),
-  timeout: parseInt(getEnvVar('EXPO_PUBLIC_API_TIMEOUT', '10000')),
+  baseURL: getEnvVar('EXPO_PUBLIC_API_BASE_URL', 'http://192.168.1.100:8080'),
+  timeout: parseInt(getEnvVar('EXPO_PUBLIC_API_TIMEOUT', '30000')),
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -21,7 +21,7 @@ export const SERVICE_PORTS = {
   HEALTHCARE: getEnvVar('EXPO_PUBLIC_SERVICE_HEALTHCARE_PORT', '8084'),
   COMMUNITY: getEnvVar('EXPO_PUBLIC_SERVICE_COMMUNITY_PORT', '8085'),
   USERMANAGEMENT: getEnvVar('EXPO_PUBLIC_SERVICE_USERMANAGEMENT_PORT', '8086'),
-  WEB: getEnvVar('EXPO_PUBLIC_WEB_HEALTHCARE_PORT', '8081'),
+  WEB: getEnvVar('EXPO_PUBLIC_WEB_HEALTHCARE_PORT', '9081'),
 };
 
 export const ENV_CONFIG = {

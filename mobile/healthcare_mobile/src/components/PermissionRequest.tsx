@@ -18,7 +18,7 @@ import {
   requestNotificationPermission,
   requestAllPermissions,
 } from '../store/slices/permissionSlice';
-import { PermissionRequest } from '../types';
+import { PermissionRequest as PermissionRequestType } from '../types';
 
 interface PermissionRequestProps {
   visible: boolean;
@@ -35,7 +35,7 @@ const PermissionRequest: React.FC<PermissionRequestProps> = ({
   const { permissions, loading } = useSelector((state: RootState) => state.permission);
   const [currentStep, setCurrentStep] = useState(0);
 
-  const permissionRequests: PermissionRequest[] = [
+  const permissionRequests: PermissionRequestType[] = [
     {
       type: 'location',
       title: '위치 정보',

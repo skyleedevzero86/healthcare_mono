@@ -5,6 +5,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus, LocationData, SensorData } from '../types';
 import { isWeb, getWebBrowserInfo, getWebSupportedFeatures, requestWebPermission, getWebLocation, getWebCamera, getWebImageFromLibrary, sendWebNotification } from '../utils/platform';
+import { isExpoGo, isDevelopmentBuild } from '../utils/expoEnvironment';
 
 class PermissionService {
   async requestLocationPermission(): Promise<boolean> {
@@ -48,10 +49,19 @@ class PermissionService {
 
   async requestMediaLibraryPermission(): Promise<boolean> {
     try {
+      // Check if feature is supported in Expo Go
+      if (!this.isFeatureSupportedInExpoGo('mediaLibrary')) {
+        this.showExpoGoLimitationAlert('미디어 라이브러리');
+        return false;
+      }
+
       const { status } = await MediaLibrary.requestPermissionsAsync();
       return status === 'granted';
     } catch (error) {
       console.error('Media library permission error:', error);
+      if (isExpoGo()) {
+        this.showExpoGoLimitationAlert('미디어 라이브러리');
+      }
       return false;
     }
   }
@@ -61,10 +71,20 @@ class PermissionService {
       if (isWeb) {
         return await requestWebPermission('notifications');
       }
+
+      // Check if feature is supported in Expo Go
+      if (!this.isFeatureSupportedInExpoGo('notifications')) {
+        this.showExpoGoLimitationAlert('푸시 알림');
+        return false;
+      }
+
       const { status } = await Notifications.requestPermissionsAsync();
       return status === 'granted';
     } catch (error) {
       console.error('Notification permission error:', error);
+      if (isExpoGo()) {
+        this.showExpoGoLimitationAlert('푸시 알림');
+      }
       return false;
     }
   }
@@ -332,6 +352,60 @@ class PermissionService {
         notifications: 'denied',
       };
     }
+  }
+
+  // Expo Go limitation handlers
+  showExpoGoLimitationAlert(feature: string): void {
+    if (isExpoGo()) {
+      Alert.alert(
+        'Expo Go 제한사항',
+        `${feature} 기능은 Expo Go에서 제한됩니다. 개발 빌드를 사용하거나 웹 버전을 이용해주세요.`,
+        [
+          { text: '확인' },
+          { text: '개발 빌드 안내', onPress: () => this.showDevelopmentBuildInfo() }
+        ]
+      );
+    }
+  }
+
+  showDevelopmentBuildInfo(): void {
+    Alert.alert(
+      '개발 빌드 사용법',
+      '1. EAS CLI 설치: npm install -g @expo/eas-cli\n2. 로그인: eas login\n3. 개발 빌드 생성: eas build --profile development\n4. 빌드된 앱 설치 후 사용',
+      [{ text: '확인' }]
+    );
+  }
+
+  isFeatureSupportedInExpoGo(feature: 'camera' | 'mediaLibrary' | 'notifications'): boolean {
+    if (isExpoGo()) {
+      switch (feature) {
+        case 'camera':
+          return true; // Camera works in Expo Go
+        case 'mediaLibrary':
+          return false; // Media library has limitations
+        case 'notifications':
+          return false; // Push notifications don't work
+        default:
+          return true;
+      }
+    }
+    return true; // All features work in development builds
+  }
+
+  getExpoGoStatus(): { isExpoGo: boolean; isDevelopmentBuild: boolean; limitations: string[] } {
+    const limitations: string[] = [];
+    
+    if (isExpoGo()) {
+      limitations.push('미디어 라이브러리 접근 제한');
+      limitations.push('푸시 알림 기능 제한');
+      limitations.push('일부 네이티브 기능 제한');
+    }
+
+    return {
+      isExpoGo: isExpoGo(),
+      isDevelopmentBuild: isDevelopmentBuild(),
+      limitations
+    };
   }
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator, Text, StyleSheet, Platform } from 'react-native';
+import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -10,8 +10,6 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   message = '로딩 중...',
   color = '#2196F3',
 }) => {
-  const spinnerSize = Platform.OS === 'ios' ? 40 : 'large';
-
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={color} />

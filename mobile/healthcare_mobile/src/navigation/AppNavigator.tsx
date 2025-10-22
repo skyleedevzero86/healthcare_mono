@@ -6,6 +6,7 @@ import { RootState, AppDispatch } from '../store';
 import { checkAuth } from '../store/slices/authSlice';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { RootStackParamList } from '../types';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -15,11 +16,16 @@ const AppNavigator: React.FC = () => {
   const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    dispatch(checkAuth());
+    // 안전한 초기화를 위해 try-catch 추가
+    try {
+      dispatch(checkAuth());
+    } catch (error) {
+      console.error('Auth check failed:', error);
+    }
   }, [dispatch]);
 
   if (loading) {
-    return null;
+    return <LoadingSpinner message="앱을 초기화하는 중..." />;
   }
 
   return (

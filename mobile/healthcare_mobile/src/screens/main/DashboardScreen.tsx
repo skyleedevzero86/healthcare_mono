@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { fetchHealthData, fetchHealthScoreList } from '../../store/slices/health
 import { fetchUserInfo } from '../../store/slices/userSlice';
 import { checkPermissions, getCurrentLocation, sendNotification } from '../../store/slices/permissionSlice';
 import PermissionRequest from '../../components/PermissionRequest';
+import ExpoGoLimitationBanner from '../../components/ExpoGoLimitationBanner';
 
 const DashboardScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,6 +22,7 @@ const DashboardScreen: React.FC = () => {
   const { healthData, healthScore, loading } = useSelector((state: RootState) => state.health);
   const { permissions } = useSelector((state: RootState) => state.permission);
   const [showPermissionRequest, setShowPermissionRequest] = useState(false);
+  const [showLimitationBanner, setShowLimitationBanner] = useState(true);
 
   useEffect(() => {
     if (user?.userId) {
@@ -77,6 +79,10 @@ const DashboardScreen: React.FC = () => {
           </Text>
           <Text style={styles.subtitle}>오늘의 건강 상태를 확인해보세요</Text>
         </View>
+
+        {showLimitationBanner && (
+          <ExpoGoLimitationBanner onDismiss={() => setShowLimitationBanner(false)} />
+        )}
 
         {latestData && (
           <View style={styles.healthCard}>
