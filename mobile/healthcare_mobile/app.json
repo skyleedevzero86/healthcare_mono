@@ -1,0 +1,94 @@
+{
+  "expo": {
+    "name": "healthcare_mono",
+    "slug": "healthcare_mono",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "건강 상태 사진 촬영을 위해 카메라 접근이 필요합니다.",
+        "NSMicrophoneUsageDescription": "음성 메모 기능을 위해 마이크 접근이 필요합니다.",
+        "NSLocationWhenInUseUsageDescription": "건강 데이터 수집을 위해 위치 정보 접근이 필요합니다.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "건강 데이터 수집을 위해 위치 정보 접근이 필요합니다.",
+        "NSPhotoLibraryUsageDescription": "이미지 선택을 위해 갤러리 접근이 필요합니다."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.ACCESS_MEDIA_LOCATION",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ],
+      "package": "com.anonymous.healthcare_mono"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "건강 상태 사진 촬영을 위해 카메라 접근이 필요합니다."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "건강 데이터 수집을 위해 위치 정보 접근이 필요합니다.",
+          "locationWhenInUsePermission": "건강 데이터 수집을 위해 위치 정보 접근이 필요합니다."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "이미지 선택을 위해 갤러리 접근이 필요합니다.",
+          "savePhotosPermission": "이미지 저장을 위해 갤러리 접근이 필요합니다.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/notification.wav"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      },
+      "EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.100:9081",
+      "EXPO_PUBLIC_API_TIMEOUT": "30000",
+      "EXPO_PUBLIC_ENVIRONMENT": "development",
+      "EXPO_PUBLIC_DEBUG_MODE": "true"
+    }
+  }
+}
