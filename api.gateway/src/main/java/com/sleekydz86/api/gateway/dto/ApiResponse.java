@@ -6,10 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * Filter의 JSON Return을 위한 ApiResponse toJsonString 클래스
- *
- * */
 @Data @Builder
 public class ApiResponse {
 
@@ -32,7 +28,6 @@ public class ApiResponse {
             return mapper.writeValueAsString(apiResponse);
         }catch (Exception e) {
             e.printStackTrace();
-            // 수동 에러처리
             return "{\r\n" +
                     "    \"resultCode\": \"" + ApiResultCode.UNKOWN_ERR.code + "\",\r\n" +
                     "    \"resultMessage\": \"" + ApiResultCode.UNKOWN_ERR.message + "\",\r\n" +
