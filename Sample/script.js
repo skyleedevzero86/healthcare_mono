@@ -3438,7 +3438,7 @@ class HealthcareApp {
                     '충분한 수분 섭취',
                     '과도한 운동은 피하기'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example1',
                 targetHeartRate: { min: 120, max: 160 }
             },
             'WALKING': {
@@ -3455,7 +3455,7 @@ class HealthcareApp {
                     '편안한 신발 착용',
                     '충분한 수분 섭취'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example2',
                 targetHeartRate: { min: 90, max: 120 }
             },
             'CYCLING': {
@@ -3473,7 +3473,7 @@ class HealthcareApp {
                     '헬멧 착용 필수',
                     '무릎 부상 시 주의'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example3',
                 targetHeartRate: { min: 110, max: 150 }
             },
             'SWIMMING': {
@@ -3491,7 +3491,7 @@ class HealthcareApp {
                     '물에 들어가기 전 체온 유지',
                     '수영 후 귀 물 빼기'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example1',
                 targetHeartRate: { min: 120, max: 160 }
             },
             'WEIGHT_TRAINING': {
@@ -3511,7 +3511,7 @@ class HealthcareApp {
                     '충분한 휴식 시간',
                     '허리 부상 시 주의'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example5',
                 targetHeartRate: { min: 100, max: 140 }
             },
             'YOGA': {
@@ -3530,7 +3530,7 @@ class HealthcareApp {
                     '호흡에 집중',
                     '목과 척추 주의'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example6',
                 targetHeartRate: { min: 80, max: 110 }
             },
             'PILATES': {
@@ -3549,7 +3549,7 @@ class HealthcareApp {
                     '올바른 호흡법 유지',
                     '무리한 동작 피하기'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example2',
                 targetHeartRate: { min: 90, max: 120 }
             },
             'STRETCHING': {
@@ -3568,7 +3568,7 @@ class HealthcareApp {
                     '과도한 스트레칭 피하기',
                     '운동 후 실시 권장'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example8',
                 targetHeartRate: { min: 70, max: 100 }
             },
             'HIIT': {
@@ -3588,7 +3588,7 @@ class HealthcareApp {
                     '충분한 준비운동 필수',
                     '과도한 운동 피하기'
                 ],
-                videoUrl: 'https:
+                videoUrl: 'https://www.youtube.com/watch?v=example9',
                 targetHeartRate: { min: 150, max: 180 }
             }
         };
