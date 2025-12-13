@@ -36,7 +36,7 @@ spring:
         pool:
           max-connections: 500
           max-idle-time: 30s
-      routes:
+          routes:
         - id: auth-service
           uri: lb://service.auth
           predicates:
@@ -50,9 +50,9 @@ spring:
             - StripPrefix=0
           order: 1
         - id: healthcare-service
-          uri: lb://service.healthcare
-          predicates:
-            - Path=/healthcare/**
+              uri: lb://service.healthcare
+              predicates:
+                - Path=/healthcare/**
           filters:
             - StripPrefix=0
             - name: Retry
@@ -74,15 +74,15 @@ spring:
             - StripPrefix=0
           order: 3
         - id: usermanagement-service
-          uri: lb://service.usermanagement
-          predicates:
-            - Path=/management/**
+              uri: lb://service.usermanagement
+              predicates:
+                - Path=/management/**
           filters:
             - StripPrefix=0
           order: 4
         - id: web-healthcare-service
           uri: http://localhost:8981
-          predicates:
+              predicates:
             - Path=/web/**
           filters:
             - StripPrefix=1
@@ -93,9 +93,9 @@ spring:
             baseMessage: "API Gateway Request"
             preLogger: true
             postLogger: true
-      discovery:
-        locator:
-          enabled: true
+          discovery:
+            locator:
+              enabled: true
           lower-case-service-id: true
     config:
       uri: http://localhost:8888
