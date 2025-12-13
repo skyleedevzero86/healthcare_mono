@@ -57,6 +57,15 @@ dependencies {
     implementation 'org.codehaus.janino:janino:3.1.9'
     implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    // Circuit Breaker (Resilience4j)
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    // Distributed Tracing
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+    // RabbitMQ for Event-Driven Architecture
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    // Redis for Token Blacklist
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

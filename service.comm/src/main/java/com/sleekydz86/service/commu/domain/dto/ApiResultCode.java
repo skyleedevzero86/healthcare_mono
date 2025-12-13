@@ -1,4 +1,4 @@
-package com.sleekydz86.service.commu.domain.dto;
+﻿package com.sleekydz86.service.commu.domain.dto;
 
 public enum ApiResultCode {
 
@@ -18,8 +18,6 @@ public enum ApiResultCode {
 
     UNKOWN_ERR				("5001", "알 수 없는 오류");
 
-
-
     public String code;
     public String message;
 
@@ -27,6 +25,5 @@ public enum ApiResultCode {
         this.code = code;
         this.message = message;
     }
-
 
 }

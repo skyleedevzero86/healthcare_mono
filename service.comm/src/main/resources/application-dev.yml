@@ -38,15 +38,36 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
-#spring:
-#  datasource:
-#    driver-class-name: org.postgresql.Driver
-#  application:
-#    name: service.usermanagement
-#  rabbitmq:
-#    host: 127.0.0.1
-#    port: 5672
-#    username: guest
-#    password: guest
+
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  sleuth:
+    zipkin:
+      base-url: http://localhost:9411
+    sampler:
+      probability: 1.0
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
 
 #JPA TEST를 위한 설정

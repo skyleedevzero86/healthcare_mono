@@ -47,6 +47,10 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
                 redis-rate-limiter.requestedTokens: 1
+            - name: CircuitBreaker
+              args:
+                name: authService
+                fallbackUri: forward:/fallback/auth
             - StripPrefix=0
           order: 1
         - id: healthcare-service
@@ -65,12 +69,20 @@ spring:
                   maxBackoff: 500ms
                   factor: 2
                   basedOnPreviousValue: false
+            - name: CircuitBreaker
+              args:
+                name: healthcareService
+                fallbackUri: forward:/fallback/healthcare
           order: 2
         - id: community-service
           uri: lb://service.comm
           predicates:
             - Path=/community/**
           filters:
+            - name: CircuitBreaker
+              args:
+                name: communityService
+                fallbackUri: forward:/fallback/community
             - StripPrefix=0
           order: 3
         - id: usermanagement-service
@@ -78,6 +90,10 @@ spring:
               predicates:
                 - Path=/management/**
           filters:
+            - name: CircuitBreaker
+              args:
+                name: usermanagementService
+                fallbackUri: forward:/fallback/management
             - StripPrefix=0
           order: 4
         - id: web-healthcare-service
@@ -127,7 +143,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,gateway
+        include: health,info,metrics,gateway,circuitbreakers
       base-path: /actuator
   endpoint:
     health:
@@ -136,6 +152,32 @@ management:
     export:
       prometheus:
         enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+    instances:
+      authService:
+        baseConfig: default
+      healthcareService:
+        baseConfig: default
+      communityService:
+        baseConfig: default
+
+# Distributed Tracing Configuration (already in spring section above)
 
 logging:
   level:

@@ -1,5 +1,4 @@
-package com.sleekydz86.api.gateway.dto;
-
+﻿package com.sleekydz86.api.gateway.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +33,6 @@ public class ApiResponse {
                     "    \"resultData\": null\r\n" +
                     "}";
         }
-
 
     }
 }

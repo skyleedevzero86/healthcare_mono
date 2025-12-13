@@ -26,14 +26,18 @@ public class JwtTokenProvider {
     private final long REFRESH_EXPIRED_TIME;
 
     private final String SECRET;
+    
+    private final com.sleekydz86.service.auth.security.TokenBlacklistService tokenBlacklistService;
 
     public JwtTokenProvider(
             @Value("${token.secret}") String secret,
             @Value("${token.access-expired-time}") long accessExpiredTime,
-            @Value("${token.refresh-expired-time}") long refreshExpiredTime) {
+            @Value("${token.refresh-expired-time}") long refreshExpiredTime,
+            com.sleekydz86.service.auth.security.TokenBlacklistService tokenBlacklistService) {
         this.SECRET = secret;
         this.ACCESS_EXPIRED_TIME = accessExpiredTime;
         this.REFRESH_EXPIRED_TIME = refreshExpiredTime;
+        this.tokenBlacklistService = tokenBlacklistService;
         byte[] keyBytes = SECRET.getBytes(StandardCharsets.UTF_8);
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -79,6 +83,11 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) throws Exception {
         try {
+            if (tokenBlacklistService.isBlacklisted(token)) {
+                log.warn("블랙리스트에 등록된 토큰 사용 시도");
+                throw new UnsupportedJwtException("로그아웃된 토큰입니다.");
+            }
+            
             Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token);
             Claims claims = parseClaims(token);
 

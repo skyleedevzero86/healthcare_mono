@@ -1,8 +1,40 @@
 spring:
+  application:
+    name: service.comm
   profiles:
     active: dev
-  cloud:
-    config:
-      enabled: false
-      import-check:
-        enabled: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    exchange: healthcare.exchange
+    queue:
+      community: community.queue
+  sleuth:
+    zipkin:
+      base-url: http://localhost:9411
+    sampler:
+      probability: 1.0
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  tracing:
+    sampling:
+      probability: 1.0

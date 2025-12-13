@@ -1,4 +1,4 @@
-package com.sleekydz86.web.userInfo.controller;
+﻿package com.sleekydz86.web.userInfo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.web.global.util.AES256Util;
@@ -42,12 +42,6 @@ public class UserInfoController {
     @Autowired
     private PagingUtil pagingUtil;
 
-    /**
-     * @apiNote 사용자 목록 view
-     * @param UserDTO         = 유저 dto
-     * @param PaginationInfo: 조회 조건, 결과 값 페이징 관련
-     * @return view
-     */
     @SuppressWarnings("unchecked")
     @GetMapping(value = {
             "/list_user",
@@ -70,7 +64,6 @@ public class UserInfoController {
         body.put("searchKeyword", dto.getSearchKeyword());
         log.info(this.getClass().toString(), body);
 
-        // url을 구분하여 권한 검색 조건 분리 및 request body 조건 추가
         if (division.equals("doc")) {
             body.put("userRoleFk", "3");
         } else if (division.equals("par")) {
@@ -106,12 +99,6 @@ public class UserInfoController {
         return "/userInfo/list";
     }
 
-    /**
-     * @apiNote 사용자 목록 view
-     * @param UserDTO         = 유저 dto
-     * @param PaginationInfo: 조회 조건, 결과 값 페이징 관련
-     * @return view
-     */
     @SuppressWarnings("unchecked")
     @GetMapping("/manage_userList")
     public String userlist(HttpServletRequest req, HttpServletResponse res, Model model, HttpSession session,
@@ -213,7 +200,6 @@ public class UserInfoController {
                     LocalDate birthDate = LocalDate.parse(birthDateString);
                     LocalDate currentDate = LocalDate.now();
 
-                    // 나이 계산
                     age = Period.between(birthDate, currentDate).getYears();
 
                     session.setAttribute("ageAvg", age);
@@ -239,8 +225,7 @@ public class UserInfoController {
             if (!userRolelist.isEmpty()) {
                 list = obj.readValue(userRolelist.toString(), ArrayList.class);
 
-                for (Map<String, Object> map : list) { //
-                    // 보호자 정보 중 암호화된 값 복호화
+                for (Map<String, Object> map : list) {
                     if (map.containsKey("telNumEnc")) {
                         phonenum = AES256Util.decrypt((String) map.get("telNumEnc"));
                         map.put("telNumEnc", phonenum.substring(0, 3) + "-" + phonenum.substring(3, 7) + "-"
@@ -272,7 +257,7 @@ public class UserInfoController {
                 }
                 model.addAttribute("commulist", commulist);
                 bodyAge = age;
-                if (((height * height) / weight) * 10000 < 25) { // BMI 지수가 비만보다 낮아야됨
+                if (((height * height) / weight) * 10000 < 25) {
                     bodyAge -= 5;
                 } else {
                     bodyAge += 1;
@@ -291,10 +276,6 @@ public class UserInfoController {
         return "/user/dashboard";
     }
 
-    /**
-     * @apiNote 내정보 조회 view
-     * @return view
-     */
     @GetMapping("/mypage")
     public String mypage(HttpServletRequest req, HttpServletResponse res, HttpSession session, Model model)
             throws Exception {
@@ -317,7 +298,7 @@ public class UserInfoController {
             if (!key.equals("userRoleFk")) {
                 if (key.equals("birthEnc") || key.equals("telNumEnc"))
                     model.addAttribute(key, AES256Util.decrypt((String) result.get(key)));
-                else if (key.equals("guardian")) { // guardian:보호자(JSONObject)
+                else if (key.equals("guardian")) {
                     ObjectMapper obj = new ObjectMapper();
                     ArrayList<Map<String, Object>> arr = obj.readValue(result.get("guardian").toString(),
                             ArrayList.class);
@@ -327,7 +308,7 @@ public class UserInfoController {
                         List<Map<String, Object>> resarr = new ArrayList<Map<String, Object>>();
                         int count = 0;
                         ArrayList<String> gardianNmArr = new ArrayList<String>();
-                        for (Map<String, Object> map : arr) { // 보호자 정보 중 암호화된 값 복호화
+                        for (Map<String, Object> map : arr) {
                             map.put("telNumEnc", AES256Util.decrypt((String) map.get("telNumEnc")));
                             resarr.add(map);
                             if (count != 0)
@@ -353,10 +334,6 @@ public class UserInfoController {
         return "/user/mypage_new";
     }
 
-    /**
-     * @apiNote 담당자(의사) 조회(ajax)
-     * @return Map
-     */
     @SuppressWarnings("unchecked")
     @PostMapping("/doctorSearch")
     @ResponseBody
@@ -371,7 +348,6 @@ public class UserInfoController {
         ObjectMapper obj = new ObjectMapper();
 
         map = obj.readValue(str, Map.class);
-        // 1003: 인증 정보가 잘못된 상태 (인터페이스 정의서 참고)
         if (map.get("resultCode").equals("1003")) {
             session.removeAttribute("acToken");
             session.removeAttribute("rfToken");
@@ -380,10 +356,6 @@ public class UserInfoController {
 
     }
 
-    /**
-     * @apiNote 보호자 조회(ajax)
-     * @return Map
-     */
     @SuppressWarnings("unchecked")
     @PostMapping("/parentSearch")
     @ResponseBody
@@ -391,23 +363,23 @@ public class UserInfoController {
             HttpSession session, UserDTO dto, @RequestParam Map<String, Object> map) throws Exception {
         JSONObject body = new JSONObject();
         body.put("userNm", map.get("parentNm"));
-        body.put("birthEnc", AES256Util.encrypt((String) map.get("parentBirthEnc"))); // 평문 암호화
-        body.put("telNumEnc", AES256Util.encrypt((String) map.get("parentTelNumEnc"))); // 평문 암호화
+        body.put("birthEnc", AES256Util.encrypt((String) map.get("parentBirthEnc")));
+        body.put("telNumEnc", AES256Util.encrypt((String) map.get("parentTelNumEnc")));
         String str = (String) GatewayUtils.post(new URL(uri + version + "/searchParent"),
                 GatewayUtils.tokenCheck(session, res),
                 body.toString());
 
         ObjectMapper obj = new ObjectMapper();
         Map<String, Object> result = new HashMap<String, Object>();
-        result = obj.readValue(str, Map.class); // ObjectMapper 이용하여 결과 값 Map pasing
+        result = obj.readValue(str, Map.class);
         map = (Map<String, Object>) result.get("resultData");
 
         ArrayList<Map<String, Object>> arr = new ArrayList<Map<String, Object>>();
         if (map != null) {
             if (map.get("list") != null) {
                 for (Map<String, Object> d : (ArrayList<Map<String, Object>>) map.get("list")) {
-                    d.put("telNumEnc", AES256Util.decrypt((String) d.get("telNumEnc"))); // 복호화
-                    d.put("birthEnc", AES256Util.decrypt((String) d.get("birthEnc"))); // 복호화
+                    d.put("telNumEnc", AES256Util.decrypt((String) d.get("telNumEnc")));
+                    d.put("birthEnc", AES256Util.decrypt((String) d.get("birthEnc")));
                     arr.add(d);
                 }
                 result.put("resultData", arr);
@@ -416,10 +388,6 @@ public class UserInfoController {
         return result;
     }
 
-    /**
-     * @apiNote 내정보 수정 view
-     * @return view
-     */
     @PostMapping("/uptUserInfo")
     public String uptUserInfo(HttpServletRequest req, HttpServletResponse res, Model model, HttpSession session)
             throws Exception {
@@ -451,14 +419,14 @@ public class UserInfoController {
                 else if (key.equals("guardian")) {
                     ObjectMapper obj = new ObjectMapper();
                     ArrayList<Map<String, Object>> arr = obj.readValue(result.get("guardian").toString(),
-                            ArrayList.class); // 결과 값 ArrayList pasing
+                            ArrayList.class);
                     ArrayList<String> gardianNmArr = new ArrayList<String>();
                     if (arr != null && arr.size() > 0) {
                         String guardianNm = "";
                         List<Map<String, Object>> resarr = new ArrayList<Map<String, Object>>();
                         int count = 0;
                         for (Map<String, Object> map : arr) {
-                            map.put("telNumEnc", AES256Util.decrypt((String) map.get("telNumEnc"))); // 복호화
+                            map.put("telNumEnc", AES256Util.decrypt((String) map.get("telNumEnc")));
                             resarr.add(map);
                             if (count != 0)
                                 guardianNm += ", ";
@@ -478,10 +446,6 @@ public class UserInfoController {
         return "/user/updateuser";
     }
 
-    /**
-     * @apiNote 내정보 수정 처리
-     * @return view
-     */
     @PostMapping("/uptUserInfoAct")
     public String uptUserInfoAct(HttpServletRequest req, HttpServletResponse res, Model model, HttpSession session,
             @RequestParam Map<String, Object> map) {
@@ -494,7 +458,7 @@ public class UserInfoController {
         body.put("userRoleFk", session.getAttribute("userRoleFk"));
         for (String key : map.keySet()) {
             if (key.equals("birthEnc") || key.equals("telNumEnc"))
-                body.put(key, AES256Util.encrypt((String) map.get(key))); // 평문 암호화
+                body.put(key, AES256Util.encrypt((String) map.get(key)));
             else
                 body.put(key, map.get(key));
         }
@@ -511,10 +475,6 @@ public class UserInfoController {
         return "redirect:/userInfo/mypage";
     }
 
-    /**
-     * @apiNote 비밀번호 변경(ajax)
-     * @return Map
-     */
     @PostMapping("/updatePasswd")
     @ResponseBody
     public Map<String, Object> updatePasswd(HttpServletRequest req, HttpServletResponse res, Model model,
@@ -525,7 +485,7 @@ public class UserInfoController {
 
         for (String key : map.keySet()) {
             if (key.equals("userPwEnc") || key.equals("newUserPwEnc"))
-                body.put(key, Sha256.encryt((String) map.get(key))); // sha-256 암호화
+                body.put(key, Sha256.encryt((String) map.get(key)));
             else
                 body.put(key, map.get(key));
         }
@@ -535,8 +495,8 @@ public class UserInfoController {
                 GatewayUtils.tokenCheck(session, res),
                 body.toString());
         ObjectMapper obj = new ObjectMapper();
-        result = obj.readValue(str, Map.class); // 결과 값 Map parsing
-        if (result.get("resultCode").equals("1003")) { // 코드 인터페이스 정의서 참고
+        result = obj.readValue(str, Map.class);
+        if (result.get("resultCode").equals("1003")) {
             session.removeAttribute("acToken");
             session.removeAttribute("rfToken");
         } else if (result.get("resultCode").equals("0000")) {
@@ -545,10 +505,6 @@ public class UserInfoController {
         return result;
     }
 
-    /**
-     * @apiNote 회원 탈퇴(ajax)
-     * @return Map
-     */
     @PostMapping("/secession")
     @ResponseBody
     public Map<String, Object> secession(HttpServletRequest req, HttpServletResponse res, Model model,
@@ -563,8 +519,8 @@ public class UserInfoController {
                 GatewayUtils.tokenCheck(session, res),
                 body.toString());
         ObjectMapper obj = new ObjectMapper();
-        result = obj.readValue(str, Map.class); // 결과 값 Map parsing
-        if (result.get("resultCode").equals("1003")) { // 코드 인터페이스 정의서 참고
+        result = obj.readValue(str, Map.class);
+        if (result.get("resultCode").equals("1003")) {
             session.removeAttribute("acToken");
             session.removeAttribute("rfToken");
         }
@@ -589,12 +545,11 @@ public class UserInfoController {
         ObjectMapper obj = new ObjectMapper();
         Map<String, Object> result = obj.readValue(str, Map.class);
 
-        ArrayList<Map<String, Object>> list = new ArrayList<>(); // [{userNm="",email=""...}]
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
 
         if (result.get("resultCode").equals("0000")) {
 
-            if (ObjectUtils.isEmpty(result.get("resultData"))) { // 관련된 사용자가 없어 빈객체만 전달되었는지 확인
-                // user_role, dept_nm, user_nm, email, tel_num_enc
+            if (ObjectUtils.isEmpty(result.get("resultData"))) {
                 Map<String, Object> a = new HashMap<>();
                 a.put("userNm", " ");
                 a.put("email", "Healthcare@naver.com");
@@ -606,7 +561,6 @@ public class UserInfoController {
                 list = (ArrayList<Map<String, Object>>) result.get("resultData");
 
                 for (Map<String, Object> d : list) {
-                    // 각 객체의 "telNumEnc" 값을 복호화
                     if (d.containsKey("telNumEnc")) {
                         d.put("telNumEnc", AES256Util.decrypt((String) d.get("telNumEnc")));
                     }
@@ -674,20 +628,17 @@ public class UserInfoController {
         ObjectMapper obj = new ObjectMapper();
         Map<String, Object> result = obj.readValue(str, Map.class);
 
-        ArrayList<Map<String, Object>> list = new ArrayList<>(); // [{userNm="",email=""...}]
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
 
         log.info("ash result userlist" + str);
         if (result.get("resultCode").equals("0000")) {
 
-            if (ObjectUtils.isEmpty(result.get("resultData"))) { // 관련된 사용자가 없어 빈객체만 전달되었는지 확인
-                // user_role, dept_nm, user_nm, email, tel_num_enc
-
+            if (ObjectUtils.isEmpty(result.get("resultData"))) {
             } else {
                 list = (ArrayList<Map<String, Object>>) result.get("resultData");
                 String birthDateString = "";
                 int age = 0;
                 for (Map<String, Object> d : list) {
-                    // 각 객체의 "telNumEnc" 값을 복호화
                     if (d.containsKey("birthEnc")) {
                         birthDateString = AES256Util.decrypt((String) d.get("birthEnc"));
                         d.put("birthEnc", birthDateString);
@@ -695,7 +646,6 @@ public class UserInfoController {
                             LocalDate birthDate = LocalDate.parse(birthDateString);
                             LocalDate currentDate = LocalDate.now();
                             age = Period.between(birthDate, currentDate).getYears();
-                            // 나이 계산
                             d.put("age", age);
                         }
 

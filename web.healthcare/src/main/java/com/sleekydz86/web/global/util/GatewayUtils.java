@@ -127,7 +127,6 @@ public class GatewayUtils {
         String acToken = (String) session.getAttribute("acToken");
         String rfToken = (String) session.getAttribute("rfToken");
 
-        // 토큰이 null이거나 비어있으면 null 반환
         if (acToken == null || acToken.isEmpty()) {
             return null;
         }

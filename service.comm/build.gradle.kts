@@ -38,6 +38,13 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.json:json:20231013")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    // Circuit Breaker (Resilience4j)
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+    // Distributed Tracing
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    // RabbitMQ for Event-Driven Architecture
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

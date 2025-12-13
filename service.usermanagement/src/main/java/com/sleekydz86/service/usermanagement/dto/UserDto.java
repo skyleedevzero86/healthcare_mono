@@ -1,4 +1,4 @@
-package com.sleekydz86.service.usermanagement.dto;
+﻿package com.sleekydz86.service.usermanagement.dto;
 
 import com.sleekydz86.service.usermanagement.global.common.vo.SearchVO;
 import lombok.AllArgsConstructor;
@@ -14,9 +14,6 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class UserDto extends SearchVO {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -1207994115556874337L;
 
     private int userSeq;
