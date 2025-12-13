@@ -26,11 +26,11 @@ public class LoggingFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String requestPath = request.getURI().getPath();
-        String requestMethod = request.getMethod() != null ? request.getMethod().name() : "UNKNOWN";
+        String requestMethod = request.getMethod() != null ? request.getMethod().name() : "알 수 없음";
         String requestId = request.getId();
 
         log.info("=== API Gateway 요청 시작 ===");
-        log.info("Request ID: {}", requestId);
+        log.info("요청 ID: {}", requestId);
         log.info("요청 시간: {}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         log.info("요청 메서드: {}", requestMethod);
         log.info("요청 경로: {}", requestPath);
@@ -52,7 +52,7 @@ public class LoggingFilter implements GlobalFilter, Ordered {
                         String responseBody = new String(content, StandardCharsets.UTF_8);
                         
                         log.info("=== API Gateway 응답 ===");
-                        log.info("Request ID: {}", requestId);
+                        log.info("요청 ID: {}", requestId);
                         log.info("응답 시간: {}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                         log.info("응답 상태: {}", getStatusCode());
                         log.info("응답 헤더: {}", getHeaders());

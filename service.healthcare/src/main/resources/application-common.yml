@@ -6,10 +6,13 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      pool-name: HealthcareHikariPool
 
-logging:
-  level:
-    root: INFO
-    com.sleekydz86: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
+server:
+  max-http-header-size: 16KB
+  max-http-post-size: 10MB
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 1024
