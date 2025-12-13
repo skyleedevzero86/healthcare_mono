@@ -1,4 +1,4 @@
-package com.sleekydz86.service.auth.dto;
+﻿package com.sleekydz86.service.auth.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +11,6 @@ public class ApiResponse {
     private String resultCode;
     private String resultMessage;
     private Object resultData;
-
 
     public static ResponseEntity<ApiResponse> ok() {
         return response(ApiResultCode.SUCCESS.code, ApiResultCode.SUCCESS.message, null);

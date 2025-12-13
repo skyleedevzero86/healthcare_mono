@@ -54,7 +54,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,env,configprops,loggers
+        include: health,info,metrics,env,configprops,loggers,circuitbreakers
       base-path: /actuator
   endpoint:
     health:
@@ -64,6 +64,34 @@ management:
   info:
     env:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+spring:
+  sleuth:
+    zipkin:
+      base-url: http://localhost:9411
+    sampler:
+      probability: 1.0
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
 
 logging:
   config: classpath:log4j2-spring.xml

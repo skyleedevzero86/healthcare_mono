@@ -1,4 +1,4 @@
-package com.sleekydz86.service.healthcare.dto;
+﻿package com.sleekydz86.service.healthcare.dto;
 
 import lombok.Data;
 import lombok.Getter;
@@ -19,7 +19,6 @@ public class BioInfoDto {
     String age;
     String userNm;
     String userId;
-
 
     public BioInfoDto getBioInfoDto(Map<String, Object> map) {
         this.heartrate = (String) map.get("heartrate");

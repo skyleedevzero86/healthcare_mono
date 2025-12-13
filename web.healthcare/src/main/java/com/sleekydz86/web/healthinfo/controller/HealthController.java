@@ -39,7 +39,7 @@ public class HealthController {
         model.addAttribute("uri", req.getRequestURI());
         model.addAttribute("url", req.getRequestURL());
         if (map.getOrDefault("searchUserId", null) != null
-                && map.getOrDefault("searchUserId", null).equals("undefined")) { // 검색 ID 없으면 내 ID
+                && map.getOrDefault("searchUserId", null).equals("undefined")) {
             map.put("searchUserId", session.getAttribute("userId"));
         }
         model.addAttribute("searchUserId", map.getOrDefault("searchUserId", session.getAttribute("userId")));
@@ -69,7 +69,6 @@ public class HealthController {
         try {
             String token = GatewayUtils.tokenCheck(session, res);
             if (token == null) {
-                // 토큰이 없으면 로그인 필요 응답
                 result.put("resultCode", "1003");
                 result.put("resultMessage", "로그인이 필요합니다.");
                 return result;
@@ -101,7 +100,6 @@ public class HealthController {
         try {
             String token = GatewayUtils.tokenCheck(session, res);
             if (token == null) {
-                // 토큰이 없으면 로그인 필요 응답
                 result.put("resultCode", "1003");
                 result.put("resultMessage", "로그인이 필요합니다.");
                 return result;
@@ -138,7 +136,6 @@ public class HealthController {
         try {
             String token = GatewayUtils.tokenCheck(session, res);
             if (token == null) {
-                // 토큰이 없으면 로그인 필요 응답
                 result.put("resultCode", "1003");
                 result.put("resultMessage", "로그인이 필요합니다.");
                 return result;
@@ -149,7 +146,7 @@ public class HealthController {
 
             result = obj.readValue(str, Map.class);
             if (result.containsKey("resultCode") && result.get("resultCode").equals("5001")) {
-                session.removeAttribute("acToken"); // 세션종료
+                session.removeAttribute("acToken");
                 session.removeAttribute("rfToken");
             }
             log.info("ash analysis param " + str);
@@ -174,7 +171,6 @@ public class HealthController {
         try {
             String token = GatewayUtils.tokenCheck(session, res);
             if (token == null) {
-                // 토큰이 없으면 로그인 필요 응답
                 result.put("resultCode", "1003");
                 result.put("resultMessage", "로그인이 필요합니다.");
                 return result;
@@ -209,7 +205,6 @@ public class HealthController {
         try {
             String token = GatewayUtils.tokenCheck(session, res);
             if (token == null) {
-                // 토큰이 없으면 로그인 필요 응답
                 result.put("resultCode", "1003");
                 result.put("resultMessage", "로그인이 필요합니다.");
                 return result;
@@ -245,7 +240,6 @@ public class HealthController {
         try {
             String token = GatewayUtils.tokenCheck(session, res);
             if (token == null) {
-                // 토큰이 없으면 로그인 필요 응답
                 result.put("resultCode", "1003");
                 result.put("resultMessage", "로그인이 필요합니다.");
                 return result;

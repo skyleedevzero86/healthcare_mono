@@ -40,6 +40,11 @@ dependencies {
     implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation ("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    // Circuit Breaker (Resilience4j)
+    implementation ("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+    // Distributed Tracing
+    implementation ("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation ("io.zipkin.reporter2:zipkin-reporter-brave")
     testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 

@@ -1,4 +1,4 @@
-package com.sleekydz86.web.login.controller;
+﻿package com.sleekydz86.web.login.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.web.global.util.AES256Util;
@@ -44,10 +44,6 @@ public class LoginController {
     @Autowired
     JwtTokenUtils jwtTokenUtils;
 
-    /**
-     * @apiNote 로그인 view
-     * @return view
-     */
     @GetMapping("/signin")
     public String singin(HttpServletRequest req, HttpServletResponse res, HttpSession session,
             @RequestParam Map<String, Object> map, Model model) throws Exception {
@@ -58,10 +54,6 @@ public class LoginController {
         return "redirect:/userInfo/userBoardInfo?userinfoId=" + session.getAttribute("UserinfoId");
     }
 
-    /**
-     * @apiNote 회원가입 view
-     * @return view
-     */
     @RequestMapping("/signup")
     public String singup(HttpServletRequest req, HttpServletResponse res, HttpSession session,
             @RequestParam Map<String, Object> map, Model model) throws Exception {
@@ -71,10 +63,6 @@ public class LoginController {
         return "redirect:/";
     }
 
-    /**
-     * @apiNote ID 중복체크(ajax)
-     * @return Map
-     */
     @RequestMapping("/duplicateId")
     @ResponseBody
     public Map<String, Object> duplicateId(HttpServletRequest req, HttpServletResponse res, Model model,
@@ -84,14 +72,10 @@ public class LoginController {
 
         String str = (String) GatewayUtils.post(new URL(authUri + version + "/duplicateId"), null, body.toString());
         ObjectMapper obj = new ObjectMapper();
-        map = obj.readValue(str, Map.class); // 결과 값 map parsing
+        map = obj.readValue(str, Map.class);
         return map;
     }
 
-    /**
-     * @apiNote 회원가입 처리
-     * @return Map
-     */
     @PostMapping("/succesSignup")
     public String succesSignup(HttpServletRequest req, HttpServletResponse res, Model model,
             @RequestParam Map<String, Object> map,
@@ -101,17 +85,16 @@ public class LoginController {
         JSONObject body = new JSONObject();
 
         for (String str : map.keySet()) {
-            if (str.equals("userPwEnc")) { // SHA-256
+            if (str.equals("userPwEnc")) {
                 String passwd = (String) map.get("userPwEnc");
                 try {
-                    passwd = Sha256.encryt(passwd); // PW 암호화(SHA-256)
+                    passwd = Sha256.encryt(passwd);
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
                 body.put(str, passwd);
             } else if (str.equals("birthEnc") || str.equals("telNumEnc")) {
-                body.put(str, AES256Util.encrypt((String) map.get(str))); // 암호화(AES256)
-                // body.put("age",Year.now()-birthEnc )
+                body.put(str, AES256Util.encrypt((String) map.get(str)));
             } else {
                 body.put(str, map.get(str));
                 model.addAttribute(str, map.get(str));
@@ -120,7 +103,7 @@ public class LoginController {
 
         if (image != null) {
             try {
-                imgFileName = ImagesUtil.write(image); // tmp경로에 파일 복사
+                imgFileName = ImagesUtil.write(image);
                 body.put("imgFileName", imgFileName);
             } catch (Exception e) {
             }
@@ -143,10 +126,6 @@ public class LoginController {
         }
     }
 
-    /**
-     * @return Map
-     * @apiNote 로그인 처리
-     */
     @PostMapping("/loginCheck")
     @ResponseBody
     public Map<String, Object> login(HttpServletRequest req, HttpServletResponse res, Model model,
@@ -156,7 +135,6 @@ public class LoginController {
         model.addAttribute("uri", req.getRequestURI());
         model.addAttribute("url", req.getRequestURL());
 
-        // gateway+"auth/test"
         JSONObject body = new JSONObject();
         String passwd = Sha256.encryt((String) map.get("userPwEnc"));
 
@@ -168,7 +146,7 @@ public class LoginController {
             }
         }
 
-        body.put("source", "W"); // web, moblie 구분 값
+        body.put("source", "W");
         model.addAttribute("result", body);
 
         String str = (String) GatewayUtils.post(new URL(authUri + version + "/signin"), null, body.toString());
@@ -176,7 +154,7 @@ public class LoginController {
         JSONObject result = new JSONObject(str);
         ObjectMapper obj = new ObjectMapper();
         Map<String, Object> resMap = new HashMap<>();
-        resMap = obj.readValue(str, Map.class); // 결과 값 Map parsing
+        resMap = obj.readValue(str, Map.class);
         String resultCode = (String) result.opt("resultCode");
         model.addAttribute("result", result);
         log.info("ash login result " + str);
@@ -189,8 +167,8 @@ public class LoginController {
                 session.setAttribute("sessUserNm", result.get("userNm"));
                 session.setAttribute("acToken", token);
                 session.setAttribute("rfToken", rfToken);
-                Claims claims = jwtTokenUtils.parseClaims(token); // 토큰 분석
-                session.setAttribute("userRoleFk", claims.get("role")); // 토큰 분석 결과(role:권한 값)
+                Claims claims = jwtTokenUtils.parseClaims(token);
+                session.setAttribute("userRoleFk", claims.get("role"));
                 session.setAttribute("sessuserRoleFk", claims.get("role"));
                 resMap.put("userRoleFk", claims.get("role"));
                 resMap.put("userId", result.get("userId"));
@@ -200,14 +178,9 @@ public class LoginController {
         return resMap;
     }
 
-    /**
-     * @apiNote 회원가입 처리
-     * @return Map
-     */
     @GetMapping("/logout")
     public String logout(HttpServletRequest req, HttpServletResponse res, Model model, HttpSession session,
             @RequestParam Map<String, Object> map) throws Exception {
-        // 세션 확인(인증 값 존재 여부)
         if (!session.getAttributeNames().hasMoreElements())
             return "redirect:/user/signin";
         JSONObject body = new JSONObject();
@@ -216,16 +189,11 @@ public class LoginController {
                 GatewayUtils.tokenCheck(session, res),
                 body.toString());
         JSONObject result = str.isEmpty() ? new JSONObject() : new JSONObject(str);
-        // 로그아웃 처리: 세션 정리
         session.invalidate();
 
         return "redirect:/";
     }
 
-    /**
-     * @apiNote 담당자(의사) 검색(Ajax) (현재: 미사용)
-     * @return Map
-     */
     @PostMapping("/doctorSearch")
     @ResponseBody
     public Map<String, Object> doctorSearch(@RequestParam Map<String, Object> map)
@@ -240,29 +208,25 @@ public class LoginController {
         return map;
     }
 
-    /**
-     * @apiNote 보호자 검색(Ajax) (현재: 미사용)
-     * @return Map
-     */
     @PostMapping("/parentSearch")
     @ResponseBody
     public Map<String, Object> parentSearch(@RequestParam Map<String, Object> map)
             throws Exception, MalformedURLException {
         JSONObject body = new JSONObject();
         body.put("userNm", map.get("parentNm"));
-        body.put("birthEnc", AES256Util.encrypt((String) map.get("parentBirthEnc"))); // 검색 조건 평문 암호화
-        body.put("telNumEnc", AES256Util.encrypt((String) map.get("parentTelNumEnc"))); // 검색 조건 평문 암호화
+        body.put("birthEnc", AES256Util.encrypt((String) map.get("parentBirthEnc")));
+        body.put("telNumEnc", AES256Util.encrypt((String) map.get("parentTelNumEnc")));
         String str = (String) GatewayUtils.post(new URL(authUri + version + "/searchParent"),
                 body.toString());
         ObjectMapper obj = new ObjectMapper();
         Map<String, Object> result = new HashMap<String, Object>();
-        result = obj.readValue(str, Map.class); // 결과 값 Map parsing
+        result = obj.readValue(str, Map.class);
         map = (Map<String, Object>) result.get("resultData");
         ArrayList<Map<String, Object>> arr = new ArrayList<Map<String, Object>>();
         if (map != null) {
             if (map.get("list") != null) {
                 for (Map<String, Object> d : (ArrayList<Map<String, Object>>) map.get("list")) {
-                    d.put("telNumEnc", AES256Util.decrypt((String) d.get("telNumEnc"))); // 결과 값: 암호화된 값 복호화
+                    d.put("telNumEnc", AES256Util.decrypt((String) d.get("telNumEnc")));
                     arr.add(d);
                 }
                 result.put("resultData", arr);
@@ -271,10 +235,6 @@ public class LoginController {
         return result;
     }
 
-    /**
-     * @apiNote 개발용 암호화(개발용 API)
-     * @return Map
-     */
     @PostMapping("/encrypt")
     @ResponseBody
     public Map<String, Object> encrypt(@RequestBody Map<String, Object> map) throws Exception, MalformedURLException {
@@ -284,10 +244,6 @@ public class LoginController {
         return map;
     }
 
-    /**
-     * @apiNote 복호화(개발용 API)
-     * @return Map
-     */
     @PostMapping("/decrypt")
     @ResponseBody
     public Map<String, Object> decrypt(@RequestBody Map<String, Object> map) throws Exception, MalformedURLException {

@@ -1,11 +1,10 @@
-package com.sleekydz86.service.healthcare.dto;
+﻿package com.sleekydz86.service.healthcare.dto;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class AIHandleDto {
     String aiRequestQuery;
-
 
     public String getQuery(BioInfoDto bioInfoDto) {
         this.aiRequestQuery = "역할: 사용자들의 바이오 정보로 상태를 파악하고 필요한 진단을 내리는 종합병원전문의.\n"+

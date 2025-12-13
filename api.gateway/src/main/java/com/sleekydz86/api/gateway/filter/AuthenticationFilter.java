@@ -63,6 +63,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         try {
             if (validateToken(token)) {
                 Claims claims = parseClaims(token);
+                
+                if (claims.getExpiration() != null && claims.getExpiration().getTime() < System.currentTimeMillis()) {
+                    log.warn("만료된 토큰 사용 시도");
+                    return handleUnauthorized(exchange, "만료된 토큰입니다.");
+                }
+                
                 ServerHttpRequest modifiedRequest = request.mutate()
                         .header("X-User-Id", claims.get("id", String.class))
                         .header("X-User-Role", claims.get("role", String.class))

@@ -1,4 +1,4 @@
-package com.sleekydz86.service.commu.service;
+﻿package com.sleekydz86.service.commu.service;
 
 import com.sleekydz86.service.commu.domain.Community;
 import com.sleekydz86.service.commu.domain.Usermng;
@@ -18,15 +18,12 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class CommunityServiceImpl implements CommunityService {
 
-
     private final CommunityRepository communityRepository;
     private final UserRepository userRepository;
 
     @Override
-    @Transactional//읽기전용으로 하면 데이터 변경이 안됨.
+    @Transactional
     public int writeBoard(Community community) {
-       // Usermng um = userRepository.findOne(community.getUserId());
-       // community.setUserNm(um.getUser_nm());
         return communityRepository.writeBoard(community);
     }
 

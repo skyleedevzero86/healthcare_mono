@@ -1,4 +1,4 @@
-package com.sleekydz86.service.commu.controller;
+﻿package com.sleekydz86.service.commu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.commu.domain.Community;
@@ -266,7 +266,6 @@ class CommunityControllerTest {
         Community incompleteCommunity = new Community();
         incompleteCommunity.setUserNm("testUser");
 
-        
         // when & then
         mockMvc.perform(post("/community/v1/writeBoard")
                 .contentType(MediaType.APPLICATION_JSON)

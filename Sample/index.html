@@ -178,6 +178,10 @@
           <img src="img/main_logo.png" alt="헬스케어 로고" id="header-logo" />
         </div>
         <div class="header-actions">
+          <button class="header-button notification-btn" id="notification-btn">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notification-badge">0</span>
+          </button>
           <button class="header-button" id="refresh-btn">
             <i class="fas fa-sync-alt"></i>
           </button>
@@ -249,6 +253,19 @@
             </div>
           </div>
 
+          <div class="health-card" id="checkup-summary">
+            <div class="card-header">
+              <h3>건강검진 요약</h3>
+              <button class="chart-button" onclick="window.healthcareApp.navigateToScreen('healthinfo')">
+                <i class="fas fa-arrow-right"></i>
+                <span>전체보기</span>
+              </button>
+            </div>
+            <div class="checkup-summary-content" id="checkup-summary-content">
+              <p class="no-checkup-data">건강검진 결과가 없습니다.</p>
+            </div>
+          </div>
+
           <div class="health-card" id="ai-advice">
             <div class="card-header">
               <h3>
@@ -286,12 +303,24 @@
         <div id="healthinfo-screen" class="main-screen hidden">
           <div class="screen-header">
             <h2>건강 정보</h2>
+            <div class="header-buttons">
+              <button class="add-button" id="show-checkup-upload">
+                <i class="fas fa-file-upload"></i>
+                검진 결과 업로드
+              </button>
             <button class="add-button" id="show-health-input">
               <i class="fas fa-plus"></i>
               데이터 입력
             </button>
+            </div>
           </div>
 
+          <div class="tab-container">
+            <button class="tab-button active" data-tab="realtime">실시간 데이터</button>
+            <button class="tab-button" data-tab="checkup">건강검진 결과</button>
+          </div>
+
+          <div class="tab-content active" id="tab-realtime">
           <div class="data-list" id="health-data-list">
             <h3>최근 건강 데이터</h3>
             <div class="data-cards" id="health-data-cards"></div>
@@ -302,6 +331,22 @@
             >
               <i class="fas fa-spinner fa-spin"></i>
               <span>더 많은 데이터를 불러오는 중...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-checkup">
+            <div class="data-list" id="checkup-data-list">
+              <h3>건강검진 결과</h3>
+              <div class="checkup-cards" id="checkup-cards"></div>
+              <div
+                class="loading-more"
+                id="loading-more-checkup"
+                style="display: none"
+              >
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>더 많은 데이터를 불러오는 중...</span>
+              </div>
             </div>
           </div>
         </div>
@@ -322,6 +367,155 @@
               <i class="fas fa-spinner fa-spin"></i>
               <span>더 많은 게시글을 불러오는 중...</span>
             </div>
+          </div>
+        </div>
+
+        <div id="diet-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>식단 코칭</h2>
+            <div class="header-buttons">
+              <button class="add-button" id="generate-diet-plan">
+                <i class="fas fa-magic"></i>
+                식단 계획 생성
+              </button>
+              <button class="add-button" id="add-meal-record">
+                <i class="fas fa-plus"></i>
+                식사 기록
+              </button>
+            </div>
+          </div>
+
+          <div class="tab-container">
+            <button class="tab-button active" data-tab="diet-plan">식단 계획</button>
+            <button class="tab-button" data-tab="meal-records">식사 기록</button>
+            <button class="tab-button" data-tab="nutrition-analysis">영양 분석</button>
+          </div>
+
+          <div class="tab-content active" id="tab-diet-plan">
+            <div class="diet-plan-container" id="diet-plan-container">
+              <div class="diet-plan-summary" id="diet-plan-summary"></div>
+              <div class="diet-plan-days" id="diet-plan-days"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-meal-records">
+            <div class="meal-records-container" id="meal-records-container">
+              <div class="meal-records-list" id="meal-records-list"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-nutrition-analysis">
+            <div class="nutrition-analysis-container" id="nutrition-analysis-container">
+              <div class="nutrition-goals" id="nutrition-goals"></div>
+              <div class="nutrition-progress" id="nutrition-progress"></div>
+              <div class="nutrition-chart-container">
+                <canvas id="nutrition-chart" width="600" height="400"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="exercise-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>운동 코칭</h2>
+            <div class="header-buttons">
+              <button class="add-button" id="generate-exercise-program">
+                <i class="fas fa-magic"></i>
+                운동 프로그램 생성
+              </button>
+              <button class="add-button" id="add-exercise-record">
+                <i class="fas fa-plus"></i>
+                운동 기록
+              </button>
+            </div>
+          </div>
+
+          <div class="tab-container">
+            <button class="tab-button active" data-tab="exercise-program">운동 프로그램</button>
+            <button class="tab-button" data-tab="exercise-records">운동 기록</button>
+            <button class="tab-button" data-tab="exercise-guide">운동 가이드</button>
+          </div>
+
+          <div class="tab-content active" id="tab-exercise-program">
+            <div class="exercise-program-container" id="exercise-program-container">
+              <div class="program-summary" id="program-summary"></div>
+              <div class="program-schedule" id="program-schedule"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-exercise-records">
+            <div class="exercise-records-container" id="exercise-records-container">
+              <div class="exercise-records-list" id="exercise-records-list"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-exercise-guide">
+            <div class="exercise-guide-container" id="exercise-guide-container">
+              <div class="guide-categories" id="guide-categories"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="recommend-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>추천</h2>
+            <button class="add-button" id="refresh-recommendations">
+              <i class="fas fa-sync-alt"></i>
+              새로고침
+            </button>
+          </div>
+
+          <div class="tab-container">
+            <button class="tab-button active" data-tab="content-recommend">건강 콘텐츠</button>
+            <button class="tab-button" data-tab="service-recommend">서비스 추천</button>
+            <button class="tab-button" data-tab="personalized">맞춤 추천</button>
+          </div>
+
+          <div class="tab-content active" id="tab-content-recommend">
+            <div class="recommend-container" id="content-recommend-container">
+              <div class="recommend-filters" id="content-filters"></div>
+              <div class="content-list" id="content-list"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-service-recommend">
+            <div class="recommend-container" id="service-recommend-container">
+              <div class="service-filters" id="service-filters"></div>
+              <div class="service-list" id="service-list"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-personalized">
+            <div class="recommend-container" id="personalized-container">
+              <div class="personalized-summary" id="personalized-summary"></div>
+              <div class="personalized-content" id="personalized-content"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="consultation-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>의사 상담</h2>
+            <button class="add-button" id="request-consultation-btn">
+              <i class="fas fa-plus"></i>
+              상담 신청
+            </button>
+          </div>
+
+          <div class="tab-container">
+            <button class="tab-button active" data-tab="doctor-list">의사 목록</button>
+            <button class="tab-button" data-tab="my-consultations">내 상담</button>
+          </div>
+
+          <div class="tab-content active" id="tab-doctor-list">
+            <div class="doctor-list-container" id="doctor-list-container">
+              <div class="doctor-filters" id="doctor-filters"></div>
+              <div class="doctors-grid" id="doctors-grid"></div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-my-consultations">
+            <div class="consultation-list-container" id="consultation-list-container"></div>
           </div>
         </div>
 
@@ -409,6 +603,261 @@
               </div>
             </div>
           </div>
+
+          <div class="profile-section">
+            <h3>상담 이력</h3>
+            <div id="profile-consultations-list" class="history-list"></div>
+          </div>
+
+          <div class="profile-section">
+            <h3>예약 이력</h3>
+            <div id="profile-reservations-list" class="history-list"></div>
+          </div>
+        </div>
+
+        <div id="notification-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>알림</h2>
+            <div class="header-buttons">
+              <button class="header-action-btn" id="mark-all-read-btn-header" title="모두 읽음">
+                <i class="fas fa-check-double"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="notification-filters" id="notification-filters">
+            <div class="filter-buttons">
+              <button class="filter-btn active" data-filter="all">전체</button>
+              <button class="filter-btn" data-filter="unread">읽지 않음</button>
+              <button class="filter-btn" data-filter="read">읽음</button>
+            </div>
+            <div class="filter-buttons">
+              <button class="filter-btn" data-type="all">전체</button>
+              <button class="filter-btn" data-type="HEALTH_REMINDER">건강</button>
+              <button class="filter-btn" data-type="CHECKUP">검진</button>
+              <button class="filter-btn" data-type="CONSULTATION">상담</button>
+              <button class="filter-btn" data-type="EXERCISE">운동</button>
+              <button class="filter-btn" data-type="MEAL">식단</button>
+            </div>
+          </div>
+
+          <div class="notification-list-container" id="notification-list-container">
+            <div id="notification-list-page" class="notification-list-page"></div>
+          </div>
+        </div>
+
+        <div id="settings-screen" class="main-screen hidden">
+          <div class="screen-header">
+            <h2>설정</h2>
+          </div>
+
+          <div class="settings-container">
+            <div class="settings-section">
+              <h3 class="settings-section-title">
+                <i class="fas fa-bell"></i>
+                알림 설정
+              </h3>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">건강 데이터 입력 알림</span>
+                    <span class="setting-description">매일 건강 데이터를 입력하도록 알림</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-health-reminder" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">검진 결과 알림</span>
+                    <span class="setting-description">검진 결과 업로드 시 알림</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-checkup-notification" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">약물 복용 알림</span>
+                    <span class="setting-description">약물 복용 시간 알림</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-medication-reminder" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">운동 알림</span>
+                    <span class="setting-description">운동 시간 알림</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-exercise-reminder" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">식단 기록 알림</span>
+                    <span class="setting-description">식사 시간 식단 기록 알림</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-meal-reminder" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="settings-section-title">
+                <i class="fas fa-chart-line"></i>
+                건강 목표 설정
+              </h3>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">일일 걸음 수 목표</span>
+                    <span class="setting-description">하루 목표 걸음 수</span>
+                  </div>
+                  <input type="number" id="setting-daily-steps" class="setting-input" value="10000" min="1000" max="50000" step="1000" />
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">주간 운동 목표</span>
+                    <span class="setting-description">주당 운동 횟수</span>
+                  </div>
+                  <input type="number" id="setting-weekly-exercise" class="setting-input" value="3" min="1" max="7" />
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">일일 칼로리 목표</span>
+                    <span class="setting-description">하루 목표 칼로리</span>
+                  </div>
+                  <input type="number" id="setting-daily-calories" class="setting-input" value="2000" min="1000" max="5000" step="100" />
+                </div>
+              </div>
+            </div>
+
+
+            <div class="settings-section">
+              <h3 class="settings-section-title">
+                <i class="fas fa-cog"></i>
+                앱 설정
+              </h3>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">다크 모드</span>
+                    <span class="setting-description">어두운 테마 사용</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-dark-mode" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">자동 로그인</span>
+                    <span class="setting-description">앱 실행 시 자동 로그인</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-auto-login" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">생체 인증</span>
+                    <span class="setting-description">지문 또는 Face ID 사용</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-biometric" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">언어</span>
+                    <span class="setting-description">앱 언어 설정</span>
+                  </div>
+                  <select id="setting-language" class="setting-select">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                  </select>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.exportData()">
+                  <div class="setting-info">
+                    <span class="setting-label">데이터 내보내기</span>
+                    <span class="setting-description">건강 데이터를 파일로 저장</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.importData()">
+                  <div class="setting-info">
+                    <span class="setting-label">데이터 가져오기</span>
+                    <span class="setting-description">저장된 데이터 불러오기</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.clearCache()">
+                  <div class="setting-info">
+                    <span class="setting-label">캐시 삭제</span>
+                    <span class="setting-description">임시 데이터 삭제</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="settings-section-title">
+                <i class="fas fa-info-circle"></i>
+                정보
+              </h3>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">앱 버전</span>
+                    <span class="setting-description">현재 버전 정보</span>
+                  </div>
+                  <span class="setting-value">1.0.0</span>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.checkUpdate()">
+                  <div class="setting-info">
+                    <span class="setting-label">업데이트 확인</span>
+                    <span class="setting-description">최신 버전 확인</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.showAbout()">
+                  <div class="setting-info">
+                    <span class="setting-label">앱 정보</span>
+                    <span class="setting-description">앱에 대한 정보</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.showPrivacyPolicy()">
+                  <div class="setting-info">
+                    <span class="setting-label">개인정보 처리방침</span>
+                    <span class="setting-description">개인정보 보호 정책 확인</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.showTermsOfService()">
+                  <div class="setting-info">
+                    <span class="setting-label">이용약관</span>
+                    <span class="setting-description">서비스 이용약관 확인</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
@@ -421,14 +870,47 @@
           <i class="fas fa-heart"></i>
           <span>건강정보</span>
         </button>
-        <button class="nav-item" data-screen="community">
+        <div class="nav-dropdown">
+          <button class="nav-item nav-more-btn" id="nav-more-btn">
+            <i class="fas fa-ellipsis-h"></i>
+            <span>더보기</span>
+          </button>
+          <div class="nav-dropdown-menu hidden" id="nav-dropdown-menu">
+            <button class="dropdown-item" data-screen="diet">
+              <i class="fas fa-utensils"></i>
+              <span>식단</span>
+            </button>
+            <button class="dropdown-item" data-screen="exercise">
+              <i class="fas fa-dumbbell"></i>
+              <span>운동</span>
+            </button>
+            <button class="dropdown-item" data-screen="recommend">
+              <i class="fas fa-star"></i>
+              <span>추천</span>
+            </button>
+            <button class="dropdown-item" data-screen="consultation">
+              <i class="fas fa-user-md"></i>
+              <span>상담</span>
+            </button>
+            <button class="dropdown-item" data-screen="community">
           <i class="fas fa-users"></i>
           <span>커뮤니티</span>
         </button>
-        <button class="nav-item" data-screen="profile">
+            <button class="dropdown-item" id="notification-menu-item">
+              <i class="fas fa-bell"></i>
+              <span>알림</span>
+              <span class="notification-badge-small" id="notification-badge-menu">0</span>
+            </button>
+            <button class="dropdown-item" data-screen="settings">
+              <i class="fas fa-cog"></i>
+              <span>설정</span>
+            </button>
+            <button class="dropdown-item" data-screen="profile">
           <i class="fas fa-user"></i>
           <span>프로필</span>
         </button>
+          </div>
+        </div>
       </nav>
     </div>
 
@@ -694,6 +1176,562 @@
         </div>
       </div>
     </div>
+
+    <div id="checkup-upload-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>건강검진 결과 업로드</h3>
+          <button class="modal-close" id="close-checkup-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-group">
+              <label>검진일 *</label>
+              <input type="date" id="checkup-date" required />
+            </div>
+            <div class="input-group">
+              <label>검진 유형 *</label>
+              <select id="checkup-type" required>
+                <option value="">선택하세요</option>
+                <option value="GENERAL">일반검진</option>
+                <option value="CANCER">암검진</option>
+                <option value="CARDIOVASCULAR">심혈관검진</option>
+                <option value="METABOLIC">대사질환검진</option>
+                <option value="OTHER">기타</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>병원명 *</label>
+              <input type="text" id="hospital-name" placeholder="예: 서울대학교병원" required />
+            </div>
+            <div class="input-group">
+              <label>검진 항목 추가</label>
+              <div id="checkup-items-container"></div>
+              <button type="button" class="add-item-button" id="add-checkup-item">
+                <i class="fas fa-plus"></i> 항목 추가
+              </button>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-checkup">
+                취소
+              </button>
+              <button class="form-button save-button" id="submit-checkup">
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkup-detail-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>건강검진 결과 상세</h3>
+          <button class="modal-close" id="close-checkup-detail-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="checkup-detail-header" id="checkup-detail-header"></div>
+            <div class="checkup-items-detail" id="checkup-items-detail"></div>
+            <div class="checkup-actions">
+              <button class="form-button save-button" id="view-checkup-trend">
+                <i class="fas fa-chart-line"></i> 추이 분석
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkup-trend-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>검진 항목 추이 분석</h3>
+          <button class="modal-close" id="close-trend-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="trend-selector">
+            <label>분석할 항목 선택:</label>
+            <select id="trend-item-select"></select>
+          </div>
+          <div id="trend-chart-container">
+            <canvas id="trend-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="diet-plan-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>맞춤 식단 계획 생성</h3>
+          <button class="modal-close" id="close-diet-plan-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-group">
+              <label>목표 *</label>
+              <select id="diet-goal" required>
+                <option value="">선택하세요</option>
+                <option value="WEIGHT_LOSS">체중 감량</option>
+                <option value="WEIGHT_MAINTENANCE">체중 유지</option>
+                <option value="WEIGHT_GAIN">체중 증가</option>
+                <option value="MUSCLE_GAIN">근육 증가</option>
+              </select>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>활동 수준 *</label>
+                <select id="activity-level" required>
+                  <option value="">선택하세요</option>
+                  <option value="SEDENTARY">거의 없음</option>
+                  <option value="LIGHT">가벼운 활동</option>
+                  <option value="MODERATE">보통 활동</option>
+                  <option value="ACTIVE">활발한 활동</option>
+                  <option value="VERY_ACTIVE">매우 활발</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>계획 기간 (일) *</label>
+                <input type="number" id="diet-duration" value="7" min="1" max="30" required />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>건강 상태 (복수 선택 가능)</label>
+              <div class="checkbox-group">
+                <label class="checkbox-option">
+                  <input type="checkbox" name="health-conditions" value="HYPERTENSION" />
+                  <span>고혈압</span>
+                </label>
+                <label class="checkbox-option">
+                  <input type="checkbox" name="health-conditions" value="DIABETES" />
+                  <span>당뇨</span>
+                </label>
+                <label class="checkbox-option">
+                  <input type="checkbox" name="health-conditions" value="HIGH_CHOLESTEROL" />
+                  <span>고콜레스테롤</span>
+                </label>
+                <label class="checkbox-option">
+                  <input type="checkbox" name="health-conditions" value="NONE" />
+                  <span>없음</span>
+                </label>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-diet-plan">
+                취소
+              </button>
+              <button class="form-button save-button" id="generate-diet-plan-btn">
+                <i class="fas fa-magic"></i> 생성
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="meal-record-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>식사 기록</h3>
+          <button class="modal-close" id="close-meal-record-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-row">
+              <div class="input-group">
+                <label>날짜 *</label>
+                <input type="date" id="meal-date" required />
+              </div>
+              <div class="input-group">
+                <label>식사 유형 *</label>
+                <select id="meal-type" required>
+                  <option value="">선택하세요</option>
+                  <option value="BREAKFAST">아침</option>
+                  <option value="LUNCH">점심</option>
+                  <option value="DINNER">저녁</option>
+                  <option value="SNACK">간식</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-group">
+              <label>식사 시간</label>
+              <input type="time" id="meal-time" />
+            </div>
+            <div class="input-group">
+              <label>음식 추가</label>
+              <div id="food-items-container"></div>
+              <button type="button" class="add-item-button" id="add-food-item">
+                <i class="fas fa-plus"></i> 음식 추가
+              </button>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-meal-record">
+                취소
+              </button>
+              <button class="form-button save-button" id="submit-meal-record">
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="exercise-program-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>맞춤 운동 프로그램 생성</h3>
+          <button class="modal-close" id="close-exercise-program-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-group">
+              <label>목표 *</label>
+              <select id="exercise-goal" required>
+                <option value="">선택하세요</option>
+                <option value="WEIGHT_LOSS">체중 감량</option>
+                <option value="MUSCLE_GAIN">근육 증가</option>
+                <option value="STRENGTH">체력 향상</option>
+                <option value="FLEXIBILITY">유연성 향상</option>
+                <option value="GENERAL_FITNESS">전반적 건강</option>
+              </select>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>운동 유형 *</label>
+                <select id="exercise-type" required>
+                  <option value="">선택하세요</option>
+                  <option value="CARDIO">유산소</option>
+                  <option value="STRENGTH">근력</option>
+                  <option value="FLEXIBILITY">유연성</option>
+                  <option value="MIXED">혼합</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>주당 운동 횟수 *</label>
+                <select id="weekly-frequency" required>
+                  <option value="">선택하세요</option>
+                  <option value="2">주 2회</option>
+                  <option value="3">주 3회</option>
+                  <option value="4">주 4회</option>
+                  <option value="5">주 5회</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>프로그램 기간 (주) *</label>
+                <input type="number" id="program-duration" value="12" min="4" max="24" required />
+              </div>
+              <div class="input-group">
+                <label>운동 수준 *</label>
+                <select id="fitness-level" required>
+                  <option value="">선택하세요</option>
+                  <option value="BEGINNER">초급</option>
+                  <option value="INTERMEDIATE">중급</option>
+                  <option value="ADVANCED">고급</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-group">
+              <label>건강 상태 (복수 선택 가능)</label>
+              <div class="checkbox-group">
+                <label class="checkbox-option">
+                  <input type="checkbox" name="exercise-health-conditions" value="KNEE_INJURY" />
+                  <span>무릎 부상</span>
+                </label>
+                <label class="checkbox-option">
+                  <input type="checkbox" name="exercise-health-conditions" value="BACK_PAIN" />
+                  <span>허리 통증</span>
+                </label>
+                <label class="checkbox-option">
+                  <input type="checkbox" name="exercise-health-conditions" value="HYPERTENSION" />
+                  <span>고혈압</span>
+                </label>
+                <label class="checkbox-option">
+                  <input type="checkbox" name="exercise-health-conditions" value="NONE" />
+                  <span>없음</span>
+                </label>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-exercise-program">
+                취소
+              </button>
+              <button class="form-button save-button" id="generate-exercise-program-btn">
+                <i class="fas fa-magic"></i> 생성
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="exercise-record-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>운동 기록</h3>
+          <button class="modal-close" id="close-exercise-record-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="input-row">
+              <div class="input-group">
+                <label>날짜 *</label>
+                <input type="date" id="exercise-date" required />
+              </div>
+              <div class="input-group">
+                <label>운동 종류 *</label>
+                <select id="exercise-code" required>
+                  <option value="">선택하세요</option>
+                  <option value="RUNNING">러닝</option>
+                  <option value="WALKING">걷기</option>
+                  <option value="CYCLING">자전거</option>
+                  <option value="SWIMMING">수영</option>
+                  <option value="WEIGHT_TRAINING">근력 운동</option>
+                  <option value="YOGA">요가</option>
+                  <option value="PILATES">필라테스</option>
+                  <option value="STRETCHING">스트레칭</option>
+                  <option value="HIIT">HIIT</option>
+                  <option value="OTHER">기타</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>운동 시간 (분) *</label>
+                <input type="number" id="exercise-duration" min="1" required />
+              </div>
+              <div class="input-group">
+                <label>평균 심박수 (bpm)</label>
+                <input type="number" id="heart-rate-avg" min="60" max="200" />
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>최대 심박수 (bpm)</label>
+                <input type="number" id="heart-rate-max" min="60" max="200" />
+              </div>
+              <div class="input-group">
+                <label>거리 (km)</label>
+                <input type="number" id="exercise-distance" step="0.1" min="0" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>강도</label>
+              <select id="exercise-intensity">
+                <option value="">선택하세요</option>
+                <option value="LOW">낮음</option>
+                <option value="MODERATE">보통</option>
+                <option value="HIGH">높음</option>
+                <option value="VERY_HIGH">매우 높음</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>메모</label>
+              <textarea id="exercise-notes" rows="3" placeholder="운동 후 느낌, 주의사항 등을 기록하세요"></textarea>
+            </div>
+            <div class="modal-actions">
+              <button class="form-button cancel-button" id="cancel-exercise-record">
+                취소
+              </button>
+              <button class="form-button save-button" id="submit-exercise-record">
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="exercise-guide-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="guide-modal-title">운동 가이드</h3>
+          <button class="modal-close" id="close-exercise-guide-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="exercise-guide-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-detail-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3 id="content-detail-title">콘텐츠 상세</h3>
+          <button class="modal-close" id="close-content-detail-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="content-detail-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="service-detail-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3 id="service-detail-title">서비스 상세</h3>
+          <button class="modal-close" id="close-service-detail-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="service-detail-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="service-reservation-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>병원 예약</h3>
+          <button class="modal-close" id="close-service-reservation-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="service-reservation-form">
+            <div class="input-group">
+              <label>병원명</label>
+              <input type="text" id="reservation-hospital-name" readonly />
+            </div>
+            <div class="input-group">
+              <label>예약 유형 *</label>
+              <select id="reservation-type" required>
+                <option value="">예약 유형을 선택하세요</option>
+                <option value="GENERAL">일반 진료</option>
+                <option value="CHECKUP">건강검진</option>
+                <option value="FOLLOW_UP">재진</option>
+                <option value="CONSULTATION">상담</option>
+                <option value="VACCINATION">예방접종</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>진료과 *</label>
+              <select id="reservation-department" required>
+                <option value="">진료과를 선택하세요</option>
+                <option value="INTERNAL">내과</option>
+                <option value="CARDIOLOGY">심장내과</option>
+                <option value="ENDOCRINOLOGY">내분비내과</option>
+                <option value="FAMILY">가정의학과</option>
+                <option value="ORTHOPEDICS">정형외과</option>
+                <option value="DERMATOLOGY">피부과</option>
+                <option value="OPHTHALMOLOGY">안과</option>
+                <option value="ENT">이비인후과</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>예약 일시 *</label>
+              <input type="datetime-local" id="reservation-datetime" required />
+            </div>
+            <div class="input-group">
+              <label>증상/내용</label>
+              <textarea id="reservation-symptoms" rows="4" placeholder="예약 사유나 증상을 간단히 입력해주세요."></textarea>
+            </div>
+            <div class="input-group">
+              <label>연락처 *</label>
+              <input type="tel" id="reservation-phone" placeholder="010-1234-5678" required />
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="form-button cancel-button" id="cancel-service-reservation">
+                취소
+              </button>
+              <button type="submit" class="form-button save-button">
+                예약하기
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="consultation-request-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>상담 신청</h3>
+          <button class="modal-close" id="close-consultation-request-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="consultation-request-form">
+            <div class="input-group">
+              <label>의사 선택 *</label>
+              <select id="consultation-doctor" required>
+                <option value="">의사를 선택하세요</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>상담 유형 *</label>
+              <select id="consultation-type" required>
+                <option value="">상담 유형을 선택하세요</option>
+                <option value="GENERAL">일반 상담</option>
+                <option value="CHECKUP_REVIEW">검진 결과 상담</option>
+                <option value="MEDICATION">약물 상담</option>
+                <option value="LIFESTYLE">생활습관 상담</option>
+                <option value="EMERGENCY">긴급 상담</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>상담 일시 *</label>
+              <input type="datetime-local" id="consultation-datetime" required />
+            </div>
+            <div class="input-group">
+              <label>상담 주제 *</label>
+              <input type="text" id="consultation-subject" placeholder="예: 고혈압 관리 방법" required />
+            </div>
+            <div class="input-group">
+              <label>상담 내용 *</label>
+              <textarea id="consultation-content" rows="5" placeholder="상담하고 싶은 내용을 자세히 입력해주세요." required></textarea>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="form-button cancel-button" id="cancel-consultation-request">
+                취소
+              </button>
+              <button type="submit" class="form-button save-button">
+                신청하기
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="consultation-detail-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3 id="consultation-detail-title">상담 상세</h3>
+          <button class="modal-close" id="close-consultation-detail-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="consultation-detail-content"></div>
+        </div>
+      </div>
+    </div>
+
 
     <script src="script.js"></script>
   </body>

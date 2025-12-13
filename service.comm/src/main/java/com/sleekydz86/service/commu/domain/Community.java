@@ -7,21 +7,16 @@ import lombok.Setter;
 import java.util.Date;
 
 @Getter @Setter
-//@SequenceGenerator(    name = "community_id_generator",
-//        sequenceName = "health_community_seq",
-//        allocationSize = 1)
 public class Community {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) //기본키에 매핑, @Access (AccessType.FIELD) 생략됨
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "community_seq")
     private int commuSeq;
 
-    //@Column(length = 100000000)
-    //@Lob // 대용량 데이터
     @Column(length = 100000)
     private String content;
 
-    @Temporal(TemporalType.TIMESTAMP) //날짜 시간
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "reg_date")
     private Date regDate;
 
@@ -57,7 +52,7 @@ public class Community {
 
     @PrePersist
     public void beforePersist() {
-        this.regDate = new Date(); // 현재 시간을 설정합니다.
+        this.regDate = new Date();
     }
 
 }

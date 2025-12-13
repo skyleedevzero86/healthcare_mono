@@ -1,6 +1,9 @@
 package com.sleekydz86.service.healthcare.service;
 
 import com.sleekydz86.service.healthcare.dto.*;
+import com.sleekydz86.service.healthcare.event.EventPublisher;
+import com.sleekydz86.service.healthcare.event.HealthDataEvent;
+import com.sleekydz86.service.healthcare.eventsourcing.EventStore;
 import com.sleekydz86.service.healthcare.global.mapper.HealthcareMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -20,6 +25,9 @@ public class HealthcareServiceImpl implements HealthcareService {
 
     @Autowired
     HealthcareMapper healthcareMapper;
+    
+    private final EventPublisher eventPublisher;
+    private final EventStore eventStore;
 
     public List<Map<String, Object>> selectList(Map<String, Object> map) {
         return healthcareMapper.selectList(map);
@@ -27,12 +35,44 @@ public class HealthcareServiceImpl implements HealthcareService {
 
     @Transactional
     public int insMinuteData(MinuteDataDto dto) {
-        return healthcareMapper.insMinuteData(dto);
+        int result = healthcareMapper.insMinuteData(dto);
+        
+        if (result > 0) {
+            HealthDataEvent event = new HealthDataEvent(
+                UUID.randomUUID().toString(),
+                "INSERT",
+                dto.getUserId(),
+                "MINUTE",
+                dto,
+                LocalDateTime.now(),
+                "service.healthcare"
+            );
+            eventStore.saveEvent(event);
+            eventPublisher.publishHealthDataEvent(event);
+        }
+        
+        return result;
     }
 
     @Transactional
     public int insMonthDayData(MonthDayDataDto dto) {
-        return healthcareMapper.insMonthDayData(dto);
+        int result = healthcareMapper.insMonthDayData(dto);
+        
+        if (result > 0) {
+            HealthDataEvent event = new HealthDataEvent(
+                UUID.randomUUID().toString(),
+                "INSERT",
+                dto.getUserId(),
+                "DAILY",
+                dto,
+                LocalDateTime.now(),
+                "service.healthcare"
+            );
+            eventStore.saveEvent(event);
+            eventPublisher.publishHealthDataEvent(event);
+        }
+        
+        return result;
     }
 
     public List<Map<String, Object>> minmaxHealthInfo(Map<String, Object> map) {

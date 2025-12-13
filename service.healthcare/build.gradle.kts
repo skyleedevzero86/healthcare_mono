@@ -50,6 +50,13 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.codehaus.janino:janino:3.1.9")
+    // Circuit Breaker (Resilience4j)
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+    // Distributed Tracing
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    // RabbitMQ for Event-Driven Architecture
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

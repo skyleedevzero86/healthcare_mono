@@ -1,17 +1,18 @@
-package com.sleekydz86.api.gateway.dto;
+﻿package com.sleekydz86.api.gateway.dto;
 
+import lombok.Getter;
+
+@Getter
 public enum ApiResultCode {
+    SUCCESS("0000", "성공"),
+    UNAUTHORIZED("4011", "인증이 필요합니다"),
+    FORBIDDEN("4031", "접근 권한이 없습니다"),
+    NOT_FOUND("4041", "리소스를 찾을 수 없습니다"),
+    INTERNAL_ERROR("5001", "내부 서버 오류"),
+    SERVICE_UNAVAILABLE("5031", "서비스를 사용할 수 없습니다");
 
-    SUCCESS                 ("0000", "성공"),
-    EXP_JWT_TOKEN_ERR		("1003", "만료된 JWT 토큰 오류"),
-    INVALID_JWT_TOKEN_ERR 	("1004", "유효하지 않은 JWT 토큰 오류"),
-    UNAUTHORIZED            ("1005", "인증되지 않음"),
-    INVALID_REQUEST         ("4001", "잘못된 요청"),
-    SERVICE_UNAVAILABLE     ("5031", "서비스를 사용할 수 없음"),
-    UNKOWN_ERR				("5001", "알 수 없는 오류");
-
-    public String code;
-    public String message;
+    public final String code;
+    public final String message;
 
     ApiResultCode(String code, String message) {
         this.code = code;

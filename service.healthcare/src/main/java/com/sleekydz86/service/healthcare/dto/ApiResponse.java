@@ -1,4 +1,4 @@
-package com.sleekydz86.service.healthcare.dto;
+﻿package com.sleekydz86.service.healthcare.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,6 @@ public class ApiResponse {
     private String resultMessage;
     private Object resultData;
 
-
     public static ResponseEntity<ApiResponse> ok() {
         return response(ApiResultCode.SUCCESS.code, ApiResultCode.SUCCESS.message, null);
     }
@@ -25,6 +24,9 @@ public class ApiResponse {
         return response(errorCode.code, errorCode.message, null);
     }
 
+    public static ResponseEntity<ApiResponse> error(ApiResultCode errorCode, String customMessage) {
+        return response(errorCode.code, customMessage, null);
+    }
 
     private static ResponseEntity<ApiResponse> response(String code, String message, Object data) {
         return ResponseEntity.ok(ApiResponse.builder()
