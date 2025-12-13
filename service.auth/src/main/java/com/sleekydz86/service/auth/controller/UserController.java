@@ -24,10 +24,32 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final com.sleekydz86.service.auth.util.InputSanitizer inputSanitizer;
+
+    public UserController(UserService userService, 
+                         com.sleekydz86.service.auth.util.InputSanitizer inputSanitizer) {
+        this.userService = userService;
+        this.inputSanitizer = inputSanitizer;
+    }
 
     @PostMapping("/v1/signup")
     @Transactional
     public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupDto user) throws Exception {
+        try {
+            String sanitizedUserId = inputSanitizer.sanitizeUserId(user.getUserId());
+            if (sanitizedUserId == null || !sanitizedUserId.equals(user.getUserId())) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            user.setUserId(sanitizedUserId);
+            
+            if (!inputSanitizer.isValidEmail(user.getEmail())) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            if (inputSanitizer.containsSqlInjection(user.getUserNm()) || 
+                inputSanitizer.containsXss(user.getUserNm())) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
         int result = userService.signup(user);
         if (result == 1) {
             userService.insUserAuth(user);
@@ -51,23 +73,62 @@ public class UserController {
         } else {
             return ApiResponse.error(ApiResultCode.INSERT_FAIL);
         }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("회원가입 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/duplicateId")
     public ResponseEntity<ApiResponse> duplicateId(@RequestBody UserDto dto) throws Exception {
-        if (userService.duplicateId(dto)) {
+        try {
+            if (dto.getUserId() == null || dto.getUserId().trim().isEmpty()) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+            if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            dto.setUserId(sanitizedUserId);
+            
+            if (userService.duplicateId(dto)) {
             return ApiResponse.ok();
         } else {
             return ApiResponse.error(ApiResultCode.DUPLICATE_CODE);
+        }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("ID 중복 확인 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
     }
 
     @PostMapping("/v1/duplicateEmail")
     public ResponseEntity<ApiResponse> duplicateEmail(@RequestBody UserDto dto) throws Exception {
-        if (userService.duplicateEmail(dto)) {
+        try {
+            if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            if (!inputSanitizer.isValidEmail(dto.getEmail())) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            if (userService.duplicateEmail(dto)) {
             return ApiResponse.ok();
         } else {
             return ApiResponse.error(ApiResultCode.DUPLICATE_CODE);
+        }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("이메일 중복 확인 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
     }
 

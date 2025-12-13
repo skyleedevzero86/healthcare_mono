@@ -31,10 +31,15 @@ dependencies {
     implementation ("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation ("org.springframework.cloud:spring-cloud-starter-config")
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive")
     implementation ("org.projectlombok:lombok")
     annotationProcessor ("org.projectlombok:lombok")
     implementation ("org.springframework.boot:spring-boot-starter-validation")
     implementation ("org.springframework.boot:spring-boot-starter-log4j2")
+    // JWT
+    implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation ("io.jsonwebtoken:jjwt-jackson:0.12.3")
     testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 

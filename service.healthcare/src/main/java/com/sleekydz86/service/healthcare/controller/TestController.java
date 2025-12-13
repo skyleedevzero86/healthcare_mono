@@ -14,8 +14,8 @@ public class TestController {
 
     @GetMapping("/test")
     public Map<String, Object> test(HttpServletRequest request) {
-        log.info("REQUEST ID   --> {}", request.getHeader("X-Auth-userId"));
-        log.info("REQUEST ROLE --> {}", request.getHeader("X-Auth-userRole"));
+        log.info("요청 ID   --> {}", request.getHeader("X-Auth-userId"));
+        log.info("요청 역할 --> {}", request.getHeader("X-Auth-userRole"));
         Map<String, Object> returnMap = new HashMap<>();
         returnMap.put("id", request.getHeader("X-Auth-userId"));
         returnMap.put("role", request.getHeader("X-Auth-userRole"));

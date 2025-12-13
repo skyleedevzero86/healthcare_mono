@@ -30,14 +30,30 @@ public class ManagementController {
 
     @Autowired
     UserServiceImpl userService;
-
     @Autowired
     PagingUtil pagingUtil;
+    @Autowired
+    com.sleekydz86.service.usermanagement.util.InputSanitizer inputSanitizer;
 
     @PostMapping("/v1/userInfo")
     public ResponseEntity<ApiResponse> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
             throws Exception {
-        return ApiResponse.ok(userService.userInfo(dto));
+        try {
+            if (dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                dto.setUserId(sanitizedUserId);
+            }
+            return ApiResponse.ok(userService.userInfo(dto));
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("사용자 정보 조회 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/userBoardInfo")
@@ -46,7 +62,7 @@ public class ManagementController {
 
         Map<String, Object> responseData = new HashMap<>();
 
-        log.info("ash userboardinfo : " + dto.toString());
+        log.info("사용자 게시판 정보 요청 : " + dto.toString());
         Map<String, Object> userBioinfo = userService.userInfo(dto);
         List<Map<String, Object>> userRoleinfo = userService.searchdrguardianList(dto);
 
@@ -60,7 +76,7 @@ public class ManagementController {
         responseData.put("userRolelist", userRoleinfo);
         responseData.put("userHealthavg", userHealthavg);
 
-        log.info("ash userboardinfo result : " + responseData.toString());
+        log.info("사용자 게시판 정보 결과 : " + responseData.toString());
 
         if (userBioinfo.isEmpty()) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
@@ -72,13 +88,28 @@ public class ManagementController {
     @PostMapping("/v1/updateUserInfo")
     public ResponseEntity<ApiResponse> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
             throws Exception {
-        int result = userService.updateUserInfo(dto);
+        try {
+            if (dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                dto.setUserId(sanitizedUserId);
+            }
+            int result = userService.updateUserInfo(dto);
 
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("사용자 정보 수정 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
     }
@@ -86,12 +117,27 @@ public class ManagementController {
     @PostMapping("/v1/deleteUserInfo")
     public ResponseEntity<ApiResponse> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
             throws Exception {
-        int result = userService.deleteUserInfo(dto);
+        try {
+            if (dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                dto.setUserId(sanitizedUserId);
+            }
+            int result = userService.deleteUserInfo(dto);
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("사용자 정보 삭제 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
     }
@@ -99,7 +145,15 @@ public class ManagementController {
     @PostMapping("/v1/updatePasswd")
     public ResponseEntity<ApiResponse> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto)
             throws Exception {
-        int result = userService.updatePasswd(dto);
+        try {
+            if (dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                dto.setUserId(sanitizedUserId);
+            }
+            int result = userService.updatePasswd(dto);
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
@@ -107,41 +161,95 @@ public class ManagementController {
         } else {
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("비밀번호 변경 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/searchDoctor")
     public ResponseEntity<ApiResponse> searchDoctor(@RequestBody UserDto dto) {
-        Map<String, Object> result = new HashMap<>();
-        List<Map<String, Object>> list = userService.searchDoctor(dto);
+        try {
+            if (dto != null && dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                dto.setUserId(sanitizedUserId);
+            }
+            Map<String, Object> result = new HashMap<>();
+            List<Map<String, Object>> list = userService.searchDoctor(dto);
         if (list.size() == 0) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
             return ApiResponse.ok(result);
+        }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("의사 검색 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
     }
 
     @PostMapping("/v1/searchParent")
     public ResponseEntity<ApiResponse> searchParent(@RequestBody UserDto dto) {
-        Map<String, Object> result = new HashMap<>();
-        List<Map<String, Object>> list = userService.searchParent(dto);
+        try {
+            if (dto != null && dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                dto.setUserId(sanitizedUserId);
+            }
+            Map<String, Object> result = new HashMap<>();
+            List<Map<String, Object>> list = userService.searchParent(dto);
         if (list.size() == 0) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
             return ApiResponse.ok(result);
         }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("보호자 검색 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @RequestMapping("/v1/list")
     public ResponseEntity<ApiResponse> userList(UserDto dto, @RequestBody Map<String, Object> map) throws Exception {
+        try {
+            if (map == null) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            String userRoleFk = (String) map.get("userRoleFk");
+            if (userRoleFk == null) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            Object pageIdxObj = map.get("pageIdx");
+            Object pageOffsetObj = map.get("pageOffset");
+            if (pageIdxObj == null || pageOffsetObj == null) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            dto.setUserRoleFk(userRoleFk);
+            dto.setPageIndex((int) pageIdxObj);
+            dto.setPageOffset((int) pageOffsetObj);
+            
+            String searchKeyword = (String) map.get("searchKeyword");
+            if (searchKeyword != null) {
+                if (inputSanitizer.containsSqlInjection(searchKeyword) || 
+                    inputSanitizer.containsXss(searchKeyword)) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
+            }
 
-        dto.setUserRoleFk((String) map.get("userRoleFk"));
-        dto.setPageIndex((int) map.get("pageIdx"));
-        dto.setPageOffset((int) map.get("pageOffset"));
-        dto.setSearchKeyword((String) map.get("searchKeyword"));
-
-        if (map.get("userRoleFk").equals("3")) {
+            if ("3".equals(userRoleFk)) {
             return ApiResponse.ok(userService.doctorList(dto));
         } else if (map.get("userRoleFk").equals("2")) {
             return ApiResponse.ok(userService.parentList(dto));
@@ -151,32 +259,102 @@ public class ManagementController {
         } else {
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("사용자 목록 조회 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/healthUserList")
     public ResponseEntity<ApiResponse> searchHealthUserList(@RequestBody Map<String, Object> map) {
-        return ApiResponse.ok(userService.searchHealthUserList(map));
+        try {
+            if (map != null && map.get("userId") != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
+                map.put("userId", sanitizedUserId);
+            }
+            return ApiResponse.ok(userService.searchHealthUserList(map));
+        } catch (Exception e) {
+            log.error("건강 사용자 목록 조회 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/drguardianList")
-    public ResponseEntity<ApiResponse> drguardianList(UserDto dto) {
-        return ApiResponse.ok(userService.searchdrguardianList(dto));
+    public ResponseEntity<ApiResponse> drguardianList(@RequestBody UserDto dto) {
+        try {
+            if (dto != null && dto.getUserId() != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
+                dto.setUserId(sanitizedUserId);
+            }
+            return ApiResponse.ok(userService.searchdrguardianList(dto));
+        } catch (Exception e) {
+            log.error("의사/보호자 목록 조회 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/manage_userList")
     public ResponseEntity<ApiResponse> roleuserList(@RequestBody Map<String, Object> map) {
-        UserDto dto = new UserDto();
-        dto.setUserId((String) map.get("userId"));
-        dto.setUserRoleFk((String) map.get("userRoleFk"));
-        dto.setPageIndex((int) map.get("pageIdx"));
-        dto.setPageOffset((int) map.get("pageOffset"));
-        dto.setSearchKeyword((String) map.get("searchKeyword"));
+        try {
+            if (map == null) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            UserDto dto = new UserDto();
+            if (map.get("userId") != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
+                dto.setUserId(sanitizedUserId);
+            }
+            dto.setUserRoleFk((String) map.get("userRoleFk"));
+            
+            Object pageIdxObj = map.get("pageIdx");
+            Object pageOffsetObj = map.get("pageOffset");
+            if (pageIdxObj != null && pageOffsetObj != null) {
+                dto.setPageIndex((int) pageIdxObj);
+                dto.setPageOffset((int) pageOffsetObj);
+            }
+            
+            String searchKeyword = (String) map.get("searchKeyword");
+            if (searchKeyword != null) {
+                if (inputSanitizer.containsSqlInjection(searchKeyword) || 
+                    inputSanitizer.containsXss(searchKeyword)) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
+            }
 
-        return ApiResponse.ok(userService.manage_userList(dto));
+            return ApiResponse.ok(userService.manage_userList(dto));
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 요청: {}", e.getMessage());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        } catch (Exception e) {
+            log.error("역할별 사용자 목록 조회 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 
     @PostMapping("/v1/search_userList")
     public ResponseEntity<ApiResponse> searchuserList(@RequestBody Map<String, Object> map) {
-        return ApiResponse.ok(userService.searchuserList(map));
+        try {
+            if (map != null && map.get("userId") != null) {
+                String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
+                map.put("userId", sanitizedUserId);
+            }
+            if (map != null && map.get("searchKeyword") != null) {
+                String searchKeyword = map.get("searchKeyword").toString();
+                if (inputSanitizer.containsSqlInjection(searchKeyword) || 
+                    inputSanitizer.containsXss(searchKeyword)) {
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                }
+                map.put("searchKeyword", inputSanitizer.sanitize(searchKeyword));
+            }
+            return ApiResponse.ok(userService.searchuserList(map));
+        } catch (Exception e) {
+            log.error("사용자 검색 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
     }
 }
