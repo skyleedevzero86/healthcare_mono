@@ -1,25 +1,21 @@
-# 스프링 애플리케이션 기본 설정
 spring:
   application:
     name: web.healthcare
   profiles:
     active: dev
 
-  # JSP 뷰 설정
   mvc:
     view:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
     static-path-pattern: /static/**
 
-  # 정적 리소스 설정
   web:
     resources:
       static-locations: classpath:/static/,classpath:/public/,file:src/main/webapp/
       cache:
         period: 3600
 
-  # JPA 설정
   jpa:
     hibernate:
       ddl-auto: validate
@@ -33,7 +29,6 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
 
-  # MyBatis 설정
   mybatis:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.sleekydz86.web.dto
@@ -42,14 +37,12 @@ spring:
       default-fetch-size: 100
       default-statement-timeout: 30
 
-  # Spring Security 설정
   security:
     user:
       name: admin
       password: admin123
       roles: ADMIN
 
-  # Spring Cloud Config 설정
   config:
     import: optional:configserver:http://localhost:8888
   cloud:
@@ -62,7 +55,6 @@ spring:
         max-interval: 2000
         multiplier: 1.1
 
-  # 파일 업로드 설정 (중복 제거)
   servlet:
     multipart:
       enabled: true
@@ -70,20 +62,17 @@ spring:
       max-request-size: 10MB
       location: ${imgPath}
 
-  # 캐시 설정
   cache:
     type: simple
     cache-names:
       - userCache
       - healthcareCache
 
-  # 메시지 설정
   messages:
     basename: messages
     encoding: UTF-8
     cache-duration: 3600
 
-# Gateway (백엔드 서비스) 설정
 gateway:
   version: /v1
   auth:
@@ -95,17 +84,14 @@ gateway:
   community:
     uri: http://localhost:8085
 
-# HTTP 요청 타임아웃 설정
 request:
   timeout: 30
 
-# JWT 토큰 설정
 token:
   secret: healthcare-lifelink-jwt-secret-key-for-authentication-service-2025-dev
   access-expired-time: 3600000
   refresh-expired-time: 86400000
 
-# Eureka Client 설정
 eureka:
   client:
     service-url:
@@ -118,7 +104,6 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
-# Management & Actuator 설정
 management:
   endpoints:
     web:
@@ -131,8 +116,17 @@ management:
   info:
     env:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
 
-# 로깅 설정
+spring:
+  sleuth:
+    zipkin:
+      base-url: http://localhost:9411
+    sampler:
+      probability: 1.0
+
 logging:
   config: classpath:log4j2-spring.xml
   level:
@@ -143,7 +137,6 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.web: DEBUG
 
-# 애플리케이션 정보
 info:
   app:
     name: Healthcare Web Application
@@ -153,8 +146,5 @@ info:
     java:
       version: ${java.version}
 
-# 파일 저장 경로
 imgPath: C:/healthcare/images
 imgTmp: C:/healthcare/tmp
-# imgPath: /var/healthcare/images
-# imgTmp: /var/healthcare/tmp

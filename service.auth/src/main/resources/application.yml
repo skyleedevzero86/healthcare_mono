@@ -66,7 +66,6 @@ management:
     sampling:
       probability: 1.0
 
-# Circuit Breaker Configuration
 resilience4j:
   circuitbreaker:
     configs:
@@ -80,7 +79,6 @@ resilience4j:
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
 
-# Distributed Tracing Configuration
 spring:
   sleuth:
     zipkin:

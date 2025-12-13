@@ -1,9 +1,6 @@
-# spring.profiles.active와 spring.config.import 제거!
-
 server:
   port: 8085
 
-# Eureka Client 설정
 eureka:
   client:
     service-url:
@@ -13,7 +10,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# H2 Database
 h2:
   console:
     enabled: true
@@ -51,7 +47,6 @@ spring:
     sampler:
       probability: 1.0
 
-# Circuit Breaker Configuration
 resilience4j:
   circuitbreaker:
     configs:
@@ -69,5 +64,3 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
-#JPA TEST를 위한 설정

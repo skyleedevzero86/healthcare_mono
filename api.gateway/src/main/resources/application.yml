@@ -156,7 +156,13 @@ management:
     sampling:
       probability: 1.0
 
-# Circuit Breaker Configuration
+spring:
+  sleuth:
+    zipkin:
+      base-url: http://localhost:9411
+    sampler:
+      probability: 1.0
+
 resilience4j:
   circuitbreaker:
     configs:
@@ -176,8 +182,6 @@ resilience4j:
         baseConfig: default
       communityService:
         baseConfig: default
-
-# Distributed Tracing Configuration (already in spring section above)
 
 logging:
   level:

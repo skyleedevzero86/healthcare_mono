@@ -73,6 +73,9 @@ dependencies {
     //testImplementation("org.springframework.security:spring-security-test")
     testImplementation("junit:junit:4.13.2")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
+    // Distributed Tracing
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
 }
 
 dependencyManagement {
