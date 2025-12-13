@@ -5324,7 +5324,6 @@ class HealthcareApp {
             dailyCalories: 2000,
             darkMode: false,
             autoLogin: true,
-            temperatureUnit: 'celsius',
             language: 'ko',
             biometric: false
         };
@@ -5360,12 +5359,10 @@ class HealthcareApp {
 
         const darkMode = document.getElementById('setting-dark-mode');
         const autoLogin = document.getElementById('setting-auto-login');
-        const temperatureUnit = document.getElementById('setting-temperature-unit');
         const language = document.getElementById('setting-language');
 
         if (darkMode) darkMode.checked = this.settings.darkMode;
         if (autoLogin) autoLogin.checked = this.settings.autoLogin;
-        if (temperatureUnit) temperatureUnit.value = this.settings.temperatureUnit;
         if (language) language.value = this.settings.language;
 
 
@@ -5451,7 +5448,6 @@ class HealthcareApp {
 
         const darkMode = document.getElementById('setting-dark-mode');
         const autoLogin = document.getElementById('setting-auto-login');
-        const temperatureUnit = document.getElementById('setting-temperature-unit');
         const language = document.getElementById('setting-language');
 
         if (darkMode) {
@@ -5467,14 +5463,6 @@ class HealthcareApp {
             autoLogin.addEventListener('change', (e) => {
                 this.settings.autoLogin = e.target.checked;
                 this.saveSettings();
-            });
-        }
-
-        if (temperatureUnit) {
-            temperatureUnit.addEventListener('change', (e) => {
-                this.settings.temperatureUnit = e.target.value;
-                this.saveSettings();
-                this.showToast('온도 단위가 변경되었습니다.', 'success');
             });
         }
 

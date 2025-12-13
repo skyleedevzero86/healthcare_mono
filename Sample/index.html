@@ -741,35 +741,6 @@
               </div>
             </div>
 
-            <div class="settings-section">
-              <h3 class="settings-section-title">
-                <i class="fas fa-sync-alt"></i>
-                데이터 관리
-              </h3>
-              <div class="settings-list">
-                <div class="setting-item clickable" onclick="window.healthcareApp.exportData()">
-                  <div class="setting-info">
-                    <span class="setting-label">데이터 내보내기</span>
-                    <span class="setting-description">건강 데이터를 파일로 저장</span>
-                  </div>
-                  <i class="fas fa-chevron-right"></i>
-                </div>
-                <div class="setting-item clickable" onclick="window.healthcareApp.importData()">
-                  <div class="setting-info">
-                    <span class="setting-label">데이터 가져오기</span>
-                    <span class="setting-description">저장된 데이터 불러오기</span>
-                  </div>
-                  <i class="fas fa-chevron-right"></i>
-                </div>
-                <div class="setting-item clickable" onclick="window.healthcareApp.clearCache()">
-                  <div class="setting-info">
-                    <span class="setting-label">캐시 삭제</span>
-                    <span class="setting-description">임시 데이터 삭제</span>
-                  </div>
-                  <i class="fas fa-chevron-right"></i>
-                </div>
-              </div>
-            </div>
 
             <div class="settings-section">
               <h3 class="settings-section-title">
@@ -799,13 +770,13 @@
                 </div>
                 <div class="setting-item">
                   <div class="setting-info">
-                    <span class="setting-label">온도 단위</span>
-                    <span class="setting-description">온도 표시 단위</span>
+                    <span class="setting-label">생체 인증</span>
+                    <span class="setting-description">지문 또는 Face ID 사용</span>
                   </div>
-                  <select id="setting-temperature-unit" class="setting-select">
-                    <option value="celsius">섭씨 (°C)</option>
-                    <option value="fahrenheit">화씨 (°F)</option>
-                  </select>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-biometric" />
+                    <span class="toggle-slider"></span>
+                  </label>
                 </div>
                 <div class="setting-item">
                   <div class="setting-info">
@@ -819,36 +790,24 @@
                     <option value="zh">中文</option>
                   </select>
                 </div>
-              </div>
-            </div>
-
-            <div class="settings-section">
-              <h3 class="settings-section-title">
-                <i class="fas fa-shield-alt"></i>
-                개인정보 보호
-              </h3>
-              <div class="settings-list">
-                <div class="setting-item">
+                <div class="setting-item clickable" onclick="window.healthcareApp.exportData()">
                   <div class="setting-info">
-                    <span class="setting-label">생체 인증</span>
-                    <span class="setting-description">지문 또는 Face ID 사용</span>
-                  </div>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="setting-biometric" />
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-                <div class="setting-item clickable" onclick="window.healthcareApp.showPrivacyPolicy()">
-                  <div class="setting-info">
-                    <span class="setting-label">개인정보 처리방침</span>
-                    <span class="setting-description">개인정보 보호 정책 확인</span>
+                    <span class="setting-label">데이터 내보내기</span>
+                    <span class="setting-description">건강 데이터를 파일로 저장</span>
                   </div>
                   <i class="fas fa-chevron-right"></i>
                 </div>
-                <div class="setting-item clickable" onclick="window.healthcareApp.showTermsOfService()">
+                <div class="setting-item clickable" onclick="window.healthcareApp.importData()">
                   <div class="setting-info">
-                    <span class="setting-label">이용약관</span>
-                    <span class="setting-description">서비스 이용약관 확인</span>
+                    <span class="setting-label">데이터 가져오기</span>
+                    <span class="setting-description">저장된 데이터 불러오기</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.clearCache()">
+                  <div class="setting-info">
+                    <span class="setting-label">캐시 삭제</span>
+                    <span class="setting-description">임시 데이터 삭제</span>
                   </div>
                   <i class="fas fa-chevron-right"></i>
                 </div>
@@ -879,6 +838,20 @@
                   <div class="setting-info">
                     <span class="setting-label">앱 정보</span>
                     <span class="setting-description">앱에 대한 정보</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.showPrivacyPolicy()">
+                  <div class="setting-info">
+                    <span class="setting-label">개인정보 처리방침</span>
+                    <span class="setting-description">개인정보 보호 정책 확인</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item clickable" onclick="window.healthcareApp.showTermsOfService()">
+                  <div class="setting-info">
+                    <span class="setting-label">이용약관</span>
+                    <span class="setting-description">서비스 이용약관 확인</span>
                   </div>
                   <i class="fas fa-chevron-right"></i>
                 </div>
