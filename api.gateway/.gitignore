@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+application*.yml
+application*.yaml
+application*.properties
+!application.yml.example
