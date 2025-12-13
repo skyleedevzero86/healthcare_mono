@@ -127,8 +127,9 @@ public class HealthcareServiceImpl implements HealthcareService {
     @Override
     public int insSleepScore(Map<String, Object> map) {
         int score = 0, result = 0;
-        Map<String, Object> resultData = new HashMap<>();
         score = healthcareMapper.getSleepScore(map);
+
+        log.info("수면 점수: " + score);
 
         ScoreDto scoreDto = new ScoreDto();
         scoreDto.setUserId((String) map.get("userId"));
@@ -137,6 +138,9 @@ public class HealthcareServiceImpl implements HealthcareService {
         scoreDto.setDate((String) map.get("date"));
 
         result = healthcareMapper.insScore(scoreDto);
+
+        log.info("수면 점수 저장 결과: " + result);
+
         return result;
     }
 
@@ -144,21 +148,25 @@ public class HealthcareServiceImpl implements HealthcareService {
     public int insExerciseScore(Map<String, Object> map) {
         double personalScore = 0.0;
         double score = 0;
-        int cal, result = 0;
+        int result = 0;
         personalScore = healthcareMapper.weeklyPersonalExerciseScore(map);
         score = healthcareMapper.criteriaToCalculate((String) map.get("userId"));
 
-        log.info("ash personal score: " + personalScore);
-        log.info("ash 연령별 score: " + score);
-        log.info("ash 총 점수 : " + (personalScore / (score * 7)) * 100);
+        double finalScore = (personalScore / (score * 7)) * 100;
+
+        log.info("개인 운동 점수: " + personalScore);
+        log.info("연령별 기준 점수: " + score);
+        log.info("최종 운동 점수: " + finalScore);
 
         ScoreDto scoreDto = new ScoreDto();
         scoreDto.setUserId((String) map.get("userId"));
         scoreDto.setScoreField("exercise");
-        scoreDto.setUserScore((personalScore / (score * 7)) * 100);
+        scoreDto.setUserScore(finalScore);
         scoreDto.setDate((String) map.get("date"));
 
         result = healthcareMapper.insScore(scoreDto);
+
+        log.info("운동 점수 저장 결과: " + result);
 
         return result;
     }
@@ -167,6 +175,9 @@ public class HealthcareServiceImpl implements HealthcareService {
     public int insStressScore(Map<String, Object> map) {
         int score, result = 0;
         score = healthcareMapper.StressScore((String) map.get("userId"));
+
+        log.info("스트레스 점수: " + score);
+
         ScoreDto scoreDto = new ScoreDto();
         scoreDto.setUserId((String) map.get("userId"));
         scoreDto.setScoreField("stress");
@@ -174,7 +185,10 @@ public class HealthcareServiceImpl implements HealthcareService {
         scoreDto.setDate((String) map.get("date"));
 
         result = healthcareMapper.insScore(scoreDto);
-        return 0;
+
+        log.info("스트레스 점수 저장 결과: " + result);
+
+        return result;
     }
 
     @Override
