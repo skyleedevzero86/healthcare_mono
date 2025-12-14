@@ -2416,22 +2416,26 @@ class HealthcareApp {
 
     updateTrendChart() {
         const itemCode = document.getElementById('trend-item-select').value;
+        const canvas = document.getElementById('trend-chart');
+        if (!canvas) return;
+
+        const container = document.getElementById('trend-chart-container');
+        const containerWidth = container ? container.clientWidth - 32 : 800;
+        const containerHeight = 500;
+        
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         if (!itemCode) {
-            const canvas = document.getElementById('trend-chart');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#666';
-            ctx.font = '16px Arial';
+            ctx.fillStyle = '#999';
+            ctx.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('항목을 선택해주세요.', canvas.width / 2, canvas.height / 2);
             return;
         }
-
-        const canvas = document.getElementById('trend-chart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const trendData = [];
         this.checkupData.forEach(checkup => {
@@ -2454,8 +2458,8 @@ class HealthcareApp {
         });
 
         if (trendData.length === 0) {
-            ctx.fillStyle = '#666';
-            ctx.font = '16px Arial';
+            ctx.fillStyle = '#999';
+            ctx.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('추이 데이터가 없습니다.', canvas.width / 2, canvas.height / 2);
             return;
@@ -2465,79 +2469,103 @@ class HealthcareApp {
 
         const width = canvas.width;
         const height = canvas.height;
-        const padding = 80;
-        const chartWidth = width - padding * 2;
-        const chartHeight = height - padding * 2 - 40;
+        const padding = { top: 60, right: 40, bottom: 80, left: 85 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
 
         const values = trendData.map(d => d.value);
-        const minValue = Math.max(0, Math.min(...values) * 0.8);
-        const maxValue = Math.max(...values) * 1.2;
+        const minValue = Math.max(0, Math.min(...values) * 0.85);
+        const maxValue = Math.max(...values) * 1.15;
         const valueRange = maxValue - minValue || 1;
 
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
 
         ctx.fillStyle = '#f8f9fa';
-        ctx.fillRect(padding, padding, chartWidth, chartHeight);
+        ctx.fillRect(padding.left, padding.top, chartWidth, chartHeight);
 
-
-        ctx.strokeStyle = '#e0e0e0';
+        ctx.strokeStyle = '#e8e8e8';
         ctx.lineWidth = 1;
-        const gridLines = 5;
+        const gridLines = 6;
         for (let i = 0; i <= gridLines; i++) {
-            const y = padding + (chartHeight / gridLines) * i;
+            const y = padding.top + (chartHeight / gridLines) * i;
             ctx.beginPath();
-            ctx.moveTo(padding, y);
-            ctx.lineTo(padding + chartWidth, y);
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(padding.left + chartWidth, y);
             ctx.stroke();
-
 
             const value = maxValue - (valueRange / gridLines) * i;
             ctx.fillStyle = '#666';
-            ctx.font = '11px Arial';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(value.toFixed(1), padding - 10, y + 4);
+            const formattedValue = value % 1 === 0 ? value.toFixed(0) : value.toFixed(1);
+            ctx.fillText(formattedValue, padding.left - 15, y + 4);
         }
 
-
         ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.moveTo(padding, padding);
-        ctx.lineTo(padding, padding + chartHeight);
+        ctx.moveTo(padding.left, padding.top);
+        ctx.lineTo(padding.left, padding.top + chartHeight);
         ctx.stroke();
 
-
         ctx.beginPath();
-        ctx.moveTo(padding, padding + chartHeight);
-        ctx.lineTo(padding + chartWidth, padding + chartHeight);
+        ctx.moveTo(padding.left, padding.top + chartHeight);
+        ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
         ctx.stroke();
 
 
         if (trendData.length === 1) {
-
             const data = trendData[0];
-            const x = padding + chartWidth / 2;
-            const y = padding + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+            const x = padding.left + chartWidth / 2;
+            const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
 
-            ctx.fillStyle = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+            const pointColor = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+            
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
+            
+            ctx.fillStyle = pointColor;
             ctx.beginPath();
-            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
             ctx.fill();
 
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
             ctx.fillStyle = '#333';
-            ctx.font = 'bold 12px Arial';
+            ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(data.value.toFixed(1) + (data.unit || ''), x, y - 15);
-            ctx.font = '11px Arial';
-            ctx.fillText(data.date, x, height - 20);
+            const valueText = data.value % 1 === 0 ? data.value.toFixed(0) : data.value.toFixed(1);
+            ctx.fillText(valueText + (data.unit ? ' ' + data.unit : ''), x, y - 18);
+            
+            ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            const dateObj = new Date(data.date);
+            const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+            ctx.fillText(dateStr, x, height - padding.bottom + 25);
         } else {
+            const gradient = ctx.createLinearGradient(padding.left, padding.top, padding.left, padding.top + chartHeight);
+            gradient.addColorStop(0, 'rgba(33, 150, 243, 0.3)');
+            gradient.addColorStop(1, 'rgba(33, 150, 243, 0.05)');
 
             ctx.strokeStyle = '#2196F3';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = 'rgba(33, 150, 243, 0.3)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
 
+            ctx.beginPath();
             trendData.forEach((data, index) => {
-                const x = padding + (index / (trendData.length - 1)) * chartWidth;
-                const y = padding + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+                const x = padding.left + (index / (trendData.length - 1)) * chartWidth;
+                const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
 
                 if (index === 0) {
                     ctx.moveTo(x, y);
@@ -2545,64 +2573,108 @@ class HealthcareApp {
                     ctx.lineTo(x, y);
                 }
             });
-
             ctx.stroke();
 
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            trendData.forEach((data, index) => {
+                const x = padding.left + (index / (trendData.length - 1)) * chartWidth;
+                const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+                if (index === 0) {
+                    ctx.moveTo(x, padding.top + chartHeight);
+                    ctx.lineTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            const lastX = padding.left + chartWidth;
+            ctx.lineTo(lastX, padding.top + chartHeight);
+            ctx.closePath();
+            ctx.fill();
 
             trendData.forEach((data, index) => {
-                const x = padding + (index / (trendData.length - 1)) * chartWidth;
-                const y = padding + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+                const x = padding.left + (index / (trendData.length - 1)) * chartWidth;
+                const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
 
+                const pointColor = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+                
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 2;
 
-                ctx.fillStyle = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+                ctx.fillStyle = pointColor;
                 ctx.beginPath();
-                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
                 ctx.fill();
 
-
                 ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 3;
                 ctx.stroke();
 
+                ctx.shadowBlur = 0;
 
                 ctx.fillStyle = '#333';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(data.value.toFixed(1) + (data.unit ? ' ' + data.unit : ''), x, y - 15);
+                ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                
+                const valueText = data.value % 1 === 0 ? data.value.toFixed(0) : data.value.toFixed(1);
+                const valueLabel = valueText + (data.unit ? ' ' + data.unit : '');
+                
+                if (index === 0 && x < padding.left + 30) {
+                    ctx.textAlign = 'left';
+                    ctx.fillText(valueLabel, x + 15, y - 18);
+                } else if (index === trendData.length - 1 && x > width - padding.right - 30) {
+                    ctx.textAlign = 'right';
+                    ctx.fillText(valueLabel, x - 15, y - 18);
+                } else {
+                    ctx.textAlign = 'center';
+                    ctx.fillText(valueLabel, x, y - 18);
+                }
 
-
-                ctx.font = '11px Arial';
-                const dateStr = data.date.substring(5).replace('-', '/');
-                ctx.fillText(dateStr, x, height - 20);
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                const dateObj = new Date(data.date);
+                const dateStr = `${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
+                ctx.fillText(dateStr, x, height - padding.bottom + 25);
             });
         }
 
-
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${trendData[0].itemName} 추이 분석`, width / 2, 30);
+        ctx.fillText(`${trendData[0].itemName} 추이 분석`, width / 2, 35);
 
-
-        const legendY = height - 50;
-        ctx.font = '12px Arial';
+        const legendY = height - 35;
+        ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'left';
-
 
         ctx.fillStyle = '#4CAF50';
         ctx.beginPath();
-        ctx.arc(30, legendY, 6, 0, Math.PI * 2);
+        ctx.arc(40, legendY, 7, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
         ctx.fillStyle = '#333';
-        ctx.fillText('정상', 45, legendY + 4);
-
+        ctx.fillText('정상', 55, legendY + 5);
 
         ctx.fillStyle = '#F44336';
         ctx.beginPath();
-        ctx.arc(100, legendY, 6, 0, Math.PI * 2);
+        ctx.arc(120, legendY, 7, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
         ctx.fillStyle = '#333';
-        ctx.fillText('이상', 115, legendY + 4);
+        ctx.fillText('이상', 135, legendY + 5);
+
+        if (trendData[0].unit) {
+            ctx.fillStyle = '#666';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`단위: ${trendData[0].unit}`, width - 40, legendY + 5);
+        }
     }
 
     detectAbnormalIndicators() {
@@ -5386,7 +5458,6 @@ class HealthcareApp {
         return {
             healthReminder: true,
             checkupNotification: true,
-            medicationReminder: false,
             exerciseReminder: true,
             mealReminder: true,
             dailySteps: 10000,
@@ -5407,13 +5478,11 @@ class HealthcareApp {
 
         const healthReminder = document.getElementById('setting-health-reminder');
         const checkupNotification = document.getElementById('setting-checkup-notification');
-        const medicationReminder = document.getElementById('setting-medication-reminder');
         const exerciseReminder = document.getElementById('setting-exercise-reminder');
         const mealReminder = document.getElementById('setting-meal-reminder');
 
         if (healthReminder) healthReminder.checked = this.settings.healthReminder;
         if (checkupNotification) checkupNotification.checked = this.settings.checkupNotification;
-        if (medicationReminder) medicationReminder.checked = this.settings.medicationReminder;
         if (exerciseReminder) exerciseReminder.checked = this.settings.exerciseReminder;
         if (mealReminder) mealReminder.checked = this.settings.mealReminder;
 
@@ -5447,7 +5516,6 @@ class HealthcareApp {
 
         const healthReminder = document.getElementById('setting-health-reminder');
         const checkupNotification = document.getElementById('setting-checkup-notification');
-        const medicationReminder = document.getElementById('setting-medication-reminder');
         const exerciseReminder = document.getElementById('setting-exercise-reminder');
         const mealReminder = document.getElementById('setting-meal-reminder');
 
@@ -5461,13 +5529,6 @@ class HealthcareApp {
         if (checkupNotification) {
             checkupNotification.addEventListener('change', (e) => {
                 this.settings.checkupNotification = e.target.checked;
-                this.saveSettings();
-            });
-        }
-
-        if (medicationReminder) {
-            medicationReminder.addEventListener('change', (e) => {
-                this.settings.medicationReminder = e.target.checked;
                 this.saveSettings();
             });
         }
