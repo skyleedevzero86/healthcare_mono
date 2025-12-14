@@ -37,7 +37,8 @@ class HealthcareApp {
         this.isDropdownOpening = false;
         this.settings = this.loadSettings();
         this.notifications = [];
-
+        this.isSubmittingConsultation = false;
+        
         this.init();
     }
 
@@ -47,7 +48,7 @@ class HealthcareApp {
         this.loadFromStorage();
         this.loadNotifications();
         this.showLoadingScreen();
-
+        
         setTimeout(() => {
             this.hideLoadingScreen();
             this.checkAuthentication();
@@ -78,7 +79,7 @@ class HealthcareApp {
             item.addEventListener('click', (e) => {
                 const screen = e.currentTarget.dataset.screen;
                 if (screen) {
-                    this.navigateToScreen(screen);
+                this.navigateToScreen(screen);
                 }
             });
         });
@@ -525,12 +526,8 @@ class HealthcareApp {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-                console.log('더보기 버튼 클릭됨');
                 this.toggleNavDropdown();
-            }, true); 
-            console.log('더보기 버튼 이벤트 리스너 등록됨');
-        } else {
-            console.error('nav-more-btn을 찾을 수 없습니다.');
+            }, true);
         }
 
 
@@ -609,26 +606,17 @@ class HealthcareApp {
         const menu = document.getElementById('nav-dropdown-menu');
         const moreBtn = document.getElementById('nav-more-btn');
 
-        if (!menu) {
-            console.error('nav-dropdown-menu를 찾을 수 없습니다.');
-            return;
-        }
-
-        if (!moreBtn) {
-            console.error('nav-more-btn을 찾을 수 없습니다.');
+        if (!menu || !moreBtn) {
             return;
         }
 
         const isHidden = menu.classList.contains('hidden');
 
         if (isHidden) {
-
             this.isDropdownOpening = true;
-
 
             const rect = moreBtn.getBoundingClientRect();
             const leftPosition = rect.left + rect.width / 2;
-
 
             menu.style.setProperty('position', 'fixed', 'important');
             menu.style.setProperty('bottom', '70px', 'important');
@@ -644,7 +632,6 @@ class HealthcareApp {
             menu.style.setProperty('max-height', '70vh', 'important');
             menu.style.setProperty('overflow-y', 'auto', 'important');
 
-
             menu.classList.remove('hidden');
             menu.classList.add('show');
             menu.style.setProperty('display', 'flex', 'important');
@@ -652,17 +639,9 @@ class HealthcareApp {
             menu.style.setProperty('opacity', '1', 'important');
             menu.style.setProperty('pointer-events', 'auto', 'important');
 
-
             requestAnimationFrame(() => {
                 setTimeout(() => {
                     this.isDropdownOpening = false;
-                    console.log('드롭다운 메뉴 표시됨', {
-                        left: leftPosition,
-                        display: window.getComputedStyle(menu).display,
-                        visibility: window.getComputedStyle(menu).visibility,
-                        opacity: window.getComputedStyle(menu).opacity,
-                        zIndex: window.getComputedStyle(menu).zIndex
-                    });
                 }, 50);
             });
         } else {
@@ -673,8 +652,6 @@ class HealthcareApp {
             menu.style.setProperty('visibility', 'hidden', 'important');
             menu.style.setProperty('opacity', '0', 'important');
             menu.style.setProperty('pointer-events', 'none', 'important');
-
-            console.log('드롭다운 메뉴 숨김됨');
         }
     }
 
@@ -709,11 +686,11 @@ class HealthcareApp {
 
         if (this.healthData.length === 0) {
             this.healthData = [];
-
+            
             for (let i = 0; i < 25; i++) {
                 const daysAgo = i;
                 const baseTime = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
-
+                
                 this.healthData.push({
                     userId: 'user123',
                     time: baseTime.toISOString(),
@@ -728,7 +705,7 @@ class HealthcareApp {
                     sleep: Math.round((Math.random() * 4 + 6) * 10) / 10
                 });
             }
-
+            
             this.healthData.sort((a, b) => new Date(b.time) - new Date(a.time));
         }
 
@@ -755,7 +732,7 @@ class HealthcareApp {
                 { userId: 'user404', userNm: '한지영' },
                 { userId: 'user505', userNm: '강태현' }
             ];
-
+            
             const contents = [
                 '오늘 아침 운동을 하고 나서 기분이 정말 좋네요! 심박수도 정상 범위에 있고 체온도 좋습니다.',
                 '수면 시간을 늘리고 나서 건강 점수가 많이 올랐어요. 8시간 수면의 효과가 정말 대단하네요.',
@@ -773,12 +750,12 @@ class HealthcareApp {
                 '건강한 아침 식사를 챙기고 있는데, 하루 에너지가 달라지는 것 같아요.',
                 '걷기와 조깅을 병행하고 있는데, 체력이 많이 향상되었어요.'
             ];
-
+            
             for (let i = 0; i < 20; i++) {
                 const user = users[Math.floor(Math.random() * users.length)];
                 const content = contents[Math.floor(Math.random() * contents.length)];
                 const daysAgo = Math.floor(Math.random() * 30);
-
+                
                 this.communityPosts.push({
                     commuSeq: i + 1,
                     content: content,
@@ -795,7 +772,7 @@ class HealthcareApp {
                     bodyAge: Math.floor(Math.random() * 10) + 20
                 });
             }
-
+            
             this.communityPosts.sort((a, b) => new Date(b.regDate) - new Date(a.regDate));
         }
 
@@ -932,7 +909,7 @@ class HealthcareApp {
 
     checkAuthentication() {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
+        
         if (isLoggedIn) {
             this.isAuthenticated = true;
             this.showMainApp();
@@ -974,7 +951,7 @@ class HealthcareApp {
         }
 
         this.showButtonLoading('login-form');
-
+        
         setTimeout(() => {
             this.hideButtonLoading('login-form');
             this.isAuthenticated = true;
@@ -1009,7 +986,7 @@ class HealthcareApp {
         }
 
         this.showButtonLoading('signup-form');
-
+        
         setTimeout(() => {
             this.hideButtonLoading('signup-form');
             this.showToast('회원가입이 완료되었습니다.', 'success');
@@ -1215,14 +1192,14 @@ class HealthcareApp {
     generateAIAdvice() {
         const loadingElement = document.getElementById('ai-loading');
         const adviceElement = document.getElementById('ai-advice-text');
-
+        
         loadingElement.style.display = 'block';
         adviceElement.style.display = 'none';
 
         setTimeout(() => {
             const latestHealth = this.healthData[0];
             const advice = this.analyzeHealthData(latestHealth);
-
+            
             loadingElement.style.display = 'none';
             adviceElement.style.display = 'block';
             adviceElement.innerHTML = advice;
@@ -1242,7 +1219,7 @@ class HealthcareApp {
         const heartrateStatus = this.getHealthStatus(healthData.heartrate, 'heartrate');
         const temperatureStatus = this.getHealthStatus(healthData.temperature, 'temperature');
         const spo2Status = this.getHealthStatus(healthData.spo2, 'spo2');
-
+        
         let analysis = '';
         let recommendations = [];
         let overallStatus = '양호';
@@ -1310,7 +1287,7 @@ class HealthcareApp {
 
     updateHealthInfo() {
         const container = document.getElementById('health-data-cards');
-
+        
         if (this.healthCurrentPage === 0) {
             container.innerHTML = '';
         }
@@ -1332,7 +1309,7 @@ class HealthcareApp {
         dataToShow.forEach((data, index) => {
             const card = document.createElement('div');
             card.className = 'data-card';
-
+            
             const heartrateStatus = this.getHealthStatus(data.heartrate, 'heartrate');
             const temperatureStatus = this.getHealthStatus(data.temperature, 'temperature');
             const spo2Status = this.getHealthStatus(data.spo2, 'spo2');
@@ -1363,7 +1340,7 @@ class HealthcareApp {
                     </div>
                 </div>
             `;
-
+            
             container.appendChild(card);
         });
 
@@ -1484,7 +1461,7 @@ class HealthcareApp {
     setupHealthInfiniteScroll() {
         const healthContainer = document.getElementById('health-data-cards');
         const loadingMore = document.getElementById('loading-more-health');
-
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !this.isLoadingMoreHealth) {
@@ -1503,7 +1480,7 @@ class HealthcareApp {
     loadMoreHealthData() {
         const totalData = this.healthData.length;
         const currentDisplayed = (this.healthCurrentPage + 1) * this.healthPostsPerPage;
-
+        
         if (currentDisplayed >= totalData) {
             return;
         }
@@ -1522,7 +1499,7 @@ class HealthcareApp {
 
     updateCommunity() {
         const container = document.getElementById('posts-container');
-
+        
         if (this.currentPage === 0) {
             container.innerHTML = '';
         }
@@ -1544,7 +1521,7 @@ class HealthcareApp {
         postsToShow.forEach(post => {
             const card = document.createElement('div');
             card.className = 'post-card';
-
+            
             let healthDataPreview = '';
             if (post.heartrate > 0 || post.temperature > 0 || post.bloodpress > 0) {
                 healthDataPreview = '<div class="health-data-preview">';
@@ -1574,11 +1551,11 @@ class HealthcareApp {
                 <div class="post-content">${post.content}</div>
                 ${healthDataPreview}
             `;
-
+            
             card.addEventListener('click', () => {
                 this.showPostDetailModal(post);
             });
-
+            
             container.appendChild(card);
         });
 
@@ -1588,7 +1565,7 @@ class HealthcareApp {
     setupInfiniteScroll() {
         const postsContainer = document.getElementById('posts-container');
         const loadingMore = document.getElementById('loading-more');
-
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !this.isLoadingMore) {
@@ -1607,7 +1584,7 @@ class HealthcareApp {
     loadMorePosts() {
         const totalPosts = this.communityPosts.length;
         const currentDisplayed = (this.currentPage + 1) * this.postsPerPage;
-
+        
         if (currentDisplayed >= totalPosts) {
             return;
         }
@@ -1641,59 +1618,7 @@ class HealthcareApp {
         document.getElementById('profile-height').textContent = `${this.currentUser.height}cm`;
         document.getElementById('profile-weight').textContent = `${this.currentUser.weight}kg`;
 
-        this.updateProfileConsultations();
         this.updateProfileReservations();
-    }
-
-    updateProfileConsultations() {
-        const container = document.getElementById('profile-consultations-list');
-        if (!container) return;
-
-        if (this.consultations.length === 0) {
-            container.innerHTML = `
-                <div class="empty-history">
-                    <i class="fas fa-comments"></i>
-                    <p>상담 이력이 없습니다.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const sortedConsultations = [...this.consultations].sort((a, b) => 
-            new Date(b.datetime || b.createdAt) - new Date(a.datetime || a.createdAt)
-        );
-
-        container.innerHTML = sortedConsultations.slice(0, 5).map(consultation => `
-            <div class="history-item" onclick="window.healthcareApp.viewConsultation(${consultation.consultationId})">
-                <div class="history-header">
-                    <div class="history-title">
-                        <i class="fas fa-user-md"></i>
-                        <span>${consultation.subject || '상담 신청'}</span>
-                    </div>
-                    <span class="status-badge status-${consultation.status.toLowerCase()}">
-                        ${consultation.statusName}
-                    </span>
-                </div>
-                <div class="history-details">
-                    <span><i class="fas fa-user-md"></i> ${consultation.doctorName} (${consultation.doctorSpecialty})</span>
-                    <span><i class="fas fa-calendar-alt"></i> ${this.formatDateTime(consultation.datetime || consultation.createdAt)}</span>
-                </div>
-                <div class="history-type">
-                    <span class="type-tag">${consultation.typeName}</span>
-                </div>
-            </div>
-        `).join('');
-
-        if (this.consultations.length > 5) {
-            const moreBtn = document.createElement('div');
-            moreBtn.className = 'view-more-btn';
-            moreBtn.innerHTML = `
-                <button onclick="window.healthcareApp.navigateToScreen('consultation')">
-                    전체 보기 (${this.consultations.length}건)
-                </button>
-            `;
-            container.appendChild(moreBtn);
-        }
     }
 
     updateProfileReservations() {
@@ -1831,7 +1756,7 @@ class HealthcareApp {
 
     submitPost() {
         const content = document.getElementById('post-content').value.trim();
-
+        
         if (!content) {
             this.showToast('내용을 입력해주세요.', 'error');
             return;
@@ -1865,9 +1790,9 @@ class HealthcareApp {
         const modal = document.getElementById('chart-modal');
         const title = document.getElementById('modal-title');
         const canvas = document.getElementById('health-chart');
-
+        
         modal.classList.remove('hidden');
-
+        
         if (chartType === 'health-data') {
             title.textContent = '실시간 건강 데이터 차트';
             this.drawHealthDataChart(canvas);
@@ -1885,52 +1810,52 @@ class HealthcareApp {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
-
+        
         ctx.clearRect(0, 0, width, height);
-
+        
         const recentData = this.healthData.slice(0, 7).reverse();
         const labels = recentData.map((_, index) => `${index + 1}일 전`);
-
+        
         const heartrateData = recentData.map(data => data.heartrate);
         const temperatureData = recentData.map(data => data.temperature);
         const spo2Data = recentData.map(data => data.spo2);
-
+        
         const maxValue = Math.max(...heartrateData, ...temperatureData.map(t => t * 10), ...spo2Data);
         const minValue = Math.min(...heartrateData, ...temperatureData.map(t => t * 10), ...spo2Data);
         const range = maxValue - minValue;
-
+        
         const padding = 40;
         const chartWidth = width - padding * 2;
         const chartHeight = height - padding * 2 - 60;
         const barWidth = chartWidth / (heartrateData.length * 3 + 1);
-
+        
         const colors = ['#2196F3', '#4CAF50', '#FF9800'];
         const dataSets = [
             { data: heartrateData, label: '심박수 (bpm)', color: colors[0] },
             { data: temperatureData.map(t => t * 10), label: '체온 (°C)', color: colors[1] },
             { data: spo2Data, label: '산소포화도 (%)', color: colors[2] }
         ];
-
+        
         dataSets.forEach((dataSet, setIndex) => {
             ctx.fillStyle = dataSet.color;
-
+            
             dataSet.data.forEach((value, index) => {
                 const barHeight = ((value - minValue) / range) * chartHeight;
                 const x = padding + (index * 3 + setIndex) * barWidth;
                 const y = padding + chartHeight - barHeight;
-
+                
                 ctx.fillRect(x, y, barWidth * 0.8, barHeight);
             });
         });
-
+        
         ctx.fillStyle = '#333';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('최근 7일 건강 데이터', width / 2, 30);
-
+        
         ctx.font = '12px Arial';
         ctx.textAlign = 'left';
-
+        
         const legendY = height - 60;
         dataSets.forEach((dataSet, index) => {
             ctx.fillStyle = dataSet.color;
@@ -1944,54 +1869,54 @@ class HealthcareApp {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
-
+        
         ctx.clearRect(0, 0, width, height);
-
+        
         if (!this.healthScore) return;
-
+        
         const scores = [
             { label: '수면', value: this.healthScore.userSleepScore, color: '#2196F3' },
             { label: '운동', value: this.healthScore.userExerciseScore, color: '#4CAF50' },
             { label: '스트레스', value: this.healthScore.userStressScore, color: '#FF9800' }
         ];
-
+        
         const centerX = width / 2;
         const centerY = height / 2;
         const radius = Math.min(width, height) / 4;
-
+        
         let currentAngle = 0;
-
+        
         scores.forEach((score, index) => {
             const sliceAngle = (score.value / 100) * Math.PI * 2;
-
+            
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
             ctx.closePath();
             ctx.fillStyle = score.color;
             ctx.fill();
-
+            
             const labelAngle = currentAngle + sliceAngle / 2;
             const labelX = centerX + Math.cos(labelAngle) * (radius + 30);
             const labelY = centerY + Math.sin(labelAngle) * (radius + 30);
-
+            
             ctx.fillStyle = '#333';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(score.value, labelX, labelY);
-
+            
             ctx.font = '12px Arial';
             ctx.fillText(score.label, labelX, labelY + 18);
-
+            
             currentAngle += sliceAngle;
         });
-
+        
         ctx.fillStyle = '#333';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('건강 점수', centerX, centerY - radius - 40);
-
+        
         ctx.font = 'bold 24px Arial';
         ctx.fillText(this.healthScore.healthScore, centerX, centerY);
         ctx.font = '14px Arial';
@@ -2000,7 +1925,7 @@ class HealthcareApp {
 
     refreshData() {
         this.showToast('데이터를 새로고침합니다...', 'info');
-
+        
         setTimeout(() => {
             this.updateDashboard();
             this.showToast('데이터가 업데이트되었습니다.', 'success');
@@ -2013,7 +1938,7 @@ class HealthcareApp {
         document.getElementById('edit-phone').value = this.currentUser.telNumEnc;
         document.getElementById('edit-height').value = this.currentUser.height;
         document.getElementById('edit-weight').value = this.currentUser.weight;
-
+        
         document.getElementById('edit-profile-modal').classList.remove('hidden');
         document.getElementById('edit-name').focus();
     }
@@ -2052,7 +1977,7 @@ class HealthcareApp {
         this.saveToStorage();
         this.updateProfile();
         this.updateDashboard();
-
+        
         this.hideEditProfileModal();
         this.showToast('정보가 업데이트되었습니다.', 'success');
     }
@@ -2116,38 +2041,38 @@ class HealthcareApp {
             const healthDataDiv = document.createElement('div');
             healthDataDiv.className = 'health-data-detail';
             healthDataDiv.innerHTML = '<h4>건강 데이터</h4>';
-
+            
             const healthDataList = document.createElement('div');
             healthDataList.className = 'health-data-list';
-
+            
             if (post.heartrate > 0) {
                 const heartrateItem = document.createElement('div');
                 heartrateItem.className = 'health-data-item';
                 heartrateItem.innerHTML = `<span class="health-label">심박수:</span> <span class="health-value">${post.heartrate} bpm</span>`;
                 healthDataList.appendChild(heartrateItem);
             }
-
+            
             if (post.temperature > 0) {
                 const temperatureItem = document.createElement('div');
                 temperatureItem.className = 'health-data-item';
                 temperatureItem.innerHTML = `<span class="health-label">체온:</span> <span class="health-value">${post.temperature}°C</span>`;
                 healthDataList.appendChild(temperatureItem);
             }
-
+            
             if (post.bloodpress > 0) {
                 const bloodpressItem = document.createElement('div');
                 bloodpressItem.className = 'health-data-item';
                 bloodpressItem.innerHTML = `<span class="health-label">혈압:</span> <span class="health-value">${post.bloodpress}</span>`;
                 healthDataList.appendChild(bloodpressItem);
             }
-
+            
             if (post.age > 0) {
                 const ageItem = document.createElement('div');
                 ageItem.className = 'health-data-item';
                 ageItem.innerHTML = `<span class="health-label">나이:</span> <span class="health-value">${post.age}세</span>`;
                 healthDataList.appendChild(ageItem);
             }
-
+            
             healthDataDiv.appendChild(healthDataList);
             healthDataContainer.appendChild(healthDataDiv);
         }
@@ -2182,7 +2107,7 @@ class HealthcareApp {
         const button = form.querySelector('.auth-button');
         const buttonText = button.querySelector('.button-text');
         const buttonLoading = button.querySelector('.button-loading');
-
+        
         button.disabled = true;
         buttonText.classList.add('hidden');
         buttonLoading.classList.remove('hidden');
@@ -2193,7 +2118,7 @@ class HealthcareApp {
         const button = form.querySelector('.auth-button');
         const buttonText = button.querySelector('.button-text');
         const buttonLoading = button.querySelector('.button-loading');
-
+        
         button.disabled = false;
         buttonText.classList.remove('hidden');
         buttonLoading.classList.add('hidden');
@@ -2204,9 +2129,9 @@ class HealthcareApp {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.textContent = message;
-
+        
         container.appendChild(toast);
-
+        
         setTimeout(() => {
             if (toast.parentNode) {
                 toast.parentNode.removeChild(toast);
@@ -5128,20 +5053,22 @@ class HealthcareApp {
 
     showConsultationRequestModal() {
         const select = document.getElementById('consultation-doctor');
-        if (select.children.length === 1) {
-            select.innerHTML = '<option value="">의사를 선택하세요</option>';
-            this.doctorDatabase.forEach(doctor => {
-                const option = document.createElement('option');
-                option.value = doctor.doctorId;
-                option.textContent = `${doctor.name} (${doctor.specialty}) - ${doctor.hospital}`;
-                select.appendChild(option);
-            });
-        }
+        select.innerHTML = '<option value="">의사를 선택하세요</option>';
+        this.doctorDatabase.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = String(doctor.doctorId);
+            option.textContent = `${doctor.name} (${doctor.specialty}) - ${doctor.hospital}`;
+            select.appendChild(option);
+        });
+        select.value = '';
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(10, 0, 0, 0);
         document.getElementById('consultation-datetime').value = tomorrow.toISOString().slice(0, 16);
+        document.getElementById('consultation-subject').value = '';
+        document.getElementById('consultation-content').value = '';
+        document.getElementById('consultation-share-consent').checked = false;
 
         document.getElementById('consultation-request-modal').classList.remove('hidden');
     }
@@ -5152,20 +5079,72 @@ class HealthcareApp {
     }
 
     submitConsultationRequest() {
-        const doctorId = parseInt(document.getElementById('consultation-doctor').value);
-        const type = document.getElementById('consultation-type').value;
-        const datetime = document.getElementById('consultation-datetime').value;
-        const subject = document.getElementById('consultation-subject').value;
-        const content = document.getElementById('consultation-content').value;
+        if (this.isSubmittingConsultation) {
+            return;
+        }
+        this.isSubmittingConsultation = true;
 
-        if (!doctorId || !type || !datetime || !subject || !content) {
-            this.showToast('모든 필드를 입력해주세요.', 'error');
+        const doctorSelect = document.getElementById('consultation-doctor');
+        if (!doctorSelect) {
+            this.showToast('의사 선택 요소를 찾을 수 없습니다.', 'error');
+            this.isSubmittingConsultation = false;
             return;
         }
 
-        const doctor = this.doctorDatabase.find(d => d.doctorId === doctorId);
-        if (!doctor) {
+        const doctorIdValue = doctorSelect.value.trim();
+        const shareConsent = document.getElementById('consultation-share-consent') ? document.getElementById('consultation-share-consent').checked : false;
+        const type = document.getElementById('consultation-type').value;
+        const datetime = document.getElementById('consultation-datetime').value;
+        const subject = document.getElementById('consultation-subject').value.trim();
+        const content = document.getElementById('consultation-content').value.trim();
+
+        if (!doctorIdValue || doctorIdValue === '') {
             this.showToast('의사를 선택해주세요.', 'error');
+            doctorSelect.focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!type || type === '') {
+            this.showToast('상담 유형을 선택해주세요.', 'error');
+            document.getElementById('consultation-type').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!datetime || datetime === '') {
+            this.showToast('상담 일시를 선택해주세요.', 'error');
+            document.getElementById('consultation-datetime').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!subject || subject === '') {
+            this.showToast('상담 주제를 입력해주세요.', 'error');
+            document.getElementById('consultation-subject').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!content || content === '') {
+            this.showToast('상담 내용을 입력해주세요.', 'error');
+            document.getElementById('consultation-content').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        const doctorId = parseInt(doctorIdValue, 10);
+        if (isNaN(doctorId) || doctorId <= 0) {
+            this.showToast('유효한 의사를 선택해주세요.', 'error');
+            doctorSelect.focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        const doctor = this.doctorDatabase.find(d => d.doctorId === doctorId || d.doctorId === parseInt(doctorIdValue, 10));
+        if (!doctor) {
+            this.showToast('선택한 의사를 찾을 수 없습니다.', 'error');
+            this.isSubmittingConsultation = false;
             return;
         }
 
@@ -5180,6 +5159,7 @@ class HealthcareApp {
             datetime: datetime,
             subject: subject,
             content: content,
+            shareConsent: shareConsent,
             status: 'PENDING',
             statusName: '대기중',
             createdAt: new Date().toISOString()
@@ -5188,8 +5168,11 @@ class HealthcareApp {
         this.consultations.unshift(consultation);
         this.saveToStorage();
         this.hideConsultationRequestModal();
+        this.isSubmittingConsultation = false;
         this.showToast('상담 신청이 완료되었습니다.', 'success');
-        this.updateMyConsultationsTab();
+        setTimeout(() => {
+            this.updateMyConsultationsTab();
+        }, 100);
     }
 
     getConsultationTypeName(type) {
@@ -5299,9 +5282,96 @@ class HealthcareApp {
                     </div>
                 </div>
                 ` : '<p class="no-response">의사 답변을 기다리는 중입니다.</p>'}
+                <div class="detail-section">
+                    <h4>상담 이력</h4>
+                    <div class="consultation-history">
+                        ${this.renderConsultationHistory(consultation)}
+                    </div>
+                </div>
+                ${consultation.shareConsent ? `
+                <div class="detail-section share-consent-notice">
+                    <div class="consent-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <strong>보호자에게 동의한 이력입니다</strong>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
         document.getElementById('consultation-detail-modal').classList.remove('hidden');
+    }
+
+    renderConsultationHistory(consultation) {
+        const history = [];
+        
+        history.push({
+            type: 'requested',
+            title: '상담 신청',
+            description: '상담이 신청되었습니다.',
+            date: consultation.createdAt,
+            icon: 'fa-file-medical',
+            color: '#2196F3'
+        });
+
+        if (consultation.status !== 'PENDING') {
+            const statusDate = consultation.statusUpdatedAt || consultation.createdAt;
+            history.push({
+                type: 'confirmed',
+                title: '의사 확인',
+                description: `의사가 상담을 확인했습니다. (${consultation.statusName})`,
+                date: statusDate,
+                icon: 'fa-check-circle',
+                color: '#4CAF50'
+            });
+        }
+
+        if (consultation.response) {
+            history.push({
+                type: 'responded',
+                title: '의사 답변',
+                description: '의사가 답변을 작성했습니다.',
+                date: consultation.responseDate || consultation.createdAt,
+                icon: 'fa-comment-dots',
+                color: '#FF9800'
+            });
+        }
+
+        if (consultation.status === 'COMPLETED') {
+            history.push({
+                type: 'completed',
+                title: '상담 완료',
+                description: '상담이 완료되었습니다.',
+                date: consultation.completedAt || consultation.responseDate || consultation.createdAt,
+                icon: 'fa-check-double',
+                color: '#9C27B0'
+            });
+        }
+
+        history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        return history.map((item, index) => {
+            const date = new Date(item.date);
+            const formattedDate = date.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return `
+                <div class="history-timeline-item ${index === history.length - 1 ? 'last' : ''}">
+                    <div class="history-timeline-icon" style="background-color: ${item.color}20; color: ${item.color};">
+                        <i class="fas ${item.icon}"></i>
+                    </div>
+                    <div class="history-timeline-content">
+                        <div class="history-timeline-title">${item.title}</div>
+                        <div class="history-timeline-description">${item.description}</div>
+                        <div class="history-timeline-date">${formattedDate}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     hideConsultationDetailModal() {
@@ -5937,7 +6007,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.style.scrollBehavior = 'smooth';
-
+    
     document.querySelectorAll('button').forEach(button => {
         button.addEventListener('click', function() {
             if (!this.disabled) {
@@ -5948,7 +6018,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
+    
     document.querySelectorAll('input[required]').forEach(input => {
         input.addEventListener('blur', function() {
             if (!this.value.trim()) {
@@ -5958,7 +6028,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
+    
     setInterval(() => {
         if (window.healthcareApp && window.healthcareApp.isAuthenticated) {
             const heartrateElement = document.getElementById('heartrate-value');

@@ -605,11 +605,6 @@
           </div>
 
           <div class="profile-section">
-            <h3>상담 이력</h3>
-            <div id="profile-consultations-list" class="history-list"></div>
-          </div>
-
-          <div class="profile-section">
             <h3>예약 이력</h3>
             <div id="profile-reservations-list" class="history-list"></div>
           </div>
@@ -1675,7 +1670,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form id="consultation-request-form">
+          <form id="consultation-request-form" novalidate>
             <div class="input-group">
               <label>의사 선택 *</label>
               <select id="consultation-doctor" required>
@@ -1704,6 +1699,12 @@
             <div class="input-group">
               <label>상담 내용 *</label>
               <textarea id="consultation-content" rows="5" placeholder="상담하고 싶은 내용을 자세히 입력해주세요." required></textarea>
+            </div>
+            <div class="input-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consultation-share-consent" />
+                <span>가족 또는 보호자에게 상담 이력을 공개하는 것에 동의합니다</span>
+              </label>
             </div>
             <div class="modal-actions">
               <button type="button" class="form-button cancel-button" id="cancel-consultation-request">

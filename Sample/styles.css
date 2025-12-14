@@ -4144,6 +4144,78 @@ body {
     margin: 0.5rem 0;
 }
 
+.consultation-history {
+    margin-top: 1rem;
+}
+
+.history-timeline-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    position: relative;
+}
+
+.history-timeline-item:not(.last)::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 50px;
+    width: 2px;
+    height: calc(100% - 20px);
+    background: #e0e0e0;
+}
+
+.history-timeline-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    z-index: 1;
+}
+
+.history-timeline-content {
+    flex: 1;
+    padding-top: 0.25rem;
+}
+
+.history-timeline-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.history-timeline-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.history-timeline-date {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.dark-mode .history-timeline-item:not(.last)::after {
+    background: #3a3a3a;
+}
+
+.dark-mode .history-timeline-title {
+    color: #e0e0e0;
+}
+
+.dark-mode .history-timeline-description {
+    color: #b0b0b0;
+}
+
+.dark-mode .history-timeline-date {
+    color: #888;
+}
 
 .settings-container {
     padding: 1rem;
@@ -4588,4 +4660,69 @@ body {
     .setting-input {
         width: 80px;
     }
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #555;
+    padding: 0.5rem 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #2196F3;
+}
+
+.checkbox-label span {
+    user-select: none;
+}
+
+.share-consent-notice {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    border-radius: 8px;
+    border-left: 4px solid #f44336;
+}
+
+.consent-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #c62828;
+    font-size: 1rem;
+}
+
+.consent-badge i {
+    font-size: 1.2rem;
+    color: #f44336;
+}
+
+.consent-badge strong {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #c62828;
+}
+
+.dark-mode .share-consent-notice {
+    background: linear-gradient(135deg, #5a1a1a 0%, #6a2a2a 100%);
+    border-left-color: #f44336;
+}
+
+.dark-mode .consent-badge {
+    color: #ef5350;
+}
+
+.dark-mode .consent-badge i {
+    color: #f44336;
+}
+
+.dark-mode .consent-badge strong {
+    color: #ef5350;
 }
