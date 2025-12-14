@@ -80,7 +80,7 @@ body {
 
 .auth-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
 }
 
 .auth-logo {
@@ -105,7 +105,7 @@ body {
     font-size: 1.8rem;
     font-weight: bold;
     color: #333;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .back-button {
@@ -231,6 +231,24 @@ body {
 .auth-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.auth-button-back {
+    width: 100%;
+    background-color: #9e9e9e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 0.75rem;
+}
+
+.auth-button-back:hover {
+    background-color: #757575;
 }
 
 .button-loading {
@@ -818,12 +836,67 @@ body {
     gap: 0.5rem;
 }
 
+.post-hashtags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.hashtag {
+    display: inline-block;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.hashtag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}
+
+.input-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
 .health-data-text {
     font-size: 0.8rem;
     color: #666;
     background: #f0f0f0;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
+}
+
+.announcement-badge {
+    background: #F44336;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.announcement-important {
+    border-left: 4px solid #F44336;
+}
+
+.post-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #333;
 }
 
 .profile-card {
@@ -1768,6 +1841,28 @@ body {
     white-space: pre-wrap;
     word-wrap: break-word;
     margin-bottom: 1rem;
+}
+
+.post-detail-hashtags {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.post-detail-hashtags:empty {
+    display: none !important;
+}
+
+.post-detail-hashtags .post-hashtags {
+    margin-top: 0;
+    margin-bottom: 0;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
 }
 
 .post-detail-health-data {

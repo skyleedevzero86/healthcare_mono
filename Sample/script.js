@@ -5,10 +5,12 @@ class HealthcareApp {
         this.currentScreen = 'dashboard';
         this.healthData = [];
         this.communityPosts = [];
+        this.announcements = [];
         this.healthScore = null;
         this.currentPage = 0;
         this.postsPerPage = 5;
         this.isLoadingMore = false;
+        this.communityCurrentTab = 'posts';
         this.healthCurrentPage = 0;
         this.healthPostsPerPage = 5;
         this.isLoadingMoreHealth = false;
@@ -61,7 +63,7 @@ class HealthcareApp {
             this.showSignupScreen();
         });
 
-        document.getElementById('back-to-login').addEventListener('click', () => {
+        document.getElementById('back-to-login-bottom').addEventListener('click', () => {
             this.showLoginScreen();
         });
 
@@ -233,6 +235,16 @@ class HealthcareApp {
         document.getElementById('post-detail-modal').addEventListener('click', (e) => {
             if (e.target.id === 'post-detail-modal') {
                 this.hidePostDetailModal();
+            }
+        });
+
+        document.getElementById('close-announcement-detail-modal').addEventListener('click', () => {
+            this.hideAnnouncementDetailModal();
+        });
+
+        document.getElementById('announcement-detail-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'announcement-detail-modal') {
+                this.hideAnnouncementDetailModal();
             }
         });
 
@@ -756,9 +768,29 @@ class HealthcareApp {
                 const content = contents[Math.floor(Math.random() * contents.length)];
                 const daysAgo = Math.floor(Math.random() * 30);
                 
+                const hashtagOptions = [
+                    ['건강', '운동'],
+                    ['다이어트', '식단'],
+                    ['수면', '건강'],
+                    ['스트레스', '명상'],
+                    ['운동', '건강'],
+                    ['식단', '영양'],
+                    ['명상', '마음챙김'],
+                    ['운동', '체력'],
+                    ['건강검진', '건강'],
+                    ['운동', '다이어트'],
+                    ['건강', '영양'],
+                    ['수면', '건강'],
+                    ['스트레칭', '유연성'],
+                    ['건강', '식단'],
+                    ['운동', '건강']
+                ];
+                const hashtags = Math.random() > 0.3 ? hashtagOptions[Math.floor(Math.random() * hashtagOptions.length)] : [];
+
                 this.communityPosts.push({
                     commuSeq: i + 1,
                     content: content,
+                    hashtags: hashtags,
                     regDate: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
                     heartrate: Math.random() > 0.5 ? Math.floor(Math.random() * 40) + 60 : 0,
                     temperature: Math.random() > 0.5 ? Math.round((Math.random() * 2 + 35.5) * 10) / 10 : 0,
@@ -774,6 +806,57 @@ class HealthcareApp {
             }
             
             this.communityPosts.sort((a, b) => new Date(b.regDate) - new Date(a.regDate));
+        }
+
+        if (this.announcements.length === 0) {
+            this.announcements = [
+                {
+                    id: 1,
+                    title: '헬스케어 앱 업데이트 안내',
+                    content: '안녕하세요. 헬스케어 앱이 새로운 기능과 함께 업데이트되었습니다. 주요 변경사항은 다음과 같습니다:\n\n1. 건강 데이터 차트 기능 개선\n2. 식단 코칭 기능 추가\n3. 운동 프로그램 추천 기능 강화\n4. UI/UX 개선\n\n더 나은 서비스를 제공하기 위해 노력하겠습니다.',
+                    hashtags: ['업데이트', '앱'],
+                    regDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: true
+                },
+                {
+                    id: 2,
+                    title: '개인정보 처리방침 변경 안내',
+                    content: '개인정보 보호를 강화하기 위해 개인정보 처리방침이 변경되었습니다. 주요 변경사항은 앱 내 설정 > 개인정보 처리방침에서 확인하실 수 있습니다.',
+                    hashtags: ['개인정보', '안내'],
+                    regDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: true
+                },
+                {
+                    id: 3,
+                    title: '건강검진 결과 업로드 기능 안내',
+                    content: '이제 건강검진 결과를 직접 업로드하여 관리할 수 있습니다. 건강 정보 화면에서 "검진 결과 업로드" 버튼을 클릭하여 이용해보세요.',
+                    hashtags: ['건강검진', '기능'],
+                    regDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: false
+                },
+                {
+                    id: 4,
+                    title: '의사 상담 서비스 오픈',
+                    content: '헬스케어 앱에서 이제 전문의와 직접 상담할 수 있는 서비스가 오픈되었습니다. 건강에 대한 궁금한 점이 있으시면 언제든지 상담 신청을 해주세요.',
+                    hashtags: ['의사상담', '서비스'],
+                    regDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: false
+                },
+                {
+                    id: 5,
+                    title: '커뮤니티 이용 수칙 안내',
+                    content: '모든 사용자가 편안하게 이용할 수 있도록 커뮤니티 이용 수칙을 준수해주시기 바랍니다. 부적절한 게시글은 삭제될 수 있으며, 반복적인 위반 시 이용이 제한될 수 있습니다.',
+                    hashtags: ['커뮤니티', '안내'],
+                    regDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: false
+                }
+            ];
+            this.announcements.sort((a, b) => {
+                if (a.isImportant !== b.isImportant) {
+                    return b.isImportant - a.isImportant;
+                }
+                return new Date(b.regDate) - new Date(a.regDate);
+            });
         }
 
         if (this.checkupData.length === 0) {
@@ -1065,6 +1148,7 @@ class HealthcareApp {
                 break;
             case 'community':
                 this.updateCommunity();
+                this.updateAnnouncements();
                 break;
             case 'settings':
                 this.updateSettingsScreen();
@@ -1497,6 +1581,24 @@ class HealthcareApp {
         }, 500);
     }
 
+    switchCommunityTab(tabName) {
+        this.communityCurrentTab = tabName;
+        document.querySelectorAll('#community-screen .tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelectorAll('#community-screen .tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.querySelector(`#community-screen [data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+
+        if (tabName === 'posts') {
+            this.updateCommunity();
+        } else if (tabName === 'announcements') {
+            this.updateAnnouncements();
+        }
+    }
+
     updateCommunity() {
         const container = document.getElementById('posts-container');
         
@@ -1560,6 +1662,54 @@ class HealthcareApp {
         });
 
         this.setupInfiniteScroll();
+    }
+
+    updateAnnouncements() {
+        const container = document.getElementById('announcements-container');
+        container.innerHTML = '';
+
+        if (this.announcements.length === 0) {
+            container.innerHTML = `
+                <div class="post-card">
+                    <p>공지사항이 없습니다.</p>
+                </div>
+            `;
+            return;
+        }
+
+        this.announcements.forEach(announcement => {
+            const card = document.createElement('div');
+            card.className = 'post-card';
+            if (announcement.isImportant) {
+                card.classList.add('announcement-important');
+            }
+            
+            const importantBadge = announcement.isImportant ? '<span class="announcement-badge">중요</span>' : '';
+
+            card.innerHTML = `
+                <div class="post-header">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        ${importantBadge}
+                        <span class="post-author" style="font-weight: 600;">관리자</span>
+                    </div>
+                    <span class="post-date">${new Date(announcement.regDate).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</span>
+                </div>
+                <div class="post-title" style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.1rem;">${announcement.title}</div>
+                <div class="post-content" style="white-space: pre-line;">${announcement.content}</div>
+            `;
+            
+            card.addEventListener('click', () => {
+                this.showAnnouncementDetailModal(announcement);
+            });
+            
+            container.appendChild(card);
+        });
     }
 
     setupInfiniteScroll() {
@@ -1748,6 +1898,7 @@ class HealthcareApp {
 
     clearWriteForm() {
         document.getElementById('post-content').value = '';
+        document.getElementById('post-hashtags').value = '';
         document.getElementById('post-heartrate').value = '';
         document.getElementById('post-temperature').value = '';
         document.getElementById('post-bloodpress').value = '';
@@ -1762,17 +1913,28 @@ class HealthcareApp {
             return;
         }
 
+        const hashtagsInput = document.getElementById('post-hashtags').value.trim();
+        const hashtags = hashtagsInput
+            ? hashtagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+            : [];
+
+        const heartrate = parseFloat(document.getElementById('post-heartrate').value) || 0;
+        const temperature = parseFloat(document.getElementById('post-temperature').value) || 0;
+        const bloodpress = parseFloat(document.getElementById('post-bloodpress').value) || 0;
+        const age = parseInt(document.getElementById('post-age').value) || 0;
+
         const newPost = {
             commuSeq: Date.now(),
             content: content,
+            hashtags: hashtags,
             regDate: new Date().toISOString(),
-            heartrate: 0,
-            temperature: 0,
-            bloodpress: 0,
+            heartrate: heartrate,
+            temperature: temperature,
+            bloodpress: bloodpress,
             smoking: 0,
             drinking: 0,
             exercise: 0,
-            age: 0,
+            age: age,
             userId: this.currentUser.userId,
             userNm: this.currentUser.userNm,
             bodyAge: 0
@@ -2034,47 +2196,87 @@ class HealthcareApp {
         });
         document.getElementById('detail-post-content').textContent = post.content;
 
-        const healthDataContainer = document.getElementById('detail-health-data');
-        healthDataContainer.innerHTML = '';
+        const hashtagsContainer = document.getElementById('detail-post-hashtags');
+        if (hashtagsContainer) {
+            hashtagsContainer.innerHTML = '';
+            
+            if (post.hashtags && Array.isArray(post.hashtags) && post.hashtags.length > 0) {
+                const hashtagsDiv = document.createElement('div');
+                hashtagsDiv.className = 'post-hashtags';
+                
+                post.hashtags.forEach(tag => {
+                    const tagValue = String(tag).trim();
+                    if (tagValue) {
+                        const hashtagSpan = document.createElement('span');
+                        hashtagSpan.className = 'hashtag';
+                        hashtagSpan.textContent = `#${tagValue}`;
+                        hashtagsDiv.appendChild(hashtagSpan);
+                    }
+                });
+                
+                if (hashtagsDiv.children.length > 0) {
+                    hashtagsContainer.appendChild(hashtagsDiv);
+                    hashtagsContainer.style.display = 'block';
+                    hashtagsContainer.style.visibility = 'visible';
+                    hashtagsContainer.style.opacity = '1';
+                } else {
+                    hashtagsContainer.style.display = 'none';
+                }
+            } else {
+                hashtagsContainer.style.display = 'none';
+            }
+        }
 
-        if (post.heartrate > 0 || post.temperature > 0 || post.bloodpress > 0 || post.age > 0) {
-            const healthDataDiv = document.createElement('div');
-            healthDataDiv.className = 'health-data-detail';
-            healthDataDiv.innerHTML = '<h4>건강 데이터</h4>';
-            
-            const healthDataList = document.createElement('div');
-            healthDataList.className = 'health-data-list';
-            
-            if (post.heartrate > 0) {
-                const heartrateItem = document.createElement('div');
-                heartrateItem.className = 'health-data-item';
-                heartrateItem.innerHTML = `<span class="health-label">심박수:</span> <span class="health-value">${post.heartrate} bpm</span>`;
-                healthDataList.appendChild(heartrateItem);
+        const healthDataContainer = document.getElementById('detail-health-data');
+        if (healthDataContainer) {
+            healthDataContainer.innerHTML = '';
+
+            const hasHealthData = (post.heartrate && post.heartrate > 0) || 
+                                 (post.temperature && post.temperature > 0) || 
+                                 (post.bloodpress && post.bloodpress > 0) || 
+                                 (post.age && post.age > 0);
+
+            if (hasHealthData) {
+                const healthDataDiv = document.createElement('div');
+                healthDataDiv.className = 'health-data-detail';
+                healthDataDiv.innerHTML = '<h4>건강 데이터</h4>';
+                
+                const healthDataList = document.createElement('div');
+                healthDataList.className = 'health-data-list';
+                
+                if (post.heartrate && post.heartrate > 0) {
+                    const heartrateItem = document.createElement('div');
+                    heartrateItem.className = 'health-data-item';
+                    heartrateItem.innerHTML = `<span class="health-label">심박수:</span> <span class="health-value">${post.heartrate} bpm</span>`;
+                    healthDataList.appendChild(heartrateItem);
+                }
+                
+                if (post.temperature && post.temperature > 0) {
+                    const temperatureItem = document.createElement('div');
+                    temperatureItem.className = 'health-data-item';
+                    temperatureItem.innerHTML = `<span class="health-label">체온:</span> <span class="health-value">${post.temperature}°C</span>`;
+                    healthDataList.appendChild(temperatureItem);
+                }
+                
+                if (post.bloodpress && post.bloodpress > 0) {
+                    const bloodpressItem = document.createElement('div');
+                    bloodpressItem.className = 'health-data-item';
+                    bloodpressItem.innerHTML = `<span class="health-label">혈압:</span> <span class="health-value">${post.bloodpress}</span>`;
+                    healthDataList.appendChild(bloodpressItem);
+                }
+                
+                if (post.age && post.age > 0) {
+                    const ageItem = document.createElement('div');
+                    ageItem.className = 'health-data-item';
+                    ageItem.innerHTML = `<span class="health-label">나이:</span> <span class="health-value">${post.age}세</span>`;
+                    healthDataList.appendChild(ageItem);
+                }
+                
+                if (healthDataList.children.length > 0) {
+                    healthDataDiv.appendChild(healthDataList);
+                    healthDataContainer.appendChild(healthDataDiv);
+                }
             }
-            
-            if (post.temperature > 0) {
-                const temperatureItem = document.createElement('div');
-                temperatureItem.className = 'health-data-item';
-                temperatureItem.innerHTML = `<span class="health-label">체온:</span> <span class="health-value">${post.temperature}°C</span>`;
-                healthDataList.appendChild(temperatureItem);
-            }
-            
-            if (post.bloodpress > 0) {
-                const bloodpressItem = document.createElement('div');
-                bloodpressItem.className = 'health-data-item';
-                bloodpressItem.innerHTML = `<span class="health-label">혈압:</span> <span class="health-value">${post.bloodpress}</span>`;
-                healthDataList.appendChild(bloodpressItem);
-            }
-            
-            if (post.age > 0) {
-                const ageItem = document.createElement('div');
-                ageItem.className = 'health-data-item';
-                ageItem.innerHTML = `<span class="health-label">나이:</span> <span class="health-value">${post.age}세</span>`;
-                healthDataList.appendChild(ageItem);
-            }
-            
-            healthDataDiv.appendChild(healthDataList);
-            healthDataContainer.appendChild(healthDataDiv);
         }
 
         document.getElementById('post-detail-modal').classList.remove('hidden');
@@ -2082,6 +2284,66 @@ class HealthcareApp {
 
     hidePostDetailModal() {
         document.getElementById('post-detail-modal').classList.add('hidden');
+    }
+
+    showAnnouncementDetailModal(announcement) {
+        document.getElementById('detail-announcement-author-initial').textContent = '관';
+        document.getElementById('detail-announcement-author-name').textContent = '관리자';
+        document.getElementById('detail-announcement-date').textContent = new Date(announcement.regDate).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        document.getElementById('detail-announcement-title').textContent = announcement.title;
+        document.getElementById('detail-announcement-content').textContent = announcement.content;
+
+        const importantBadge = document.getElementById('detail-announcement-badge');
+        if (importantBadge) {
+            if (announcement.isImportant) {
+                importantBadge.style.display = 'inline-block';
+            } else {
+                importantBadge.style.display = 'none';
+            }
+        }
+
+        const hashtagsContainer = document.getElementById('detail-announcement-hashtags');
+        if (hashtagsContainer) {
+            hashtagsContainer.innerHTML = '';
+            
+            if (announcement.hashtags && Array.isArray(announcement.hashtags) && announcement.hashtags.length > 0) {
+                const hashtagsDiv = document.createElement('div');
+                hashtagsDiv.className = 'post-hashtags';
+                
+                announcement.hashtags.forEach(tag => {
+                    const tagValue = String(tag).trim();
+                    if (tagValue) {
+                        const hashtagSpan = document.createElement('span');
+                        hashtagSpan.className = 'hashtag';
+                        hashtagSpan.textContent = `#${tagValue}`;
+                        hashtagsDiv.appendChild(hashtagSpan);
+                    }
+                });
+                
+                if (hashtagsDiv.children.length > 0) {
+                    hashtagsContainer.appendChild(hashtagsDiv);
+                    hashtagsContainer.style.display = 'block';
+                    hashtagsContainer.style.visibility = 'visible';
+                    hashtagsContainer.style.opacity = '1';
+                } else {
+                    hashtagsContainer.style.display = 'none';
+                }
+            } else {
+                hashtagsContainer.style.display = 'none';
+            }
+        }
+
+        document.getElementById('announcement-detail-modal').classList.remove('hidden');
+    }
+
+    hideAnnouncementDetailModal() {
+        document.getElementById('announcement-detail-modal').classList.add('hidden');
     }
 
     getHealthStatus(value, type) {
