@@ -93,10 +93,10 @@ public class HealthDataServiceImpl implements HealthDataService {
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
             log.error("검증 실패: {}", e.getMessage());
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("분 단위 건강 데이터 처리 중 오류 발생: {}", dto.getUserId(), e);
-            return ServiceResponse.error("Insert failed: " + e.getMessage());
+            return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
         } finally {
             sample.stop(healthcareMetrics.getHealthDataProcessingTime());
             MDC.clear();
@@ -157,10 +157,10 @@ public class HealthDataServiceImpl implements HealthDataService {
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
             log.error("검증 실패: {}", e.getMessage());
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("일일 건강 데이터 처리 중 오류 발생: {}", dto.getUserId(), e);
-            return ServiceResponse.error("Insert failed: " + e.getMessage());
+            return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
         } finally {
             sample.stop(healthcareMetrics.getHealthDataProcessingTime());
             MDC.clear();
@@ -186,7 +186,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
             log.error("검증 실패: {}", e.getMessage());
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생: 사용자 {}", userId, e);
             return ServiceResponse.error("조회 실패: " + e.getMessage());
@@ -215,7 +215,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
             log.error("검증 실패: {}", e.getMessage());
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("최소/최대 건강 정보 조회 중 오류 발생: 사용자 {}", userId, e);
             return ServiceResponse.error("조회 실패: " + e.getMessage());
@@ -276,7 +276,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         } catch (ValidationException e) {
             return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
-            return ServiceResponse.error("삽입 실패: " + e.getMessage());
+            return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
         }
     }
 
@@ -309,7 +309,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         } catch (ValidationException e) {
             return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
-            return ServiceResponse.error("삽입 실패: " + e.getMessage());
+            return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
         }
     }
 
@@ -342,7 +342,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         } catch (ValidationException e) {
             return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
-            return ServiceResponse.error("삽입 실패: " + e.getMessage());
+            return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
         }
     }
 

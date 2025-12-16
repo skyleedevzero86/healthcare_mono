@@ -45,7 +45,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("사용자 목록 조회 중: 역할 {}, 페이지 {}", dto.getUserRoleFk(), dto.getPageIdx());
             
@@ -62,7 +62,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("사용자 목록 조회 중 오류 발생: 역할 {}", dto.getUserRoleFk(), e);
-            return ServiceResponse.error("User list query failed: " + e.getMessage());
+            return ServiceResponse.error("사용자 목록 조회 실패: " + e.getMessage());
         } finally {
             sample.stop(userManagementMetrics.getUserListQueryTime());
             MDC.clear();
@@ -74,7 +74,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     public ServiceResponse<Object> getParentList(UserDto dto) {
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             int totalCount = userRepository.countParentList(dto);
             PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -86,7 +86,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                     .build();
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Parent list query failed: " + e.getMessage());
+            return ServiceResponse.error("보호자 목록 조회 실패: " + e.getMessage());
         }
     }
 
@@ -95,7 +95,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     public ServiceResponse<Object> getDoctorList(UserDto dto) {
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             int totalCount = userRepository.countDoctorList(dto);
             PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -106,7 +106,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                     .build();
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Doctor list query failed: " + e.getMessage());
+            return ServiceResponse.error("의사 목록 조회 실패: " + e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     public ServiceResponse<Object> getManageUserList(UserDto dto) {
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             int totalCount = userRepository.countManageUserList(dto);
             PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -127,7 +127,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                     .build();
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Manage user list query failed: " + e.getMessage());
+            return ServiceResponse.error("관리 사용자 목록 조회 실패: " + e.getMessage());
         }
     }
 
@@ -145,7 +145,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("사용자 정보 조회 중: 사용자 {}, 역할 {}", userId, dto.getUserRoleFk());
             
@@ -170,7 +170,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("사용자 정보 조회 중 오류 발생: {}", userId, e);
-            return ServiceResponse.error("User info query failed: " + e.getMessage());
+            return ServiceResponse.error("사용자 정보 조회 실패: " + e.getMessage());
         } finally {
             sample.stop(userManagementMetrics.getUserInfoQueryTime());
             MDC.clear();
@@ -191,7 +191,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("사용자 정보 업데이트 중: {}", userId);
             
@@ -201,7 +201,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             return ServiceResponse.success(updateResult);
         } catch (Exception e) {
             log.error("사용자 정보 업데이트 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("User info update failed: " + e.getMessage());
+            return ServiceResponse.error("사용자 정보 업데이트 실패: " + e.getMessage());
         } finally {
             sample.stop(userManagementMetrics.getUserInfoUpdateTime());
             MDC.clear();
@@ -219,7 +219,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("사용자 정보 삭제 중: {}", userId);
             
@@ -233,7 +233,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("사용자 정보 삭제 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("User info delete failed: " + e.getMessage());
+            return ServiceResponse.error("사용자 정보 삭제 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -250,7 +250,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("비밀번호 변경 중: {}", userId);
             
@@ -264,7 +264,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("비밀번호 변경 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("Password update failed: " + e.getMessage());
+            return ServiceResponse.error("비밀번호 변경 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }

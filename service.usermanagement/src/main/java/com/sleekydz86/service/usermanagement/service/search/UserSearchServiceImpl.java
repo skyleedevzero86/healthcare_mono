@@ -20,6 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserSearchServiceImpl implements UserSearchService {
     private final UserSearchRepository userSearchRepository;
+    private final SearchCriteriaBuilder searchCriteriaBuilder;
     private final UserManagementMetrics userManagementMetrics;
 
     @Override
@@ -27,12 +28,12 @@ public class UserSearchServiceImpl implements UserSearchService {
     public ServiceResponse<List<Map<String, Object>>> searchUserList(Map<String, Object> map) {
         try {
             if (map == null) {
-                return ServiceResponse.error("Search parameters cannot be null");
+                return ServiceResponse.error("검색 파라미터는 null일 수 없습니다");
             }
             List<Map<String, Object>> result = userSearchRepository.searchUserList(map);
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("User search failed: " + e.getMessage());
+            return ServiceResponse.error("사용자 검색 실패: " + e.getMessage());
         }
     }
 
@@ -45,7 +46,7 @@ public class UserSearchServiceImpl implements UserSearchService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("의사 검색 중: 검색어 {}", dto.getUserNm());
             
@@ -57,7 +58,7 @@ public class UserSearchServiceImpl implements UserSearchService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("의사 검색 중 오류 발생", e);
-            return ServiceResponse.error("Doctor search failed: " + e.getMessage());
+            return ServiceResponse.error("의사 검색 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -72,7 +73,7 @@ public class UserSearchServiceImpl implements UserSearchService {
         
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             log.info("보호자 검색 중: 검색어 {}", dto.getUserNm());
             
@@ -84,7 +85,7 @@ public class UserSearchServiceImpl implements UserSearchService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("보호자 검색 중 오류 발생", e);
-            return ServiceResponse.error("Parent search failed: " + e.getMessage());
+            return ServiceResponse.error("보호자 검색 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -95,14 +96,13 @@ public class UserSearchServiceImpl implements UserSearchService {
     public ServiceResponse<List<Map<String, Object>>> searchHealthUserList(Map<String, Object> map) {
         try {
             if (map == null) {
-                return ServiceResponse.error("Search parameters cannot be null");
+                return ServiceResponse.error("검색 파라미터는 null일 수 없습니다");
             }
-            ObjectMapper mapper = new ObjectMapper();
-            UserDto dto = mapper.convertValue(map, UserDto.class);
+            UserDto dto = searchCriteriaBuilder.buildSearchCriteria(map);
             List<Map<String, Object>> result = userSearchRepository.searchHealthUserList(dto);
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Health user search failed: " + e.getMessage());
+            return ServiceResponse.error("건강 사용자 검색 실패: " + e.getMessage());
         }
     }
 
@@ -111,12 +111,12 @@ public class UserSearchServiceImpl implements UserSearchService {
     public ServiceResponse<List<Map<String, Object>>> searchDoctorGuardianList(UserDto dto) {
         try {
             if (dto == null) {
-                return ServiceResponse.error("UserDto cannot be null");
+                return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
             List<Map<String, Object>> result = userSearchRepository.searchDoctorGuardianList(dto);
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Doctor guardian search failed: " + e.getMessage());
+            return ServiceResponse.error("의사/보호자 검색 실패: " + e.getMessage());
         }
     }
 }

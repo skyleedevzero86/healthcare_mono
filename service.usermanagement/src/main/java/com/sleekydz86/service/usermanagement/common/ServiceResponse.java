@@ -18,7 +18,7 @@ public class ServiceResponse<T> {
     }
 
     public static <T> ServiceResponse<T> success(T data) {
-        return new ServiceResponse<>(true, "Success", data, null, "200");
+        return new ServiceResponse<>(true, "성공", data, null, "200");
     }
 
     public static <T> ServiceResponse<T> success(String message, T data) {

@@ -63,10 +63,10 @@ public class CommunityServiceImpl implements CommunityService {
             log.info("커뮤니티 게시글 생성 완료: 사용자 {}, 결과: {}", userId, result);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("커뮤니티 게시글 생성 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("Community post creation failed: " + e.getMessage());
+            return ServiceResponse.error("커뮤니티 게시글 생성 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -80,7 +80,7 @@ public class CommunityServiceImpl implements CommunityService {
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("커뮤니티 게시글 목록 조회 중 오류 발생", e);
-            return ServiceResponse.error("Community post list query failed: " + e.getMessage());
+            return ServiceResponse.error("커뮤니티 게시글 목록 조회 실패: " + e.getMessage());
         }
     }
 }

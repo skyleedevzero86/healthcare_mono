@@ -15,18 +15,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserHealthServiceImpl implements UserHealthService {
     private final UserHealthRepository userHealthRepository;
+    private final UserHealthValidator userHealthValidator;
 
     @Override
     @Cacheable(value = "healthData", key = "'ageavg_' + #dto.ageRange + '_' + #dto.gender")
     public ServiceResponse<Map<String, Object>> getAgeAvgHealthInfo(UserhealthDto dto) {
         try {
-            if (dto == null) {
-                return ServiceResponse.error("UserhealthDto cannot be null");
-            }
+            userHealthValidator.validate(dto);
             Map<String, Object> result = userHealthRepository.findAgeAvgHealthInfo(dto);
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Age avg health info query failed: " + e.getMessage());
+            return ServiceResponse.error("연령별 평균 건강 정보 조회 실패: " + e.getMessage());
         }
     }
 }

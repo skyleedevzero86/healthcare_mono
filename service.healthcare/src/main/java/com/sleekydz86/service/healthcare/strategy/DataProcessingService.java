@@ -27,12 +27,5 @@ public class DataProcessingService {
         }
         return data;
     }
-
-    public Map<String, Object> processDataList(List<Map<String, Object>> dataList) {
-        for (Map<String, Object> data : dataList) {
-            processData(data);
-        }
-        return Map.of("data", dataList);
-    }
 }
 

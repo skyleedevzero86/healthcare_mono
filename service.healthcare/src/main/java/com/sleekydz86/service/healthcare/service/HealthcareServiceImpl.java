@@ -230,7 +230,7 @@ public class HealthcareServiceImpl implements HealthcareService {
             }
         }
         if (dto.getUserSeq() == null) {
-            throw new IllegalStateException("UserSeq not found for userId: " + dto.getUserId());
+            throw new IllegalStateException("사용자 ID에 대한 사용자 시퀀스를 찾을 수 없습니다: " + dto.getUserId());
         }
         return healthcareMapper.insHealthInfoTest(dto);
     }
@@ -248,7 +248,7 @@ public class HealthcareServiceImpl implements HealthcareService {
             }
         }
         if (dto.getUserSeq() == null) {
-            throw new IllegalStateException("UserSeq not found for userId: " + dto.getUserId());
+            throw new IllegalStateException("사용자 ID에 대한 사용자 시퀀스를 찾을 수 없습니다: " + dto.getUserId());
         }
         return healthcareMapper.testInsertMinute(dto);
     }

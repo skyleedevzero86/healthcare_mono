@@ -17,6 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChartDataServiceImpl implements ChartDataService {
     private final ChartDataRepository chartDataRepository;
+    private final ChartDataProcessor chartDataProcessor;
     private final HealthDataValidator healthDataValidator;
 
     @Override
@@ -24,7 +25,8 @@ public class ChartDataServiceImpl implements ChartDataService {
     public ServiceResponse<Map<String, Object>> getHealthInfoChart(Map<String, Object> params) {
         try {
             healthDataValidator.validate(params);
-            Map<String, Object> result = chartDataRepository.findHealthInfoChart(params);
+            Map<String, Object> rawData = chartDataRepository.findHealthInfoChart(params);
+            Map<String, Object> result = chartDataProcessor.processChartData(rawData);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
             return ServiceResponse.error("검증 실패: " + e.getMessage());
@@ -42,10 +44,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             Map<String, Object> result = chartDataRepository.findMinMaxHealthInfoChart(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("최소/최대 차트 데이터 조회 중 오류 발생", e);
-            return ServiceResponse.error("Chart data query failed: " + e.getMessage());
+            return ServiceResponse.error("차트 데이터 조회 실패: " + e.getMessage());
         }
     }
 
@@ -57,10 +59,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             Map<String, Object> result = chartDataRepository.findCustomMinuteChartData(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("커스텀 분 단위 차트 데이터 조회 중 오류 발생", e);
-            return ServiceResponse.error("Chart data query failed: " + e.getMessage());
+            return ServiceResponse.error("차트 데이터 조회 실패: " + e.getMessage());
         }
     }
 
@@ -75,10 +77,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             result.put("hour", chartDataRepository.findHourDashBRDChart(params));
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("대시보드 차트 데이터 조회 중 오류 발생", e);
-            return ServiceResponse.error("Chart data query failed: " + e.getMessage());
+            return ServiceResponse.error("차트 데이터 조회 실패: " + e.getMessage());
         }
     }
 
@@ -90,10 +92,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             Map<String, Object> result = chartDataRepository.findTodaySleepdata(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("오늘 수면 데이터 조회 중 오류 발생", e);
-            return ServiceResponse.error("Sleep data query failed: " + e.getMessage());
+            return ServiceResponse.error("수면 데이터 조회 실패: " + e.getMessage());
         }
     }
 
@@ -105,10 +107,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             Map<String, Object> result = chartDataRepository.findRealtimeBiodata(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("실시간 생체 데이터 조회 중 오류 발생", e);
-            return ServiceResponse.error("Realtime biodata query failed: " + e.getMessage());
+            return ServiceResponse.error("실시간 생체 데이터 조회 실패: " + e.getMessage());
         }
     }
 
@@ -120,10 +122,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             Map<String, Object> result = chartDataRepository.findGraphBiodata(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("그래프 생체 데이터 조회 중 오류 발생", e);
-            return ServiceResponse.error("Graph biodata query failed: " + e.getMessage());
+            return ServiceResponse.error("그래프 생체 데이터 조회 실패: " + e.getMessage());
         }
     }
 
@@ -135,10 +137,10 @@ public class ChartDataServiceImpl implements ChartDataService {
             Map<String, Object> result = chartDataRepository.findHealthinfoDailySleep(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("일일 수면 정보 조회 중 오류 발생", e);
-            return ServiceResponse.error("Daily sleep info query failed: " + e.getMessage());
+            return ServiceResponse.error("일일 수면 정보 조회 실패: " + e.getMessage());
         }
     }
 }

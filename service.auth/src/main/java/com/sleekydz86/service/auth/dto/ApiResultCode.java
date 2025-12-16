@@ -2,23 +2,23 @@
 
 public enum ApiResultCode {
 
-    SUCCESS					("0000", "Success"),
+    SUCCESS					("0000", "성공"),
 
-    PARAM_VALID_ERR			("1001", "Parameter Validation Error"),
-    AUTH_ERR				("1002", "Authentication Error"),
-    EXP_JWT_TOKEN_ERR		("1003", "Expired JWT Token Error"),
-    INVALID_JWT_TOKEN_ERR 	("1004", "Invalid JWT Token Error"),
+    PARAM_VALID_ERR			("1001", "파라미터 검증 오류"),
+    AUTH_ERR				("1002", "인증 오류"),
+    EXP_JWT_TOKEN_ERR		("1003", "만료된 JWT 토큰 오류"),
+    INVALID_JWT_TOKEN_ERR 	("1004", "유효하지 않은 JWT 토큰 오류"),
 
-    DUPLICATE_KEY_ERR		("2001", "Duplicate Key Error"),
-    DUPLICATE_CODE			("2002", "Duplicate Error"),
+    DUPLICATE_KEY_ERR		("2001", "중복 키 오류"),
+    DUPLICATE_CODE			("2002", "중복 오류"),
 
-    RESULT_IS_EMPTY			("3001", "Is Empty"),
-    UPDATE_FAIL				("3002","Update Fail (update row count : 0)"),
-    INSERT_FAIL				("3003","Insert Fail (Insert row count : 0)"),
+    RESULT_IS_EMPTY			("3001", "결과가 비어있습니다"),
+    UPDATE_FAIL				("3002","업데이트 실패 (업데이트된 행 수 : 0)"),
+    INSERT_FAIL				("3003","삽입 실패 (삽입된 행 수 : 0)"),
 
-    INVALID_REQUEST			("1002", "Invalid Request"),
+    INVALID_REQUEST			("1002", "잘못된 요청"),
 
-    UNKOWN_ERR				("5001", "Unknown Error");
+    UNKOWN_ERR				("5001", "알 수 없는 오류");
 
     public String code;
     public String message;

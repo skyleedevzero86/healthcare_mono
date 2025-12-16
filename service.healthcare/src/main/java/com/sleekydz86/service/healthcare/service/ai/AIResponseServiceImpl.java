@@ -18,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AIResponseServiceImpl implements AIResponseService {
     private final AIResponseRepository aiResponseRepository;
+    private final AIService aiService;
     private final HealthDataValidator healthDataValidator;
     private final AuthServiceClient authServiceClient;
 
@@ -41,10 +42,10 @@ public class AIResponseServiceImpl implements AIResponseService {
             Map<String, Object> result = aiResponseRepository.findAIResponse(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("AI 응답 조회 중 오류 발생", e);
-            return ServiceResponse.error("AI response query failed: " + e.getMessage());
+            return ServiceResponse.error("AI 응답 조회 실패: " + e.getMessage());
         }
     }
 
@@ -67,10 +68,10 @@ public class AIResponseServiceImpl implements AIResponseService {
             int result = aiResponseRepository.saveAIResponse(params);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("AI 응답 저장 중 오류 발생", e);
-            return ServiceResponse.error("AI response save failed: " + e.getMessage());
+            return ServiceResponse.error("AI 응답 저장 실패: " + e.getMessage());
         }
     }
 }

@@ -25,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HealthScoreServiceImpl implements HealthScoreService {
     private final HealthScoreRepository healthScoreRepository;
+    private final ScoreCalculator scoreCalculator;
     private final HealthDataValidator healthDataValidator;
     private final AuthServiceClient authServiceClient;
     private final HealthcareMetrics healthcareMetrics;
@@ -43,7 +44,7 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             healthDataValidator.validate(params);
             log.info("수면 점수 계산 중: {}", userId);
 
-            int score = healthScoreRepository.getSleepScore(params);
+            int score = scoreCalculator.calculateSleepScore(params);
 
             log.info("수면 점수 계산 완료: {}, 사용자: {}", score, userId);
 
@@ -76,10 +77,10 @@ public class HealthScoreServiceImpl implements HealthScoreService {
 
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("수면 점수 계산 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("Sleep score calculation failed: " + e.getMessage());
+            return ServiceResponse.error("수면 점수 계산 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -99,10 +100,7 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             healthDataValidator.validate(params);
             log.info("운동 점수 계산 중: {}", userId);
 
-            double personalScore = healthScoreRepository.getWeeklyPersonalExerciseScore(params);
-            double criteriaScore = healthScoreRepository.getCriteriaToCalculate(userId);
-
-            double finalScore = (personalScore / (criteriaScore * 7)) * 100;
+            double finalScore = scoreCalculator.calculateExerciseScore(params);
 
             log.info("개인 운동 점수: {}, 연령별 기준 점수: {}, 최종 운동 점수: {}, 사용자: {}",
                     personalScore, criteriaScore, finalScore, userId);
@@ -136,10 +134,10 @@ public class HealthScoreServiceImpl implements HealthScoreService {
 
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("운동 점수 계산 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("Exercise score calculation failed: " + e.getMessage());
+            return ServiceResponse.error("운동 점수 계산 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -159,7 +157,7 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             healthDataValidator.validate(params);
             log.info("스트레스 점수 계산 중: {}", userId);
 
-            int score = healthScoreRepository.getStressScore(userId);
+            int score = scoreCalculator.calculateStressScore(userId);
 
             log.info("스트레스 점수 계산 완료: {}, 사용자: {}", score, userId);
 
@@ -192,10 +190,10 @@ public class HealthScoreServiceImpl implements HealthScoreService {
 
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("스트레스 점수 계산 중 오류 발생: 사용자 {}", userId, e);
-            return ServiceResponse.error("Stress score calculation failed: " + e.getMessage());
+            return ServiceResponse.error("스트레스 점수 계산 실패: " + e.getMessage());
         } finally {
             MDC.clear();
         }
@@ -210,9 +208,9 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             result.putAll(healthScoreRepository.findHealthScoreInfo((String) params.get("userId")));
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
-            return ServiceResponse.error("Validation failed: " + e.getMessage());
+            return ServiceResponse.error("검증 실패: " + e.getMessage());
         } catch (Exception e) {
-            return ServiceResponse.error("Health score list query failed: " + e.getMessage());
+            return ServiceResponse.error("건강 점수 목록 조회 실패: " + e.getMessage());
         }
     }
 
@@ -221,12 +219,12 @@ public class HealthScoreServiceImpl implements HealthScoreService {
     public ServiceResponse<Map<String, Object>> getHealthScoreInfo(String userId) {
         try {
             if (userId == null || userId.trim().isEmpty()) {
-                return ServiceResponse.error("UserId is required");
+                return ServiceResponse.error("사용자 ID는 필수입니다");
             }
             Map<String, Object> result = healthScoreRepository.findHealthScoreInfo(userId);
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Health score info query failed: " + e.getMessage());
+            return ServiceResponse.error("건강 점수 정보 조회 실패: " + e.getMessage());
         }
     }
 
@@ -237,7 +235,7 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             Map<String, Object> result = healthScoreRepository.findTarget(dto);
             return ServiceResponse.success(result);
         } catch (Exception e) {
-            return ServiceResponse.error("Target query failed: " + e.getMessage());
+            return ServiceResponse.error("목표 정보 조회 실패: " + e.getMessage());
         }
     }
 }
