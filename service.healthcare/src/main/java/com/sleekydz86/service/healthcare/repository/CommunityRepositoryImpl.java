@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Repository
 public class CommunityRepositoryImpl implements CommunityRepository {
     private final HealthcareMapper healthcareMapper;
 

@@ -1,11 +1,8 @@
 package com.sleekydz86.service.healthcare.strategy;
 
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 
-@Service
 public class DataProcessingService {
     private final List<DataProcessor> processors;
 

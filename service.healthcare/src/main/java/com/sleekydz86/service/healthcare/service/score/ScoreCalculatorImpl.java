@@ -2,11 +2,9 @@ package com.sleekydz86.service.healthcare.service.score;
 
 import com.sleekydz86.service.healthcare.repository.HealthScoreRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 @RequiredArgsConstructor
 public class ScoreCalculatorImpl implements ScoreCalculator {
     private final HealthScoreRepository healthScoreRepository;

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@Repository
 public class HealthScoreRepositoryImpl implements HealthScoreRepository {
     private final HealthcareMapper healthcareMapper;
 

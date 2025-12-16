@@ -4,11 +4,9 @@ import com.sleekydz86.service.healthcare.common.ValidationException;
 import com.sleekydz86.service.healthcare.dto.MinuteDataDto;
 import com.sleekydz86.service.healthcare.dto.MonthDayDataDto;
 import com.sleekydz86.service.healthcare.dto.TestDto;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class HealthDataValidator {
     public void validate(MinuteDataDto dto) {
         if (dto == null) {

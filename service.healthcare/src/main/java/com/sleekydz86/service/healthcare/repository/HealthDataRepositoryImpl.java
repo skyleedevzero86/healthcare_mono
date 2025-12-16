@@ -2,12 +2,10 @@ package com.sleekydz86.service.healthcare.repository;
 
 import com.sleekydz86.service.healthcare.dto.*;
 import com.sleekydz86.service.healthcare.global.mapper.HealthcareMapper;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
 
-@Repository
 public class HealthDataRepositoryImpl implements HealthDataRepository {
     private final HealthcareMapper healthcareMapper;
 

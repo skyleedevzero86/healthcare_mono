@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@Repository
 public class ChartDataRepositoryImpl implements ChartDataRepository {
     private final HealthcareMapper healthcareMapper;
 
