@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -61,6 +62,42 @@ public class HealthcareController {
 
     private LocalDate getToday() {
         return LocalDate.now();
+    }
+
+    @PostMapping("/healthdata/minute")
+    public ResponseEntity<ServiceResponse<Integer>> insertMinuteData(@RequestBody MinuteDataDto dto) {
+        ServiceResponse<Integer> response = healthDataService.insertMinuteData(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/healthdata/info")
+    public ResponseEntity<ServiceResponse<List<HealthData>>> getHealthInfo(@RequestParam Map<String, Object> params) {
+        ServiceResponse<List<HealthData>> response = healthDataService.getHealthInfo(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/chart/healthinfo")
+    public ResponseEntity<ServiceResponse<Map<String, Object>>> getHealthInfoChart(@RequestParam Map<String, Object> params) {
+        ServiceResponse<Map<String, Object>> response = chartDataService.getHealthInfoChart(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/score/sleep")
+    public ResponseEntity<ServiceResponse<Integer>> calculateSleepScore(@RequestBody Map<String, Object> params) {
+        ServiceResponse<Integer> response = healthScoreService.calculateSleepScore(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/ai/response")
+    public ResponseEntity<ServiceResponse<Map<String, Object>>> getAIResponse(@RequestParam Map<String, Object> params) {
+        ServiceResponse<Map<String, Object>> response = aiResponseService.getAIResponse(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/community/post")
+    public ResponseEntity<ServiceResponse<Integer>> createPost(@RequestBody Map<String, Object> params) {
+        ServiceResponse<Integer> response = communityService.createPost(params);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("insertHealthInfo")
