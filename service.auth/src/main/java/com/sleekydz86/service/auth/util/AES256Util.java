@@ -23,10 +23,11 @@ public class AES256Util {
             keyEnv = System.getProperty("encryption.aes256.key");
         }
         if (keyEnv == null || keyEnv.isEmpty()) {
-            throw new IllegalStateException("AES256 encryption key is not configured. Set ENCRYPTION_AES256_KEY environment variable or encryption.aes256.key system property.");
+            throw new IllegalStateException(
+                    "AES256 암호화 키가 설정되지 않았습니다. ENCRYPTION_AES256_KEY 환경 변수 또는 encryption.aes256.key 시스템 속성을 설정해주세요.");
         }
         if (keyEnv.length() != 32) {
-            throw new IllegalStateException("AES256 encryption key must be 32 bytes (256 bits).");
+            throw new IllegalStateException("AES256 암호화 키는 32바이트(256비트)여야 합니다.");
         }
         return keyEnv.getBytes(StandardCharsets.UTF_8);
     }
@@ -37,10 +38,11 @@ public class AES256Util {
             ivEnv = System.getProperty("encryption.aes256.iv");
         }
         if (ivEnv == null || ivEnv.isEmpty()) {
-            throw new IllegalStateException("AES256 encryption IV is not configured. Set ENCRYPTION_AES256_IV environment variable or encryption.aes256.iv system property.");
+            throw new IllegalStateException(
+                    "AES256 암호화 IV가 설정되지 않았습니다. ENCRYPTION_AES256_IV 환경 변수 또는 encryption.aes256.iv 시스템 속성을 설정해주세요.");
         }
         if (ivEnv.length() != 16) {
-            throw new IllegalStateException("AES256 encryption IV must be 16 bytes (128 bits).");
+            throw new IllegalStateException("AES256 암호화 IV는 16바이트(128비트)여야 합니다.");
         }
         return ivEnv.getBytes(StandardCharsets.UTF_8);
     }

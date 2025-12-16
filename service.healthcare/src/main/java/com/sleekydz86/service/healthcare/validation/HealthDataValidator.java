@@ -1,60 +1,48 @@
 ﻿package com.sleekydz86.service.healthcare.validation;
 
-import com.sleekydz86.service.healthcare.dto.HealthDataItemDto;
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import com.sleekydz86.service.healthcare.common.ValidationException;
+import com.sleekydz86.service.healthcare.dto.MinuteDataDto;
+import com.sleekydz86.service.healthcare.dto.MonthDayDataDto;
+import com.sleekydz86.service.healthcare.dto.TestDto;
+import org.springframework.stereotype.Component;
 
-public class HealthDataValidator implements ConstraintValidator<ValidHealthData, HealthDataItemDto> {
+import java.util.Map;
 
-    @Override
-    public void initialize(ValidHealthData constraintAnnotation) {
+@Component
+public class HealthDataValidator {
+    public void validate(MinuteDataDto dto) {
+        if (dto == null) {
+            throw new ValidationException("MinuteDataDto는 null일 수 없습니다");
+        }
+        if (dto.getUserId() == null || dto.getUserId().trim().isEmpty()) {
+            throw new ValidationException("사용자 ID는 필수입니다");
+        }
     }
 
-    @Override
-    public boolean isValid(HealthDataItemDto data, ConstraintValidatorContext context) {
-        if (data == null) {
-            return true;
+    public void validate(MonthDayDataDto dto) {
+        if (dto == null) {
+            throw new ValidationException("MonthDayDataDto는 null일 수 없습니다");
         }
-
-        boolean isValid = true;
-
-        if (data.getHeartrate() != null) {
-            if (data.getHeartrate() < 0 || data.getHeartrate() > 300) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("심박수는 0 이상 300 이하여야 합니다")
-                    .addConstraintViolation();
-                isValid = false;
-            }
+        if (dto.getUserId() == null || dto.getUserId().trim().isEmpty()) {
+            throw new ValidationException("사용자 ID는 필수입니다");
         }
+    }
 
-        if (data.getTemperature() != null) {
-            if (data.getTemperature() < 30.0f || data.getTemperature() > 45.0f) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("체온은 30도 이상 45도 이하여야 합니다")
-                    .addConstraintViolation();
-                isValid = false;
-            }
+    public void validate(TestDto dto) {
+        if (dto == null) {
+            throw new ValidationException("TestDto는 null일 수 없습니다");
         }
-
-        if (data.getSpo2() != null) {
-            if (data.getSpo2() < 0 || data.getSpo2() > 100) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("산소포화도는 0 이상 100 이하여야 합니다")
-                    .addConstraintViolation();
-                isValid = false;
-            }
+        if (dto.getUserId() == null || dto.getUserId().trim().isEmpty()) {
+            throw new ValidationException("사용자 ID는 필수입니다");
         }
+    }
 
-        if (data.getBloodpressMin() != null && data.getBloodpressMax() != null) {
-            if (data.getBloodpressMin() > data.getBloodpressMax()) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("최저혈압은 최고혈압보다 작아야 합니다")
-                    .addConstraintViolation();
-                isValid = false;
-            }
+    public void validate(Map<String, Object> params) {
+        if (params == null) {
+            throw new ValidationException("파라미터는 null일 수 없습니다");
         }
-
-        return isValid;
+        if (params.get("userId") == null || params.get("userId").toString().trim().isEmpty()) {
+            throw new ValidationException("사용자 ID는 필수입니다");
+        }
     }
 }
-

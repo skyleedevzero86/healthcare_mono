@@ -30,7 +30,7 @@ public class HealthcareServiceImpl implements HealthcareService {
 
     @Autowired
     HealthcareMapper healthcareMapper;
-    
+
     private final EventPublisher eventPublisher;
     private final EventStore eventStore;
     private final com.sleekydz86.service.healthcare.client.AuthServiceClient authServiceClient;
@@ -41,23 +41,24 @@ public class HealthcareServiceImpl implements HealthcareService {
     }
 
     @Transactional
-    @CacheEvict(value = {"healthInfo", "healthChart", "healthData"}, allEntries = true)
+    @CacheEvict(value = { "healthInfo", "healthChart", "healthData" }, allEntries = true)
     public int insMinuteData(MinuteDataDto dto) {
         String requestId = UUID.randomUUID().toString();
         MDC.put("userId", dto.getUserId() != null ? dto.getUserId() : "unknown");
         MDC.put("requestId", requestId);
         MDC.put("operation", "insMinuteData");
-        
+
         Timer.Sample sample = healthcareMetrics.startHealthDataProcessingTimer();
-        
+
         try {
             log.info("분 단위 건강 데이터 처리 중: {}", dto.getUserId());
-            
+
             if (dto.getUserSeq() == null) {
                 Map<String, String> request = new HashMap<>();
                 request.put("userId", dto.getUserId());
                 Map<String, Object> response = authServiceClient.getUserSeq(request);
-                if (response != null && response.get("resultCode") != null && "0000".equals(response.get("resultCode"))) {
+                if (response != null && response.get("resultCode") != null
+                        && "0000".equals(response.get("resultCode"))) {
                     Map<String, Object> data = (Map<String, Object>) response.get("data");
                     if (data != null && data.get("userSeq") != null) {
                         dto.setUserSeq(((Number) data.get("userSeq")).intValue());
@@ -66,29 +67,28 @@ public class HealthcareServiceImpl implements HealthcareService {
             }
             if (dto.getUserSeq() == null) {
                 log.error("사용자 시퀀스를 찾을 수 없음: {}", dto.getUserId());
-                throw new IllegalStateException("UserSeq not found for userId: " + dto.getUserId());
+                throw new IllegalStateException("사용자 시퀀스를 찾을 수 없습니다. 사용자 ID: " + dto.getUserId());
             }
             int result = healthcareMapper.insMinuteData(dto);
-            
+
             if (result > 0) {
                 healthcareMetrics.incrementHealthDataProcessed();
                 healthcareMetrics.incrementHealthDataProcessedMinute();
-                
+
                 HealthDataEvent event = new HealthDataEvent(
-                    UUID.randomUUID().toString(),
-                    "INSERT",
-                    dto.getUserId(),
-                    "MINUTE",
-                    dto,
-                    LocalDateTime.now(),
-                    "service.healthcare"
-                );
+                        UUID.randomUUID().toString(),
+                        "INSERT",
+                        dto.getUserId(),
+                        "MINUTE",
+                        dto,
+                        LocalDateTime.now(),
+                        "service.healthcare");
                 eventStore.saveEvent(event);
                 eventPublisher.publishHealthDataEvent(event);
-                
+
                 log.info("분 단위 건강 데이터 처리 완료: {}, 결과: {}", dto.getUserId(), result);
             }
-            
+
             return result;
         } catch (Exception e) {
             log.error("분 단위 건강 데이터 처리 중 오류 발생: {}", dto.getUserId(), e);
@@ -100,23 +100,24 @@ public class HealthcareServiceImpl implements HealthcareService {
     }
 
     @Transactional
-    @CacheEvict(value = {"healthInfo", "healthChart", "healthData"}, allEntries = true)
+    @CacheEvict(value = { "healthInfo", "healthChart", "healthData" }, allEntries = true)
     public int insMonthDayData(MonthDayDataDto dto) {
         String requestId = UUID.randomUUID().toString();
         MDC.put("userId", dto.getUserId() != null ? dto.getUserId() : "unknown");
         MDC.put("requestId", requestId);
         MDC.put("operation", "insMonthDayData");
-        
+
         Timer.Sample sample = healthcareMetrics.startHealthDataProcessingTimer();
-        
+
         try {
             log.info("일일 건강 데이터 처리 중: {}", dto.getUserId());
-            
+
             if (dto.getUserSeq() == null) {
                 Map<String, String> request = new HashMap<>();
                 request.put("userId", dto.getUserId());
                 Map<String, Object> response = authServiceClient.getUserSeq(request);
-                if (response != null && response.get("resultCode") != null && "0000".equals(response.get("resultCode"))) {
+                if (response != null && response.get("resultCode") != null
+                        && "0000".equals(response.get("resultCode"))) {
                     Map<String, Object> data = (Map<String, Object>) response.get("data");
                     if (data != null && data.get("userSeq") != null) {
                         dto.setUserSeq(((Number) data.get("userSeq")).intValue());
@@ -125,29 +126,28 @@ public class HealthcareServiceImpl implements HealthcareService {
             }
             if (dto.getUserSeq() == null) {
                 log.error("사용자 시퀀스를 찾을 수 없음: {}", dto.getUserId());
-                throw new IllegalStateException("UserSeq not found for userId: " + dto.getUserId());
+                throw new IllegalStateException("사용자 시퀀스를 찾을 수 없습니다. 사용자 ID: " + dto.getUserId());
             }
             int result = healthcareMapper.insMonthDayData(dto);
-            
+
             if (result > 0) {
                 healthcareMetrics.incrementHealthDataProcessed();
                 healthcareMetrics.incrementHealthDataProcessedDaily();
-                
+
                 HealthDataEvent event = new HealthDataEvent(
-                    UUID.randomUUID().toString(),
-                    "INSERT",
-                    dto.getUserId(),
-                    "DAILY",
-                    dto,
-                    LocalDateTime.now(),
-                    "service.healthcare"
-                );
+                        UUID.randomUUID().toString(),
+                        "INSERT",
+                        dto.getUserId(),
+                        "DAILY",
+                        dto,
+                        LocalDateTime.now(),
+                        "service.healthcare");
                 eventStore.saveEvent(event);
                 eventPublisher.publishHealthDataEvent(event);
-                
+
                 log.info("일일 건강 데이터 처리 완료: {}, 결과: {}", dto.getUserId(), result);
             }
-            
+
             return result;
         } catch (Exception e) {
             log.error("일일 건강 데이터 처리 중 오류 발생: {}", dto.getUserId(), e);
@@ -165,9 +165,9 @@ public class HealthcareServiceImpl implements HealthcareService {
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "minmaxHealthInfo");
-        
+
         Timer.Sample sample = healthcareMetrics.startHealthInfoQueryTimer();
-        
+
         try {
             log.info("최소/최대 건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, map.get("date"));
             List<Map<String, Object>> result = healthcareMapper.minmaxHealthInfo(map);
@@ -189,9 +189,9 @@ public class HealthcareServiceImpl implements HealthcareService {
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "healthInfo");
-        
+
         Timer.Sample sample = healthcareMetrics.startHealthInfoQueryTimer();
-        
+
         try {
             log.info("건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, map.get("date"));
             List<Map<String, Object>> result = healthcareMapper.healthInfo(map);
@@ -290,7 +290,7 @@ public class HealthcareServiceImpl implements HealthcareService {
     }
 
     @Transactional
-    @CacheEvict(value = {"healthData", "healthInfo"}, key = "#map['userId'] + '_' + #map['date']")
+    @CacheEvict(value = { "healthData", "healthInfo" }, key = "#map['userId'] + '_' + #map['date']")
     public int insertDailyStep(Map<String, Object> map) {
         int result = 0;
         for (Map<String, Object> obj : (List<Map<String, Object>>) map.get("data")) {
@@ -308,7 +308,7 @@ public class HealthcareServiceImpl implements HealthcareService {
     }
 
     @Transactional
-    @CacheEvict(value = {"healthData", "healthInfo"}, key = "#map['userId'] + '_' + #map['date']")
+    @CacheEvict(value = { "healthData", "healthInfo" }, key = "#map['userId'] + '_' + #map['date']")
     public int insertDailySleep(Map<String, Object> map) {
         int result = 0;
         for (Map<String, Object> obj : (List<Map<String, Object>>) map.get("data")) {
@@ -334,10 +334,10 @@ public class HealthcareServiceImpl implements HealthcareService {
         MDC.put("userId", userId != null ? userId : "unknown");
         MDC.put("requestId", requestId);
         MDC.put("operation", "insSleepScore");
-        
+
         try {
             log.info("수면 점수 계산 중: {}", userId);
-            
+
             int score = 0, result = 0;
             score = healthcareMapper.getSleepScore(map);
 
@@ -347,7 +347,8 @@ public class HealthcareServiceImpl implements HealthcareService {
                 Map<String, String> request = new HashMap<>();
                 request.put("userId", userId);
                 Map<String, Object> response = authServiceClient.getUserSeq(request);
-                if (response != null && response.get("resultCode") != null && "0000".equals(response.get("resultCode"))) {
+                if (response != null && response.get("resultCode") != null
+                        && "0000".equals(response.get("resultCode"))) {
                     Map<String, Object> data = (Map<String, Object>) response.get("data");
                     if (data != null && data.get("userSeq") != null) {
                         map.put("userSeq", ((Number) data.get("userSeq")).intValue());
@@ -362,7 +363,7 @@ public class HealthcareServiceImpl implements HealthcareService {
             scoreDto.setDate((String) map.get("date"));
 
             result = healthcareMapper.insScore(scoreDto);
-            
+
             if (result > 0) {
                 healthcareMetrics.incrementHealthScoreCalculated();
             }
@@ -387,10 +388,10 @@ public class HealthcareServiceImpl implements HealthcareService {
         MDC.put("userId", userId != null ? userId : "unknown");
         MDC.put("requestId", requestId);
         MDC.put("operation", "insExerciseScore");
-        
+
         try {
             log.info("운동 점수 계산 중: {}", userId);
-            
+
             double personalScore = 0.0;
             double score = 0;
             int result = 0;
@@ -399,14 +400,15 @@ public class HealthcareServiceImpl implements HealthcareService {
 
             double finalScore = (personalScore / (score * 7)) * 100;
 
-            log.info("개인 운동 점수: {}, 연령별 기준 점수: {}, 최종 운동 점수: {}, 사용자: {}", 
+            log.info("개인 운동 점수: {}, 연령별 기준 점수: {}, 최종 운동 점수: {}, 사용자: {}",
                     personalScore, score, finalScore, userId);
 
             if (map.get("userSeq") == null) {
                 Map<String, String> request = new HashMap<>();
                 request.put("userId", userId);
                 Map<String, Object> response = authServiceClient.getUserSeq(request);
-                if (response != null && response.get("resultCode") != null && "0000".equals(response.get("resultCode"))) {
+                if (response != null && response.get("resultCode") != null
+                        && "0000".equals(response.get("resultCode"))) {
                     Map<String, Object> data = (Map<String, Object>) response.get("data");
                     if (data != null && data.get("userSeq") != null) {
                         map.put("userSeq", ((Number) data.get("userSeq")).intValue());
@@ -421,7 +423,7 @@ public class HealthcareServiceImpl implements HealthcareService {
             scoreDto.setDate((String) map.get("date"));
 
             result = healthcareMapper.insScore(scoreDto);
-            
+
             if (result > 0) {
                 healthcareMetrics.incrementHealthScoreCalculated();
             }
@@ -446,10 +448,10 @@ public class HealthcareServiceImpl implements HealthcareService {
         MDC.put("userId", userId != null ? userId : "unknown");
         MDC.put("requestId", requestId);
         MDC.put("operation", "insStressScore");
-        
+
         try {
             log.info("스트레스 점수 계산 중: {}", userId);
-            
+
             int score, result = 0;
             score = healthcareMapper.StressScore(userId);
 
@@ -459,7 +461,8 @@ public class HealthcareServiceImpl implements HealthcareService {
                 Map<String, String> request = new HashMap<>();
                 request.put("userId", userId);
                 Map<String, Object> response = authServiceClient.getUserSeq(request);
-                if (response != null && response.get("resultCode") != null && "0000".equals(response.get("resultCode"))) {
+                if (response != null && response.get("resultCode") != null
+                        && "0000".equals(response.get("resultCode"))) {
                     Map<String, Object> data = (Map<String, Object>) response.get("data");
                     if (data != null && data.get("userSeq") != null) {
                         map.put("userSeq", ((Number) data.get("userSeq")).intValue());
@@ -474,7 +477,7 @@ public class HealthcareServiceImpl implements HealthcareService {
             scoreDto.setDate((String) map.get("date"));
 
             result = healthcareMapper.insScore(scoreDto);
-            
+
             if (result > 0) {
                 healthcareMetrics.incrementHealthScoreCalculated();
             }
@@ -519,15 +522,16 @@ public class HealthcareServiceImpl implements HealthcareService {
         MDC.put("userId", userId != null ? userId : "unknown");
         MDC.put("requestId", requestId);
         MDC.put("operation", "inscommunity");
-        
+
         try {
             log.info("커뮤니티 게시글 생성 중: {}", userId);
-            
+
             if (map.get("userSeq") == null) {
                 Map<String, String> request = new HashMap<>();
                 request.put("userId", userId);
                 Map<String, Object> response = authServiceClient.getUserSeq(request);
-                if (response != null && response.get("resultCode") != null && "0000".equals(response.get("resultCode"))) {
+                if (response != null && response.get("resultCode") != null
+                        && "0000".equals(response.get("resultCode"))) {
                     Map<String, Object> data = (Map<String, Object>) response.get("data");
                     if (data != null && data.get("userSeq") != null) {
                         map.put("userSeq", ((Number) data.get("userSeq")).intValue());
@@ -535,11 +539,11 @@ public class HealthcareServiceImpl implements HealthcareService {
                 }
             }
             int result = healthcareMapper.inscommunity(map);
-            
+
             if (result > 0) {
                 healthcareMetrics.incrementCommunityPostCreated();
             }
-            
+
             log.info("커뮤니티 게시글 생성 완료: 사용자 {}, 결과: {}", userId, result);
             return result;
         } catch (Exception e) {

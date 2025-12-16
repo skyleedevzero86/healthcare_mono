@@ -1,17 +1,19 @@
 package com.sleekydz86.service.usermanagement.controller;
 
+import com.sleekydz86.service.usermanagement.common.ServiceResponse;
 import com.sleekydz86.service.usermanagement.dto.ApiResponse;
 import com.sleekydz86.service.usermanagement.dto.ApiResultCode;
 import com.sleekydz86.service.usermanagement.dto.UserDto;
 import com.sleekydz86.service.usermanagement.dto.UserhealthDto;
 import com.sleekydz86.service.usermanagement.global.util.AES256Util;
-import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
-import com.sleekydz86.service.usermanagement.service.UserServiceImpl;
+import com.sleekydz86.service.usermanagement.service.health.UserHealthService;
+import com.sleekydz86.service.usermanagement.service.relationship.UserRelationshipService;
+import com.sleekydz86.service.usermanagement.service.search.UserSearchService;
+import com.sleekydz86.service.usermanagement.service.user.UserManagementService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,12 +30,11 @@ import java.util.Map;
 @Slf4j
 public class ManagementController {
 
-    @Autowired
-    UserServiceImpl userService;
-    @Autowired
-    PagingUtil pagingUtil;
-    @Autowired
-    com.sleekydz86.service.usermanagement.util.InputSanitizer inputSanitizer;
+    private final UserManagementService userManagementService;
+    private final UserSearchService userSearchService;
+    private final UserRelationshipService userRelationshipService;
+    private final UserHealthService userHealthService;
+    private final com.sleekydz86.service.usermanagement.util.InputSanitizer inputSanitizer;
 
     @PostMapping("/v1/userInfo")
     public ResponseEntity<ApiResponse> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
@@ -46,7 +47,8 @@ public class ManagementController {
                 }
                 dto.setUserId(sanitizedUserId);
             }
-            return ApiResponse.ok(userService.userInfo(dto));
+            ServiceResponse<Map<String, Object>> response = userManagementService.getUserInfo(dto);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
@@ -63,14 +65,27 @@ public class ManagementController {
         Map<String, Object> responseData = new HashMap<>();
 
         log.info("사용자 게시판 정보 요청 : " + dto.toString());
-        Map<String, Object> userBioinfo = userService.userInfo(dto);
-        List<Map<String, Object>> userRoleinfo = userService.searchdrguardianList(dto);
+        ServiceResponse<Map<String, Object>> userBioinfoResponse = userManagementService.getUserInfo(dto);
+        if (!userBioinfoResponse.isSuccess()) {
+            return convertToApiResponse(userBioinfoResponse);
+        }
+        Map<String, Object> userBioinfo = userBioinfoResponse.getData();
+        
+        ServiceResponse<List<Map<String, Object>>> userRoleinfoResponse = userSearchService.searchDoctorGuardianList(dto);
+        if (!userRoleinfoResponse.isSuccess()) {
+            return convertToApiResponse(userRoleinfoResponse);
+        }
+        List<Map<String, Object>> userRoleinfo = userRoleinfoResponse.getData();
 
         UserhealthDto userhealthDto = new UserhealthDto();
         userhealthDto.setBirthdate(AES256Util.decrypt((String) userBioinfo.get("birthEnc")));
         userhealthDto.setGender((String) userBioinfo.get("gender"));
 
-        Map<String, Object> userHealthavg = userService.ageavgHealthinfo(userhealthDto);
+        ServiceResponse<Map<String, Object>> userHealthavgResponse = userHealthService.getAgeAvgHealthInfo(userhealthDto);
+        if (!userHealthavgResponse.isSuccess()) {
+            return convertToApiResponse(userHealthavgResponse);
+        }
+        Map<String, Object> userHealthavg = userHealthavgResponse.getData();
 
         responseData.put("userBioinfo", userBioinfo);
         responseData.put("userRolelist", userRoleinfo);
@@ -78,7 +93,7 @@ public class ManagementController {
 
         log.info("사용자 게시판 정보 결과 : " + responseData.toString());
 
-        if (userBioinfo.isEmpty()) {
+        if (userBioinfo == null || userBioinfo.isEmpty()) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             return ApiResponse.ok(responseData);
@@ -96,7 +111,23 @@ public class ManagementController {
                 }
                 dto.setUserId(sanitizedUserId);
             }
-            int result = userService.updateUserInfo(dto);
+            
+            ServiceResponse<Integer> guardianResponse = userRelationshipService.updateGuardianMapping(dto);
+            if (!guardianResponse.isSuccess()) {
+                return convertToApiResponse(guardianResponse);
+            }
+            
+            ServiceResponse<Integer> doctorResponse = userRelationshipService.updateDoctorMapping(dto);
+            if (!doctorResponse.isSuccess()) {
+                return convertToApiResponse(doctorResponse);
+            }
+            
+            ServiceResponse<Integer> response = userManagementService.updateUserInfo(dto);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            
+            int result = response.getData();
 
         if (result == 1) {
             return ApiResponse.ok();
@@ -125,7 +156,11 @@ public class ManagementController {
                 }
                 dto.setUserId(sanitizedUserId);
             }
-            int result = userService.deleteUserInfo(dto);
+            ServiceResponse<Integer> response = userManagementService.deleteUserInfo(dto);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            int result = response.getData();
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
@@ -153,7 +188,11 @@ public class ManagementController {
                 }
                 dto.setUserId(sanitizedUserId);
             }
-            int result = userService.updatePasswd(dto);
+            ServiceResponse<Integer> response = userManagementService.updatePassword(dto);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            int result = response.getData();
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
@@ -177,9 +216,13 @@ public class ManagementController {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 dto.setUserId(sanitizedUserId);
             }
+            ServiceResponse<List<Map<String, Object>>> response = userSearchService.searchDoctor(dto);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            List<Map<String, Object>> list = response.getData();
             Map<String, Object> result = new HashMap<>();
-            List<Map<String, Object>> list = userService.searchDoctor(dto);
-        if (list.size() == 0) {
+        if (list == null || list.size() == 0) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
@@ -201,9 +244,13 @@ public class ManagementController {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 dto.setUserId(sanitizedUserId);
             }
+            ServiceResponse<List<Map<String, Object>>> response = userSearchService.searchParent(dto);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            List<Map<String, Object>> list = response.getData();
             Map<String, Object> result = new HashMap<>();
-            List<Map<String, Object>> list = userService.searchParent(dto);
-        if (list.size() == 0) {
+        if (list == null || list.size() == 0) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
@@ -250,12 +297,15 @@ public class ManagementController {
             }
 
             if ("3".equals(userRoleFk)) {
-            return ApiResponse.ok(userService.doctorList(dto));
+            ServiceResponse<Object> response = userManagementService.getDoctorList(dto);
+            return convertToApiResponse(response);
         } else if (map.get("userRoleFk").equals("2")) {
-            return ApiResponse.ok(userService.parentList(dto));
+            ServiceResponse<Object> response = userManagementService.getParentList(dto);
+            return convertToApiResponse(response);
         } else if (map.get("userRoleFk").equals("1")) {
             dto.setUserId((String) map.getOrDefault("userId", null));
-            return ApiResponse.ok(userService.userList(dto));
+            ServiceResponse<Object> response = userManagementService.getUserList(dto);
+            return convertToApiResponse(response);
         } else {
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
@@ -275,7 +325,8 @@ public class ManagementController {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
                 map.put("userId", sanitizedUserId);
             }
-            return ApiResponse.ok(userService.searchHealthUserList(map));
+            ServiceResponse<List<Map<String, Object>>> response = userSearchService.searchHealthUserList(map);
+            return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("건강 사용자 목록 조회 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
@@ -289,7 +340,8 @@ public class ManagementController {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 dto.setUserId(sanitizedUserId);
             }
-            return ApiResponse.ok(userService.searchdrguardianList(dto));
+            ServiceResponse<List<Map<String, Object>>> response = userSearchService.searchDoctorGuardianList(dto);
+            return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("의사/보호자 목록 조회 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
@@ -326,7 +378,8 @@ public class ManagementController {
                 dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
             }
 
-            return ApiResponse.ok(userService.manage_userList(dto));
+            ServiceResponse<Object> response = userManagementService.getManageUserList(dto);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
@@ -351,10 +404,25 @@ public class ManagementController {
                 }
                 map.put("searchKeyword", inputSanitizer.sanitize(searchKeyword));
             }
-            return ApiResponse.ok(userService.searchuserList(map));
+            ServiceResponse<List<Map<String, Object>>> response = userSearchService.searchUserList(map);
+            return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("사용자 검색 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
+    }
+
+    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+        if (serviceResponse.isSuccess()) {
+            return ApiResponse.ok(serviceResponse.getData());
+        } else {
+            ApiResultCode errorCode = ApiResultCode.UNKOWN_ERR;
+            if ("400".equals(serviceResponse.getResultCode())) {
+                errorCode = ApiResultCode.PARAM_VALID_ERR;
+            } else if ("500".equals(serviceResponse.getResultCode())) {
+                errorCode = ApiResultCode.UNKOWN_ERR;
+            }
+            return ApiResponse.error(errorCode, serviceResponse.getMessage());
         }
     }
 }

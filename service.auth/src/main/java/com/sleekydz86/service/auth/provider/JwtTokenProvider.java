@@ -108,12 +108,12 @@ public class JwtTokenProvider {
             throw e;
         } catch (UnsupportedJwtException e) {
             log.info("지원하지 않는 JWT 토큰", e);
-            throw new UnsupportedJwtException("Unsupported JWT Token");
+            throw new UnsupportedJwtException("지원하지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims 문자열이 비어있습니다.", e);
-            throw new UnsupportedJwtException("JWT claims string is empty");
+            throw new UnsupportedJwtException("JWT claims 문자열이 비어있습니다.");
         } catch (Exception e) {
-            throw new UnsupportedJwtException("JWT Unkown Error");
+            throw new UnsupportedJwtException("JWT 알 수 없는 오류가 발생했습니다.");
         }
     }
 
@@ -134,12 +134,12 @@ public class JwtTokenProvider {
             throw e;
         } catch (UnsupportedJwtException e) {
             log.info("지원하지 않는 JWT 토큰", e);
-            throw new UnsupportedJwtException("Unsupported JWT Token");
+            throw new UnsupportedJwtException("지원하지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims 문자열이 비어있습니다.", e);
-            throw new UnsupportedJwtException("JWT claims string is empty");
+            throw new UnsupportedJwtException("JWT claims 문자열이 비어있습니다.");
         } catch (Exception e) {
-            throw new UnsupportedJwtException("JWT Unkown Error");
+            throw new UnsupportedJwtException("JWT 알 수 없는 오류가 발생했습니다.");
         }
     }
 
