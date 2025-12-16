@@ -5,10 +5,12 @@ class HealthcareApp {
         this.currentScreen = 'dashboard';
         this.healthData = [];
         this.communityPosts = [];
+        this.announcements = [];
         this.healthScore = null;
         this.currentPage = 0;
         this.postsPerPage = 5;
         this.isLoadingMore = false;
+        this.communityCurrentTab = 'posts';
         this.healthCurrentPage = 0;
         this.healthPostsPerPage = 5;
         this.isLoadingMoreHealth = false;
@@ -37,7 +39,8 @@ class HealthcareApp {
         this.isDropdownOpening = false;
         this.settings = this.loadSettings();
         this.notifications = [];
-
+        this.isSubmittingConsultation = false;
+        
         this.init();
     }
 
@@ -47,7 +50,7 @@ class HealthcareApp {
         this.loadFromStorage();
         this.loadNotifications();
         this.showLoadingScreen();
-
+        
         setTimeout(() => {
             this.hideLoadingScreen();
             this.checkAuthentication();
@@ -60,7 +63,7 @@ class HealthcareApp {
             this.showSignupScreen();
         });
 
-        document.getElementById('back-to-login').addEventListener('click', () => {
+        document.getElementById('back-to-login-bottom').addEventListener('click', () => {
             this.showLoginScreen();
         });
 
@@ -78,7 +81,7 @@ class HealthcareApp {
             item.addEventListener('click', (e) => {
                 const screen = e.currentTarget.dataset.screen;
                 if (screen) {
-                    this.navigateToScreen(screen);
+                this.navigateToScreen(screen);
                 }
             });
         });
@@ -232,6 +235,16 @@ class HealthcareApp {
         document.getElementById('post-detail-modal').addEventListener('click', (e) => {
             if (e.target.id === 'post-detail-modal') {
                 this.hidePostDetailModal();
+            }
+        });
+
+        document.getElementById('close-announcement-detail-modal').addEventListener('click', () => {
+            this.hideAnnouncementDetailModal();
+        });
+
+        document.getElementById('announcement-detail-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'announcement-detail-modal') {
+                this.hideAnnouncementDetailModal();
             }
         });
 
@@ -525,12 +538,8 @@ class HealthcareApp {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-                console.log('더보기 버튼 클릭됨');
                 this.toggleNavDropdown();
-            }, true); 
-            console.log('더보기 버튼 이벤트 리스너 등록됨');
-        } else {
-            console.error('nav-more-btn을 찾을 수 없습니다.');
+            }, true);
         }
 
 
@@ -609,26 +618,17 @@ class HealthcareApp {
         const menu = document.getElementById('nav-dropdown-menu');
         const moreBtn = document.getElementById('nav-more-btn');
 
-        if (!menu) {
-            console.error('nav-dropdown-menu를 찾을 수 없습니다.');
-            return;
-        }
-
-        if (!moreBtn) {
-            console.error('nav-more-btn을 찾을 수 없습니다.');
+        if (!menu || !moreBtn) {
             return;
         }
 
         const isHidden = menu.classList.contains('hidden');
 
         if (isHidden) {
-
             this.isDropdownOpening = true;
-
 
             const rect = moreBtn.getBoundingClientRect();
             const leftPosition = rect.left + rect.width / 2;
-
 
             menu.style.setProperty('position', 'fixed', 'important');
             menu.style.setProperty('bottom', '70px', 'important');
@@ -644,7 +644,6 @@ class HealthcareApp {
             menu.style.setProperty('max-height', '70vh', 'important');
             menu.style.setProperty('overflow-y', 'auto', 'important');
 
-
             menu.classList.remove('hidden');
             menu.classList.add('show');
             menu.style.setProperty('display', 'flex', 'important');
@@ -652,17 +651,9 @@ class HealthcareApp {
             menu.style.setProperty('opacity', '1', 'important');
             menu.style.setProperty('pointer-events', 'auto', 'important');
 
-
             requestAnimationFrame(() => {
                 setTimeout(() => {
                     this.isDropdownOpening = false;
-                    console.log('드롭다운 메뉴 표시됨', {
-                        left: leftPosition,
-                        display: window.getComputedStyle(menu).display,
-                        visibility: window.getComputedStyle(menu).visibility,
-                        opacity: window.getComputedStyle(menu).opacity,
-                        zIndex: window.getComputedStyle(menu).zIndex
-                    });
                 }, 50);
             });
         } else {
@@ -673,8 +664,6 @@ class HealthcareApp {
             menu.style.setProperty('visibility', 'hidden', 'important');
             menu.style.setProperty('opacity', '0', 'important');
             menu.style.setProperty('pointer-events', 'none', 'important');
-
-            console.log('드롭다운 메뉴 숨김됨');
         }
     }
 
@@ -709,11 +698,11 @@ class HealthcareApp {
 
         if (this.healthData.length === 0) {
             this.healthData = [];
-
+            
             for (let i = 0; i < 25; i++) {
                 const daysAgo = i;
                 const baseTime = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
-
+                
                 this.healthData.push({
                     userId: 'user123',
                     time: baseTime.toISOString(),
@@ -728,7 +717,7 @@ class HealthcareApp {
                     sleep: Math.round((Math.random() * 4 + 6) * 10) / 10
                 });
             }
-
+            
             this.healthData.sort((a, b) => new Date(b.time) - new Date(a.time));
         }
 
@@ -755,7 +744,7 @@ class HealthcareApp {
                 { userId: 'user404', userNm: '한지영' },
                 { userId: 'user505', userNm: '강태현' }
             ];
-
+            
             const contents = [
                 '오늘 아침 운동을 하고 나서 기분이 정말 좋네요! 심박수도 정상 범위에 있고 체온도 좋습니다.',
                 '수면 시간을 늘리고 나서 건강 점수가 많이 올랐어요. 8시간 수면의 효과가 정말 대단하네요.',
@@ -773,15 +762,35 @@ class HealthcareApp {
                 '건강한 아침 식사를 챙기고 있는데, 하루 에너지가 달라지는 것 같아요.',
                 '걷기와 조깅을 병행하고 있는데, 체력이 많이 향상되었어요.'
             ];
-
+            
             for (let i = 0; i < 20; i++) {
                 const user = users[Math.floor(Math.random() * users.length)];
                 const content = contents[Math.floor(Math.random() * contents.length)];
                 const daysAgo = Math.floor(Math.random() * 30);
+                
+                const hashtagOptions = [
+                    ['건강', '운동'],
+                    ['다이어트', '식단'],
+                    ['수면', '건강'],
+                    ['스트레스', '명상'],
+                    ['운동', '건강'],
+                    ['식단', '영양'],
+                    ['명상', '마음챙김'],
+                    ['운동', '체력'],
+                    ['건강검진', '건강'],
+                    ['운동', '다이어트'],
+                    ['건강', '영양'],
+                    ['수면', '건강'],
+                    ['스트레칭', '유연성'],
+                    ['건강', '식단'],
+                    ['운동', '건강']
+                ];
+                const hashtags = Math.random() > 0.3 ? hashtagOptions[Math.floor(Math.random() * hashtagOptions.length)] : [];
 
                 this.communityPosts.push({
                     commuSeq: i + 1,
                     content: content,
+                    hashtags: hashtags,
                     regDate: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
                     heartrate: Math.random() > 0.5 ? Math.floor(Math.random() * 40) + 60 : 0,
                     temperature: Math.random() > 0.5 ? Math.round((Math.random() * 2 + 35.5) * 10) / 10 : 0,
@@ -795,8 +804,59 @@ class HealthcareApp {
                     bodyAge: Math.floor(Math.random() * 10) + 20
                 });
             }
-
+            
             this.communityPosts.sort((a, b) => new Date(b.regDate) - new Date(a.regDate));
+        }
+
+        if (this.announcements.length === 0) {
+            this.announcements = [
+                {
+                    id: 1,
+                    title: '헬스케어 앱 업데이트 안내',
+                    content: '안녕하세요. 헬스케어 앱이 새로운 기능과 함께 업데이트되었습니다. 주요 변경사항은 다음과 같습니다:\n\n1. 건강 데이터 차트 기능 개선\n2. 식단 코칭 기능 추가\n3. 운동 프로그램 추천 기능 강화\n4. UI/UX 개선\n\n더 나은 서비스를 제공하기 위해 노력하겠습니다.',
+                    hashtags: ['업데이트', '앱'],
+                    regDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: true
+                },
+                {
+                    id: 2,
+                    title: '개인정보 처리방침 변경 안내',
+                    content: '개인정보 보호를 강화하기 위해 개인정보 처리방침이 변경되었습니다. 주요 변경사항은 앱 내 설정 > 개인정보 처리방침에서 확인하실 수 있습니다.',
+                    hashtags: ['개인정보', '안내'],
+                    regDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: true
+                },
+                {
+                    id: 3,
+                    title: '건강검진 결과 업로드 기능 안내',
+                    content: '이제 건강검진 결과를 직접 업로드하여 관리할 수 있습니다. 건강 정보 화면에서 "검진 결과 업로드" 버튼을 클릭하여 이용해보세요.',
+                    hashtags: ['건강검진', '기능'],
+                    regDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: false
+                },
+                {
+                    id: 4,
+                    title: '의사 상담 서비스 오픈',
+                    content: '헬스케어 앱에서 이제 전문의와 직접 상담할 수 있는 서비스가 오픈되었습니다. 건강에 대한 궁금한 점이 있으시면 언제든지 상담 신청을 해주세요.',
+                    hashtags: ['의사상담', '서비스'],
+                    regDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: false
+                },
+                {
+                    id: 5,
+                    title: '커뮤니티 이용 수칙 안내',
+                    content: '모든 사용자가 편안하게 이용할 수 있도록 커뮤니티 이용 수칙을 준수해주시기 바랍니다. 부적절한 게시글은 삭제될 수 있으며, 반복적인 위반 시 이용이 제한될 수 있습니다.',
+                    hashtags: ['커뮤니티', '안내'],
+                    regDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+                    isImportant: false
+                }
+            ];
+            this.announcements.sort((a, b) => {
+                if (a.isImportant !== b.isImportant) {
+                    return b.isImportant - a.isImportant;
+                }
+                return new Date(b.regDate) - new Date(a.regDate);
+            });
         }
 
         if (this.checkupData.length === 0) {
@@ -932,7 +992,7 @@ class HealthcareApp {
 
     checkAuthentication() {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
+        
         if (isLoggedIn) {
             this.isAuthenticated = true;
             this.showMainApp();
@@ -974,7 +1034,7 @@ class HealthcareApp {
         }
 
         this.showButtonLoading('login-form');
-
+        
         setTimeout(() => {
             this.hideButtonLoading('login-form');
             this.isAuthenticated = true;
@@ -1009,7 +1069,7 @@ class HealthcareApp {
         }
 
         this.showButtonLoading('signup-form');
-
+        
         setTimeout(() => {
             this.hideButtonLoading('signup-form');
             this.showToast('회원가입이 완료되었습니다.', 'success');
@@ -1088,6 +1148,7 @@ class HealthcareApp {
                 break;
             case 'community':
                 this.updateCommunity();
+                this.updateAnnouncements();
                 break;
             case 'settings':
                 this.updateSettingsScreen();
@@ -1215,14 +1276,14 @@ class HealthcareApp {
     generateAIAdvice() {
         const loadingElement = document.getElementById('ai-loading');
         const adviceElement = document.getElementById('ai-advice-text');
-
+        
         loadingElement.style.display = 'block';
         adviceElement.style.display = 'none';
 
         setTimeout(() => {
             const latestHealth = this.healthData[0];
             const advice = this.analyzeHealthData(latestHealth);
-
+            
             loadingElement.style.display = 'none';
             adviceElement.style.display = 'block';
             adviceElement.innerHTML = advice;
@@ -1242,7 +1303,7 @@ class HealthcareApp {
         const heartrateStatus = this.getHealthStatus(healthData.heartrate, 'heartrate');
         const temperatureStatus = this.getHealthStatus(healthData.temperature, 'temperature');
         const spo2Status = this.getHealthStatus(healthData.spo2, 'spo2');
-
+        
         let analysis = '';
         let recommendations = [];
         let overallStatus = '양호';
@@ -1310,7 +1371,7 @@ class HealthcareApp {
 
     updateHealthInfo() {
         const container = document.getElementById('health-data-cards');
-
+        
         if (this.healthCurrentPage === 0) {
             container.innerHTML = '';
         }
@@ -1332,7 +1393,7 @@ class HealthcareApp {
         dataToShow.forEach((data, index) => {
             const card = document.createElement('div');
             card.className = 'data-card';
-
+            
             const heartrateStatus = this.getHealthStatus(data.heartrate, 'heartrate');
             const temperatureStatus = this.getHealthStatus(data.temperature, 'temperature');
             const spo2Status = this.getHealthStatus(data.spo2, 'spo2');
@@ -1363,7 +1424,7 @@ class HealthcareApp {
                     </div>
                 </div>
             `;
-
+            
             container.appendChild(card);
         });
 
@@ -1484,7 +1545,7 @@ class HealthcareApp {
     setupHealthInfiniteScroll() {
         const healthContainer = document.getElementById('health-data-cards');
         const loadingMore = document.getElementById('loading-more-health');
-
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !this.isLoadingMoreHealth) {
@@ -1503,7 +1564,7 @@ class HealthcareApp {
     loadMoreHealthData() {
         const totalData = this.healthData.length;
         const currentDisplayed = (this.healthCurrentPage + 1) * this.healthPostsPerPage;
-
+        
         if (currentDisplayed >= totalData) {
             return;
         }
@@ -1520,9 +1581,27 @@ class HealthcareApp {
         }, 500);
     }
 
+    switchCommunityTab(tabName) {
+        this.communityCurrentTab = tabName;
+        document.querySelectorAll('#community-screen .tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelectorAll('#community-screen .tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.querySelector(`#community-screen [data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+
+        if (tabName === 'posts') {
+            this.updateCommunity();
+        } else if (tabName === 'announcements') {
+            this.updateAnnouncements();
+        }
+    }
+
     updateCommunity() {
         const container = document.getElementById('posts-container');
-
+        
         if (this.currentPage === 0) {
             container.innerHTML = '';
         }
@@ -1544,7 +1623,7 @@ class HealthcareApp {
         postsToShow.forEach(post => {
             const card = document.createElement('div');
             card.className = 'post-card';
-
+            
             let healthDataPreview = '';
             if (post.heartrate > 0 || post.temperature > 0 || post.bloodpress > 0) {
                 healthDataPreview = '<div class="health-data-preview">';
@@ -1574,21 +1653,69 @@ class HealthcareApp {
                 <div class="post-content">${post.content}</div>
                 ${healthDataPreview}
             `;
-
+            
             card.addEventListener('click', () => {
                 this.showPostDetailModal(post);
             });
-
+            
             container.appendChild(card);
         });
 
         this.setupInfiniteScroll();
     }
 
+    updateAnnouncements() {
+        const container = document.getElementById('announcements-container');
+        container.innerHTML = '';
+
+        if (this.announcements.length === 0) {
+            container.innerHTML = `
+                <div class="post-card">
+                    <p>공지사항이 없습니다.</p>
+                </div>
+            `;
+            return;
+        }
+
+        this.announcements.forEach(announcement => {
+            const card = document.createElement('div');
+            card.className = 'post-card';
+            if (announcement.isImportant) {
+                card.classList.add('announcement-important');
+            }
+            
+            const importantBadge = announcement.isImportant ? '<span class="announcement-badge">중요</span>' : '';
+
+            card.innerHTML = `
+                <div class="post-header">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        ${importantBadge}
+                        <span class="post-author" style="font-weight: 600;">관리자</span>
+                    </div>
+                    <span class="post-date">${new Date(announcement.regDate).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</span>
+                </div>
+                <div class="post-title" style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.1rem;">${announcement.title}</div>
+                <div class="post-content" style="white-space: pre-line;">${announcement.content}</div>
+            `;
+            
+            card.addEventListener('click', () => {
+                this.showAnnouncementDetailModal(announcement);
+            });
+            
+            container.appendChild(card);
+        });
+    }
+
     setupInfiniteScroll() {
         const postsContainer = document.getElementById('posts-container');
         const loadingMore = document.getElementById('loading-more');
-
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !this.isLoadingMore) {
@@ -1607,7 +1734,7 @@ class HealthcareApp {
     loadMorePosts() {
         const totalPosts = this.communityPosts.length;
         const currentDisplayed = (this.currentPage + 1) * this.postsPerPage;
-
+        
         if (currentDisplayed >= totalPosts) {
             return;
         }
@@ -1641,59 +1768,7 @@ class HealthcareApp {
         document.getElementById('profile-height').textContent = `${this.currentUser.height}cm`;
         document.getElementById('profile-weight').textContent = `${this.currentUser.weight}kg`;
 
-        this.updateProfileConsultations();
         this.updateProfileReservations();
-    }
-
-    updateProfileConsultations() {
-        const container = document.getElementById('profile-consultations-list');
-        if (!container) return;
-
-        if (this.consultations.length === 0) {
-            container.innerHTML = `
-                <div class="empty-history">
-                    <i class="fas fa-comments"></i>
-                    <p>상담 이력이 없습니다.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const sortedConsultations = [...this.consultations].sort((a, b) => 
-            new Date(b.datetime || b.createdAt) - new Date(a.datetime || a.createdAt)
-        );
-
-        container.innerHTML = sortedConsultations.slice(0, 5).map(consultation => `
-            <div class="history-item" onclick="window.healthcareApp.viewConsultation(${consultation.consultationId})">
-                <div class="history-header">
-                    <div class="history-title">
-                        <i class="fas fa-user-md"></i>
-                        <span>${consultation.subject || '상담 신청'}</span>
-                    </div>
-                    <span class="status-badge status-${consultation.status.toLowerCase()}">
-                        ${consultation.statusName}
-                    </span>
-                </div>
-                <div class="history-details">
-                    <span><i class="fas fa-user-md"></i> ${consultation.doctorName} (${consultation.doctorSpecialty})</span>
-                    <span><i class="fas fa-calendar-alt"></i> ${this.formatDateTime(consultation.datetime || consultation.createdAt)}</span>
-                </div>
-                <div class="history-type">
-                    <span class="type-tag">${consultation.typeName}</span>
-                </div>
-            </div>
-        `).join('');
-
-        if (this.consultations.length > 5) {
-            const moreBtn = document.createElement('div');
-            moreBtn.className = 'view-more-btn';
-            moreBtn.innerHTML = `
-                <button onclick="window.healthcareApp.navigateToScreen('consultation')">
-                    전체 보기 (${this.consultations.length}건)
-                </button>
-            `;
-            container.appendChild(moreBtn);
-        }
     }
 
     updateProfileReservations() {
@@ -1823,6 +1898,7 @@ class HealthcareApp {
 
     clearWriteForm() {
         document.getElementById('post-content').value = '';
+        document.getElementById('post-hashtags').value = '';
         document.getElementById('post-heartrate').value = '';
         document.getElementById('post-temperature').value = '';
         document.getElementById('post-bloodpress').value = '';
@@ -1831,23 +1907,34 @@ class HealthcareApp {
 
     submitPost() {
         const content = document.getElementById('post-content').value.trim();
-
+        
         if (!content) {
             this.showToast('내용을 입력해주세요.', 'error');
             return;
         }
 
+        const hashtagsInput = document.getElementById('post-hashtags').value.trim();
+        const hashtags = hashtagsInput
+            ? hashtagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+            : [];
+
+        const heartrate = parseFloat(document.getElementById('post-heartrate').value) || 0;
+        const temperature = parseFloat(document.getElementById('post-temperature').value) || 0;
+        const bloodpress = parseFloat(document.getElementById('post-bloodpress').value) || 0;
+        const age = parseInt(document.getElementById('post-age').value) || 0;
+
         const newPost = {
             commuSeq: Date.now(),
             content: content,
+            hashtags: hashtags,
             regDate: new Date().toISOString(),
-            heartrate: 0,
-            temperature: 0,
-            bloodpress: 0,
+            heartrate: heartrate,
+            temperature: temperature,
+            bloodpress: bloodpress,
             smoking: 0,
             drinking: 0,
             exercise: 0,
-            age: 0,
+            age: age,
             userId: this.currentUser.userId,
             userNm: this.currentUser.userNm,
             bodyAge: 0
@@ -1865,9 +1952,9 @@ class HealthcareApp {
         const modal = document.getElementById('chart-modal');
         const title = document.getElementById('modal-title');
         const canvas = document.getElementById('health-chart');
-
+        
         modal.classList.remove('hidden');
-
+        
         if (chartType === 'health-data') {
             title.textContent = '실시간 건강 데이터 차트';
             this.drawHealthDataChart(canvas);
@@ -1885,52 +1972,52 @@ class HealthcareApp {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
-
+        
         ctx.clearRect(0, 0, width, height);
-
+        
         const recentData = this.healthData.slice(0, 7).reverse();
         const labels = recentData.map((_, index) => `${index + 1}일 전`);
-
+        
         const heartrateData = recentData.map(data => data.heartrate);
         const temperatureData = recentData.map(data => data.temperature);
         const spo2Data = recentData.map(data => data.spo2);
-
+        
         const maxValue = Math.max(...heartrateData, ...temperatureData.map(t => t * 10), ...spo2Data);
         const minValue = Math.min(...heartrateData, ...temperatureData.map(t => t * 10), ...spo2Data);
         const range = maxValue - minValue;
-
+        
         const padding = 40;
         const chartWidth = width - padding * 2;
         const chartHeight = height - padding * 2 - 60;
         const barWidth = chartWidth / (heartrateData.length * 3 + 1);
-
+        
         const colors = ['#2196F3', '#4CAF50', '#FF9800'];
         const dataSets = [
             { data: heartrateData, label: '심박수 (bpm)', color: colors[0] },
             { data: temperatureData.map(t => t * 10), label: '체온 (°C)', color: colors[1] },
             { data: spo2Data, label: '산소포화도 (%)', color: colors[2] }
         ];
-
+        
         dataSets.forEach((dataSet, setIndex) => {
             ctx.fillStyle = dataSet.color;
-
+            
             dataSet.data.forEach((value, index) => {
                 const barHeight = ((value - minValue) / range) * chartHeight;
                 const x = padding + (index * 3 + setIndex) * barWidth;
                 const y = padding + chartHeight - barHeight;
-
+                
                 ctx.fillRect(x, y, barWidth * 0.8, barHeight);
             });
         });
-
+        
         ctx.fillStyle = '#333';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('최근 7일 건강 데이터', width / 2, 30);
-
+        
         ctx.font = '12px Arial';
         ctx.textAlign = 'left';
-
+        
         const legendY = height - 60;
         dataSets.forEach((dataSet, index) => {
             ctx.fillStyle = dataSet.color;
@@ -1944,54 +2031,54 @@ class HealthcareApp {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
-
+        
         ctx.clearRect(0, 0, width, height);
-
+        
         if (!this.healthScore) return;
-
+        
         const scores = [
             { label: '수면', value: this.healthScore.userSleepScore, color: '#2196F3' },
             { label: '운동', value: this.healthScore.userExerciseScore, color: '#4CAF50' },
             { label: '스트레스', value: this.healthScore.userStressScore, color: '#FF9800' }
         ];
-
+        
         const centerX = width / 2;
         const centerY = height / 2;
         const radius = Math.min(width, height) / 4;
-
+        
         let currentAngle = 0;
-
+        
         scores.forEach((score, index) => {
             const sliceAngle = (score.value / 100) * Math.PI * 2;
-
+            
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
             ctx.closePath();
             ctx.fillStyle = score.color;
             ctx.fill();
-
+            
             const labelAngle = currentAngle + sliceAngle / 2;
             const labelX = centerX + Math.cos(labelAngle) * (radius + 30);
             const labelY = centerY + Math.sin(labelAngle) * (radius + 30);
-
+            
             ctx.fillStyle = '#333';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(score.value, labelX, labelY);
-
+            
             ctx.font = '12px Arial';
             ctx.fillText(score.label, labelX, labelY + 18);
-
+            
             currentAngle += sliceAngle;
         });
-
+        
         ctx.fillStyle = '#333';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('건강 점수', centerX, centerY - radius - 40);
-
+        
         ctx.font = 'bold 24px Arial';
         ctx.fillText(this.healthScore.healthScore, centerX, centerY);
         ctx.font = '14px Arial';
@@ -2000,7 +2087,7 @@ class HealthcareApp {
 
     refreshData() {
         this.showToast('데이터를 새로고침합니다...', 'info');
-
+        
         setTimeout(() => {
             this.updateDashboard();
             this.showToast('데이터가 업데이트되었습니다.', 'success');
@@ -2013,7 +2100,7 @@ class HealthcareApp {
         document.getElementById('edit-phone').value = this.currentUser.telNumEnc;
         document.getElementById('edit-height').value = this.currentUser.height;
         document.getElementById('edit-weight').value = this.currentUser.weight;
-
+        
         document.getElementById('edit-profile-modal').classList.remove('hidden');
         document.getElementById('edit-name').focus();
     }
@@ -2052,7 +2139,7 @@ class HealthcareApp {
         this.saveToStorage();
         this.updateProfile();
         this.updateDashboard();
-
+        
         this.hideEditProfileModal();
         this.showToast('정보가 업데이트되었습니다.', 'success');
     }
@@ -2109,47 +2196,87 @@ class HealthcareApp {
         });
         document.getElementById('detail-post-content').textContent = post.content;
 
+        const hashtagsContainer = document.getElementById('detail-post-hashtags');
+        if (hashtagsContainer) {
+            hashtagsContainer.innerHTML = '';
+            
+            if (post.hashtags && Array.isArray(post.hashtags) && post.hashtags.length > 0) {
+                const hashtagsDiv = document.createElement('div');
+                hashtagsDiv.className = 'post-hashtags';
+                
+                post.hashtags.forEach(tag => {
+                    const tagValue = String(tag).trim();
+                    if (tagValue) {
+                        const hashtagSpan = document.createElement('span');
+                        hashtagSpan.className = 'hashtag';
+                        hashtagSpan.textContent = `#${tagValue}`;
+                        hashtagsDiv.appendChild(hashtagSpan);
+                    }
+                });
+                
+                if (hashtagsDiv.children.length > 0) {
+                    hashtagsContainer.appendChild(hashtagsDiv);
+                    hashtagsContainer.style.display = 'block';
+                    hashtagsContainer.style.visibility = 'visible';
+                    hashtagsContainer.style.opacity = '1';
+                } else {
+                    hashtagsContainer.style.display = 'none';
+                }
+            } else {
+                hashtagsContainer.style.display = 'none';
+            }
+        }
+
         const healthDataContainer = document.getElementById('detail-health-data');
-        healthDataContainer.innerHTML = '';
+        if (healthDataContainer) {
+            healthDataContainer.innerHTML = '';
 
-        if (post.heartrate > 0 || post.temperature > 0 || post.bloodpress > 0 || post.age > 0) {
-            const healthDataDiv = document.createElement('div');
-            healthDataDiv.className = 'health-data-detail';
-            healthDataDiv.innerHTML = '<h4>건강 데이터</h4>';
+            const hasHealthData = (post.heartrate && post.heartrate > 0) || 
+                                 (post.temperature && post.temperature > 0) || 
+                                 (post.bloodpress && post.bloodpress > 0) || 
+                                 (post.age && post.age > 0);
 
-            const healthDataList = document.createElement('div');
-            healthDataList.className = 'health-data-list';
-
-            if (post.heartrate > 0) {
-                const heartrateItem = document.createElement('div');
-                heartrateItem.className = 'health-data-item';
-                heartrateItem.innerHTML = `<span class="health-label">심박수:</span> <span class="health-value">${post.heartrate} bpm</span>`;
-                healthDataList.appendChild(heartrateItem);
+            if (hasHealthData) {
+                const healthDataDiv = document.createElement('div');
+                healthDataDiv.className = 'health-data-detail';
+                healthDataDiv.innerHTML = '<h4>건강 데이터</h4>';
+                
+                const healthDataList = document.createElement('div');
+                healthDataList.className = 'health-data-list';
+                
+                if (post.heartrate && post.heartrate > 0) {
+                    const heartrateItem = document.createElement('div');
+                    heartrateItem.className = 'health-data-item';
+                    heartrateItem.innerHTML = `<span class="health-label">심박수:</span> <span class="health-value">${post.heartrate} bpm</span>`;
+                    healthDataList.appendChild(heartrateItem);
+                }
+                
+                if (post.temperature && post.temperature > 0) {
+                    const temperatureItem = document.createElement('div');
+                    temperatureItem.className = 'health-data-item';
+                    temperatureItem.innerHTML = `<span class="health-label">체온:</span> <span class="health-value">${post.temperature}°C</span>`;
+                    healthDataList.appendChild(temperatureItem);
+                }
+                
+                if (post.bloodpress && post.bloodpress > 0) {
+                    const bloodpressItem = document.createElement('div');
+                    bloodpressItem.className = 'health-data-item';
+                    bloodpressItem.innerHTML = `<span class="health-label">혈압:</span> <span class="health-value">${post.bloodpress}</span>`;
+                    healthDataList.appendChild(bloodpressItem);
+                }
+                
+                if (post.age && post.age > 0) {
+                    const ageItem = document.createElement('div');
+                    ageItem.className = 'health-data-item';
+                    ageItem.innerHTML = `<span class="health-label">나이:</span> <span class="health-value">${post.age}세</span>`;
+                    healthDataList.appendChild(ageItem);
+                }
+                
+                if (healthDataList.children.length > 0) {
+                    healthDataDiv.appendChild(healthDataList);
+                    healthDataContainer.appendChild(healthDataDiv);
+                }
             }
-
-            if (post.temperature > 0) {
-                const temperatureItem = document.createElement('div');
-                temperatureItem.className = 'health-data-item';
-                temperatureItem.innerHTML = `<span class="health-label">체온:</span> <span class="health-value">${post.temperature}°C</span>`;
-                healthDataList.appendChild(temperatureItem);
-            }
-
-            if (post.bloodpress > 0) {
-                const bloodpressItem = document.createElement('div');
-                bloodpressItem.className = 'health-data-item';
-                bloodpressItem.innerHTML = `<span class="health-label">혈압:</span> <span class="health-value">${post.bloodpress}</span>`;
-                healthDataList.appendChild(bloodpressItem);
-            }
-
-            if (post.age > 0) {
-                const ageItem = document.createElement('div');
-                ageItem.className = 'health-data-item';
-                ageItem.innerHTML = `<span class="health-label">나이:</span> <span class="health-value">${post.age}세</span>`;
-                healthDataList.appendChild(ageItem);
-            }
-
-            healthDataDiv.appendChild(healthDataList);
-            healthDataContainer.appendChild(healthDataDiv);
         }
 
         document.getElementById('post-detail-modal').classList.remove('hidden');
@@ -2157,6 +2284,66 @@ class HealthcareApp {
 
     hidePostDetailModal() {
         document.getElementById('post-detail-modal').classList.add('hidden');
+    }
+
+    showAnnouncementDetailModal(announcement) {
+        document.getElementById('detail-announcement-author-initial').textContent = '관';
+        document.getElementById('detail-announcement-author-name').textContent = '관리자';
+        document.getElementById('detail-announcement-date').textContent = new Date(announcement.regDate).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        document.getElementById('detail-announcement-title').textContent = announcement.title;
+        document.getElementById('detail-announcement-content').textContent = announcement.content;
+
+        const importantBadge = document.getElementById('detail-announcement-badge');
+        if (importantBadge) {
+            if (announcement.isImportant) {
+                importantBadge.style.display = 'inline-block';
+            } else {
+                importantBadge.style.display = 'none';
+            }
+        }
+
+        const hashtagsContainer = document.getElementById('detail-announcement-hashtags');
+        if (hashtagsContainer) {
+            hashtagsContainer.innerHTML = '';
+            
+            if (announcement.hashtags && Array.isArray(announcement.hashtags) && announcement.hashtags.length > 0) {
+                const hashtagsDiv = document.createElement('div');
+                hashtagsDiv.className = 'post-hashtags';
+                
+                announcement.hashtags.forEach(tag => {
+                    const tagValue = String(tag).trim();
+                    if (tagValue) {
+                        const hashtagSpan = document.createElement('span');
+                        hashtagSpan.className = 'hashtag';
+                        hashtagSpan.textContent = `#${tagValue}`;
+                        hashtagsDiv.appendChild(hashtagSpan);
+                    }
+                });
+                
+                if (hashtagsDiv.children.length > 0) {
+                    hashtagsContainer.appendChild(hashtagsDiv);
+                    hashtagsContainer.style.display = 'block';
+                    hashtagsContainer.style.visibility = 'visible';
+                    hashtagsContainer.style.opacity = '1';
+                } else {
+                    hashtagsContainer.style.display = 'none';
+                }
+            } else {
+                hashtagsContainer.style.display = 'none';
+            }
+        }
+
+        document.getElementById('announcement-detail-modal').classList.remove('hidden');
+    }
+
+    hideAnnouncementDetailModal() {
+        document.getElementById('announcement-detail-modal').classList.add('hidden');
     }
 
     getHealthStatus(value, type) {
@@ -2182,7 +2369,7 @@ class HealthcareApp {
         const button = form.querySelector('.auth-button');
         const buttonText = button.querySelector('.button-text');
         const buttonLoading = button.querySelector('.button-loading');
-
+        
         button.disabled = true;
         buttonText.classList.add('hidden');
         buttonLoading.classList.remove('hidden');
@@ -2193,7 +2380,7 @@ class HealthcareApp {
         const button = form.querySelector('.auth-button');
         const buttonText = button.querySelector('.button-text');
         const buttonLoading = button.querySelector('.button-loading');
-
+        
         button.disabled = false;
         buttonText.classList.remove('hidden');
         buttonLoading.classList.add('hidden');
@@ -2204,9 +2391,9 @@ class HealthcareApp {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.textContent = message;
-
+        
         container.appendChild(toast);
-
+        
         setTimeout(() => {
             if (toast.parentNode) {
                 toast.parentNode.removeChild(toast);
@@ -2491,22 +2678,26 @@ class HealthcareApp {
 
     updateTrendChart() {
         const itemCode = document.getElementById('trend-item-select').value;
+        const canvas = document.getElementById('trend-chart');
+        if (!canvas) return;
+
+        const container = document.getElementById('trend-chart-container');
+        const containerWidth = container ? container.clientWidth - 32 : 800;
+        const containerHeight = 500;
+        
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         if (!itemCode) {
-            const canvas = document.getElementById('trend-chart');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#666';
-            ctx.font = '16px Arial';
+            ctx.fillStyle = '#999';
+            ctx.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('항목을 선택해주세요.', canvas.width / 2, canvas.height / 2);
             return;
         }
-
-        const canvas = document.getElementById('trend-chart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const trendData = [];
         this.checkupData.forEach(checkup => {
@@ -2529,8 +2720,8 @@ class HealthcareApp {
         });
 
         if (trendData.length === 0) {
-            ctx.fillStyle = '#666';
-            ctx.font = '16px Arial';
+            ctx.fillStyle = '#999';
+            ctx.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('추이 데이터가 없습니다.', canvas.width / 2, canvas.height / 2);
             return;
@@ -2540,79 +2731,103 @@ class HealthcareApp {
 
         const width = canvas.width;
         const height = canvas.height;
-        const padding = 80;
-        const chartWidth = width - padding * 2;
-        const chartHeight = height - padding * 2 - 40;
+        const padding = { top: 60, right: 40, bottom: 80, left: 85 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
 
         const values = trendData.map(d => d.value);
-        const minValue = Math.max(0, Math.min(...values) * 0.8);
-        const maxValue = Math.max(...values) * 1.2;
+        const minValue = Math.max(0, Math.min(...values) * 0.85);
+        const maxValue = Math.max(...values) * 1.15;
         const valueRange = maxValue - minValue || 1;
 
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
 
         ctx.fillStyle = '#f8f9fa';
-        ctx.fillRect(padding, padding, chartWidth, chartHeight);
+        ctx.fillRect(padding.left, padding.top, chartWidth, chartHeight);
 
-
-        ctx.strokeStyle = '#e0e0e0';
+        ctx.strokeStyle = '#e8e8e8';
         ctx.lineWidth = 1;
-        const gridLines = 5;
+        const gridLines = 6;
         for (let i = 0; i <= gridLines; i++) {
-            const y = padding + (chartHeight / gridLines) * i;
+            const y = padding.top + (chartHeight / gridLines) * i;
             ctx.beginPath();
-            ctx.moveTo(padding, y);
-            ctx.lineTo(padding + chartWidth, y);
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(padding.left + chartWidth, y);
             ctx.stroke();
-
 
             const value = maxValue - (valueRange / gridLines) * i;
             ctx.fillStyle = '#666';
-            ctx.font = '11px Arial';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(value.toFixed(1), padding - 10, y + 4);
+            const formattedValue = value % 1 === 0 ? value.toFixed(0) : value.toFixed(1);
+            ctx.fillText(formattedValue, padding.left - 15, y + 4);
         }
 
-
         ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.moveTo(padding, padding);
-        ctx.lineTo(padding, padding + chartHeight);
+        ctx.moveTo(padding.left, padding.top);
+        ctx.lineTo(padding.left, padding.top + chartHeight);
         ctx.stroke();
 
-
         ctx.beginPath();
-        ctx.moveTo(padding, padding + chartHeight);
-        ctx.lineTo(padding + chartWidth, padding + chartHeight);
+        ctx.moveTo(padding.left, padding.top + chartHeight);
+        ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
         ctx.stroke();
 
 
         if (trendData.length === 1) {
-
             const data = trendData[0];
-            const x = padding + chartWidth / 2;
-            const y = padding + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+            const x = padding.left + chartWidth / 2;
+            const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
 
-            ctx.fillStyle = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+            const pointColor = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+            
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
+            
+            ctx.fillStyle = pointColor;
             ctx.beginPath();
-            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
             ctx.fill();
 
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
             ctx.fillStyle = '#333';
-            ctx.font = 'bold 12px Arial';
+            ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(data.value.toFixed(1) + (data.unit || ''), x, y - 15);
-            ctx.font = '11px Arial';
-            ctx.fillText(data.date, x, height - 20);
+            const valueText = data.value % 1 === 0 ? data.value.toFixed(0) : data.value.toFixed(1);
+            ctx.fillText(valueText + (data.unit ? ' ' + data.unit : ''), x, y - 18);
+            
+            ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            const dateObj = new Date(data.date);
+            const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+            ctx.fillText(dateStr, x, height - padding.bottom + 25);
         } else {
+            const gradient = ctx.createLinearGradient(padding.left, padding.top, padding.left, padding.top + chartHeight);
+            gradient.addColorStop(0, 'rgba(33, 150, 243, 0.3)');
+            gradient.addColorStop(1, 'rgba(33, 150, 243, 0.05)');
 
             ctx.strokeStyle = '#2196F3';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = 'rgba(33, 150, 243, 0.3)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
 
+            ctx.beginPath();
             trendData.forEach((data, index) => {
-                const x = padding + (index / (trendData.length - 1)) * chartWidth;
-                const y = padding + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+                const x = padding.left + (index / (trendData.length - 1)) * chartWidth;
+                const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
 
                 if (index === 0) {
                     ctx.moveTo(x, y);
@@ -2620,64 +2835,108 @@ class HealthcareApp {
                     ctx.lineTo(x, y);
                 }
             });
-
             ctx.stroke();
 
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            trendData.forEach((data, index) => {
+                const x = padding.left + (index / (trendData.length - 1)) * chartWidth;
+                const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+                if (index === 0) {
+                    ctx.moveTo(x, padding.top + chartHeight);
+                    ctx.lineTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            const lastX = padding.left + chartWidth;
+            ctx.lineTo(lastX, padding.top + chartHeight);
+            ctx.closePath();
+            ctx.fill();
 
             trendData.forEach((data, index) => {
-                const x = padding + (index / (trendData.length - 1)) * chartWidth;
-                const y = padding + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
+                const x = padding.left + (index / (trendData.length - 1)) * chartWidth;
+                const y = padding.top + chartHeight - ((data.value - minValue) / valueRange) * chartHeight;
 
+                const pointColor = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+                
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 2;
 
-                ctx.fillStyle = data.status === 'ABNORMAL' ? '#F44336' : '#4CAF50';
+                ctx.fillStyle = pointColor;
                 ctx.beginPath();
-                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
                 ctx.fill();
 
-
                 ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 3;
                 ctx.stroke();
 
+                ctx.shadowBlur = 0;
 
                 ctx.fillStyle = '#333';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(data.value.toFixed(1) + (data.unit ? ' ' + data.unit : ''), x, y - 15);
+                ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                
+                const valueText = data.value % 1 === 0 ? data.value.toFixed(0) : data.value.toFixed(1);
+                const valueLabel = valueText + (data.unit ? ' ' + data.unit : '');
+                
+                if (index === 0 && x < padding.left + 30) {
+                    ctx.textAlign = 'left';
+                    ctx.fillText(valueLabel, x + 15, y - 18);
+                } else if (index === trendData.length - 1 && x > width - padding.right - 30) {
+                    ctx.textAlign = 'right';
+                    ctx.fillText(valueLabel, x - 15, y - 18);
+                } else {
+                    ctx.textAlign = 'center';
+                    ctx.fillText(valueLabel, x, y - 18);
+                }
 
-
-                ctx.font = '11px Arial';
-                const dateStr = data.date.substring(5).replace('-', '/');
-                ctx.fillText(dateStr, x, height - 20);
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                const dateObj = new Date(data.date);
+                const dateStr = `${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
+                ctx.fillText(dateStr, x, height - padding.bottom + 25);
             });
         }
 
-
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${trendData[0].itemName} 추이 분석`, width / 2, 30);
+        ctx.fillText(`${trendData[0].itemName} 추이 분석`, width / 2, 35);
 
-
-        const legendY = height - 50;
-        ctx.font = '12px Arial';
+        const legendY = height - 35;
+        ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'left';
-
 
         ctx.fillStyle = '#4CAF50';
         ctx.beginPath();
-        ctx.arc(30, legendY, 6, 0, Math.PI * 2);
+        ctx.arc(40, legendY, 7, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
         ctx.fillStyle = '#333';
-        ctx.fillText('정상', 45, legendY + 4);
-
+        ctx.fillText('정상', 55, legendY + 5);
 
         ctx.fillStyle = '#F44336';
         ctx.beginPath();
-        ctx.arc(100, legendY, 6, 0, Math.PI * 2);
+        ctx.arc(120, legendY, 7, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
         ctx.fillStyle = '#333';
-        ctx.fillText('이상', 115, legendY + 4);
+        ctx.fillText('이상', 135, legendY + 5);
+
+        if (trendData[0].unit) {
+            ctx.fillStyle = '#666';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`단위: ${trendData[0].unit}`, width - 40, legendY + 5);
+        }
     }
 
     detectAbnormalIndicators() {
@@ -5128,20 +5387,22 @@ class HealthcareApp {
 
     showConsultationRequestModal() {
         const select = document.getElementById('consultation-doctor');
-        if (select.children.length === 1) {
-            select.innerHTML = '<option value="">의사를 선택하세요</option>';
-            this.doctorDatabase.forEach(doctor => {
-                const option = document.createElement('option');
-                option.value = doctor.doctorId;
-                option.textContent = `${doctor.name} (${doctor.specialty}) - ${doctor.hospital}`;
-                select.appendChild(option);
-            });
-        }
+        select.innerHTML = '<option value="">의사를 선택하세요</option>';
+        this.doctorDatabase.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = String(doctor.doctorId);
+            option.textContent = `${doctor.name} (${doctor.specialty}) - ${doctor.hospital}`;
+            select.appendChild(option);
+        });
+        select.value = '';
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(10, 0, 0, 0);
         document.getElementById('consultation-datetime').value = tomorrow.toISOString().slice(0, 16);
+        document.getElementById('consultation-subject').value = '';
+        document.getElementById('consultation-content').value = '';
+        document.getElementById('consultation-share-consent').checked = false;
 
         document.getElementById('consultation-request-modal').classList.remove('hidden');
     }
@@ -5152,20 +5413,72 @@ class HealthcareApp {
     }
 
     submitConsultationRequest() {
-        const doctorId = parseInt(document.getElementById('consultation-doctor').value);
-        const type = document.getElementById('consultation-type').value;
-        const datetime = document.getElementById('consultation-datetime').value;
-        const subject = document.getElementById('consultation-subject').value;
-        const content = document.getElementById('consultation-content').value;
+        if (this.isSubmittingConsultation) {
+            return;
+        }
+        this.isSubmittingConsultation = true;
 
-        if (!doctorId || !type || !datetime || !subject || !content) {
-            this.showToast('모든 필드를 입력해주세요.', 'error');
+        const doctorSelect = document.getElementById('consultation-doctor');
+        if (!doctorSelect) {
+            this.showToast('의사 선택 요소를 찾을 수 없습니다.', 'error');
+            this.isSubmittingConsultation = false;
             return;
         }
 
-        const doctor = this.doctorDatabase.find(d => d.doctorId === doctorId);
-        if (!doctor) {
+        const doctorIdValue = doctorSelect.value.trim();
+        const shareConsent = document.getElementById('consultation-share-consent') ? document.getElementById('consultation-share-consent').checked : false;
+        const type = document.getElementById('consultation-type').value;
+        const datetime = document.getElementById('consultation-datetime').value;
+        const subject = document.getElementById('consultation-subject').value.trim();
+        const content = document.getElementById('consultation-content').value.trim();
+
+        if (!doctorIdValue || doctorIdValue === '') {
             this.showToast('의사를 선택해주세요.', 'error');
+            doctorSelect.focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!type || type === '') {
+            this.showToast('상담 유형을 선택해주세요.', 'error');
+            document.getElementById('consultation-type').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!datetime || datetime === '') {
+            this.showToast('상담 일시를 선택해주세요.', 'error');
+            document.getElementById('consultation-datetime').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!subject || subject === '') {
+            this.showToast('상담 주제를 입력해주세요.', 'error');
+            document.getElementById('consultation-subject').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        if (!content || content === '') {
+            this.showToast('상담 내용을 입력해주세요.', 'error');
+            document.getElementById('consultation-content').focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        const doctorId = parseInt(doctorIdValue, 10);
+        if (isNaN(doctorId) || doctorId <= 0) {
+            this.showToast('유효한 의사를 선택해주세요.', 'error');
+            doctorSelect.focus();
+            this.isSubmittingConsultation = false;
+            return;
+        }
+
+        const doctor = this.doctorDatabase.find(d => d.doctorId === doctorId || d.doctorId === parseInt(doctorIdValue, 10));
+        if (!doctor) {
+            this.showToast('선택한 의사를 찾을 수 없습니다.', 'error');
+            this.isSubmittingConsultation = false;
             return;
         }
 
@@ -5180,6 +5493,7 @@ class HealthcareApp {
             datetime: datetime,
             subject: subject,
             content: content,
+            shareConsent: shareConsent,
             status: 'PENDING',
             statusName: '대기중',
             createdAt: new Date().toISOString()
@@ -5188,8 +5502,11 @@ class HealthcareApp {
         this.consultations.unshift(consultation);
         this.saveToStorage();
         this.hideConsultationRequestModal();
+        this.isSubmittingConsultation = false;
         this.showToast('상담 신청이 완료되었습니다.', 'success');
-        this.updateMyConsultationsTab();
+        setTimeout(() => {
+            this.updateMyConsultationsTab();
+        }, 100);
     }
 
     getConsultationTypeName(type) {
@@ -5299,9 +5616,96 @@ class HealthcareApp {
                     </div>
                 </div>
                 ` : '<p class="no-response">의사 답변을 기다리는 중입니다.</p>'}
+                <div class="detail-section">
+                    <h4>상담 이력</h4>
+                    <div class="consultation-history">
+                        ${this.renderConsultationHistory(consultation)}
+                    </div>
+                </div>
+                ${consultation.shareConsent ? `
+                <div class="detail-section share-consent-notice">
+                    <div class="consent-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <strong>보호자에게 동의한 이력입니다</strong>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
         document.getElementById('consultation-detail-modal').classList.remove('hidden');
+    }
+
+    renderConsultationHistory(consultation) {
+        const history = [];
+        
+        history.push({
+            type: 'requested',
+            title: '상담 신청',
+            description: '상담이 신청되었습니다.',
+            date: consultation.createdAt,
+            icon: 'fa-file-medical',
+            color: '#2196F3'
+        });
+
+        if (consultation.status !== 'PENDING') {
+            const statusDate = consultation.statusUpdatedAt || consultation.createdAt;
+            history.push({
+                type: 'confirmed',
+                title: '의사 확인',
+                description: `의사가 상담을 확인했습니다. (${consultation.statusName})`,
+                date: statusDate,
+                icon: 'fa-check-circle',
+                color: '#4CAF50'
+            });
+        }
+
+        if (consultation.response) {
+            history.push({
+                type: 'responded',
+                title: '의사 답변',
+                description: '의사가 답변을 작성했습니다.',
+                date: consultation.responseDate || consultation.createdAt,
+                icon: 'fa-comment-dots',
+                color: '#FF9800'
+            });
+        }
+
+        if (consultation.status === 'COMPLETED') {
+            history.push({
+                type: 'completed',
+                title: '상담 완료',
+                description: '상담이 완료되었습니다.',
+                date: consultation.completedAt || consultation.responseDate || consultation.createdAt,
+                icon: 'fa-check-double',
+                color: '#9C27B0'
+            });
+        }
+
+        history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        return history.map((item, index) => {
+            const date = new Date(item.date);
+            const formattedDate = date.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return `
+                <div class="history-timeline-item ${index === history.length - 1 ? 'last' : ''}">
+                    <div class="history-timeline-icon" style="background-color: ${item.color}20; color: ${item.color};">
+                        <i class="fas ${item.icon}"></i>
+                    </div>
+                    <div class="history-timeline-content">
+                        <div class="history-timeline-title">${item.title}</div>
+                        <div class="history-timeline-description">${item.description}</div>
+                        <div class="history-timeline-date">${formattedDate}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     hideConsultationDetailModal() {
@@ -5316,7 +5720,6 @@ class HealthcareApp {
         return {
             healthReminder: true,
             checkupNotification: true,
-            medicationReminder: false,
             exerciseReminder: true,
             mealReminder: true,
             dailySteps: 10000,
@@ -5337,13 +5740,11 @@ class HealthcareApp {
 
         const healthReminder = document.getElementById('setting-health-reminder');
         const checkupNotification = document.getElementById('setting-checkup-notification');
-        const medicationReminder = document.getElementById('setting-medication-reminder');
         const exerciseReminder = document.getElementById('setting-exercise-reminder');
         const mealReminder = document.getElementById('setting-meal-reminder');
 
         if (healthReminder) healthReminder.checked = this.settings.healthReminder;
         if (checkupNotification) checkupNotification.checked = this.settings.checkupNotification;
-        if (medicationReminder) medicationReminder.checked = this.settings.medicationReminder;
         if (exerciseReminder) exerciseReminder.checked = this.settings.exerciseReminder;
         if (mealReminder) mealReminder.checked = this.settings.mealReminder;
 
@@ -5377,7 +5778,6 @@ class HealthcareApp {
 
         const healthReminder = document.getElementById('setting-health-reminder');
         const checkupNotification = document.getElementById('setting-checkup-notification');
-        const medicationReminder = document.getElementById('setting-medication-reminder');
         const exerciseReminder = document.getElementById('setting-exercise-reminder');
         const mealReminder = document.getElementById('setting-meal-reminder');
 
@@ -5391,13 +5791,6 @@ class HealthcareApp {
         if (checkupNotification) {
             checkupNotification.addEventListener('change', (e) => {
                 this.settings.checkupNotification = e.target.checked;
-                this.saveSettings();
-            });
-        }
-
-        if (medicationReminder) {
-            medicationReminder.addEventListener('change', (e) => {
-                this.settings.medicationReminder = e.target.checked;
                 this.saveSettings();
             });
         }
@@ -5937,7 +6330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.style.scrollBehavior = 'smooth';
-
+    
     document.querySelectorAll('button').forEach(button => {
         button.addEventListener('click', function() {
             if (!this.disabled) {
@@ -5948,7 +6341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
+    
     document.querySelectorAll('input[required]').forEach(input => {
         input.addEventListener('blur', function() {
             if (!this.value.trim()) {
@@ -5958,7 +6351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
+    
     setInterval(() => {
         if (window.healthcareApp && window.healthcareApp.isAuthenticated) {
             const heartrateElement = document.getElementById('heartrate-value');

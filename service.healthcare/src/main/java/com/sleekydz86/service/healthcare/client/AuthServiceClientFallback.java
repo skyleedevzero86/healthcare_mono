@@ -26,5 +26,13 @@ public class AuthServiceClientFallback implements AuthServiceClient {
         fallbackResponse.put("error", "AuthService is temporarily unavailable");
         return fallbackResponse;
     }
+
+    @Override
+    public Map<String, Object> getUserSeq(Map<String, String> request) {
+        log.warn("AuthService 호출 실패 - Circuit Breaker 활성화. Fallback 응답 반환");
+        Map<String, Object> fallbackResponse = new HashMap<>();
+        fallbackResponse.put("error", "AuthService is temporarily unavailable");
+        return fallbackResponse;
+    }
 }
 

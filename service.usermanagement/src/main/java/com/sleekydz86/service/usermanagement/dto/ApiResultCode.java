@@ -5,6 +5,8 @@ public enum ApiResultCode {
     SUCCESS					("0000", "성공"),
 
     PARAM_VALID_ERR			("1001", "파라미터 검증 오류"),
+    INVALID_REQUEST			("1002", "잘못된 요청"),
+    AUTH_ERR				("1002", "인증 오류"),
     EXP_JWT_TOKEN_ERR		("1003", "만료된 JWT 토큰 오류"),
     INVALID_JWT_TOKEN_ERR 	("1004", "유효하지 않은 JWT 토큰 오류"),
 

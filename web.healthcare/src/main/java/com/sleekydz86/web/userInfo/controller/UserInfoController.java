@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.web.global.util.AES256Util;
 import com.sleekydz86.web.global.util.GatewayUtils;
 import com.sleekydz86.web.global.util.PagingUtil;
-import com.sleekydz86.web.global.util.Sha256;
+import com.sleekydz86.web.global.service.PasswordService;
 import com.sleekydz86.web.user.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -41,6 +41,9 @@ public class UserInfoController {
 
     @Autowired
     private PagingUtil pagingUtil;
+
+    @Autowired
+    private PasswordService passwordService;
 
     @SuppressWarnings("unchecked")
     @GetMapping(value = {
@@ -268,9 +271,9 @@ public class UserInfoController {
                 return "/community/communitymain";
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("대시보드 조회 중 오류 발생", e);
         }
 
         return "/user/dashboard";
@@ -403,9 +406,9 @@ public class UserInfoController {
                     GatewayUtils.tokenCheck(session, res),
                     body.toString());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL: {}", uri + version + "/userInfo", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("사용자 정보 조회 중 오류 발생", e);
         }
         JSONObject result = str.isEmpty() ? new JSONObject() : new JSONObject(str);
 
@@ -468,9 +471,9 @@ public class UserInfoController {
                     GatewayUtils.tokenCheck(session, res),
                     body.toString());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL: {}", uri + version + "/updateUserInfo", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("사용자 정보 업데이트 중 오류 발생", e);
         }
         return "redirect:/userInfo/mypage";
     }
@@ -485,7 +488,7 @@ public class UserInfoController {
 
         for (String key : map.keySet()) {
             if (key.equals("userPwEnc") || key.equals("newUserPwEnc"))
-                body.put(key, Sha256.encryt((String) map.get(key)));
+                body.put(key, passwordService.encode((String) map.get(key)));
             else
                 body.put(key, map.get(key));
         }
@@ -606,9 +609,9 @@ public class UserInfoController {
             }
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("사용자 상세 정보 조회 중 오류 발생", e);
         }
         return "/userInfo/user_add_detail";
     }

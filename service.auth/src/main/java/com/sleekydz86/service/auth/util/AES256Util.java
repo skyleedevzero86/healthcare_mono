@@ -17,47 +17,70 @@ public class AES256Util {
     private AES256Util() {
     }
 
-    private static final byte[] KEY = {
-            0x58, 0x32, 0x4E, 0x6E, 0x6C, 0x63, 0x70, 0x70,
-            0x6E, 0x74, 0x79, 0x4F, 0x45, 0x46, 0x61, 0x47,
-            0x50, 0x37, 0x79, 0x36, 0x63, 0x35, 0x23, 0x39,
-            0x72, 0x58, 0x79, 0x51, 0x77, 0x54, 0x30, 0x67
-    };
-    private static final byte[] IV = {
-            0x40, 0x32, 0x59, 0x36, 0x4E, 0x69, 0x59, 0x53,
-            0x67, 0x42, 0x75, 0x55, 0x4D, 0x65, 0x51, 0x6B
-    };
+    private static byte[] getKey() {
+        String keyEnv = System.getenv("ENCRYPTION_AES256_KEY");
+        if (keyEnv == null || keyEnv.isEmpty()) {
+            keyEnv = System.getProperty("encryption.aes256.key");
+        }
+        if (keyEnv == null || keyEnv.isEmpty()) {
+            throw new IllegalStateException(
+                    "AES256 암호화 키가 설정되지 않았습니다. ENCRYPTION_AES256_KEY 환경 변수 또는 encryption.aes256.key 시스템 속성을 설정해주세요.");
+        }
+        if (keyEnv.length() != 32) {
+            throw new IllegalStateException("AES256 암호화 키는 32바이트(256비트)여야 합니다.");
+        }
+        return keyEnv.getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static byte[] getIv() {
+        String ivEnv = System.getenv("ENCRYPTION_AES256_IV");
+        if (ivEnv == null || ivEnv.isEmpty()) {
+            ivEnv = System.getProperty("encryption.aes256.iv");
+        }
+        if (ivEnv == null || ivEnv.isEmpty()) {
+            throw new IllegalStateException(
+                    "AES256 암호화 IV가 설정되지 않았습니다. ENCRYPTION_AES256_IV 환경 변수 또는 encryption.aes256.iv 시스템 속성을 설정해주세요.");
+        }
+        if (ivEnv.length() != 16) {
+            throw new IllegalStateException("AES256 암호화 IV는 16바이트(128비트)여야 합니다.");
+        }
+        return ivEnv.getBytes(StandardCharsets.UTF_8);
+    }
 
     public static String encrypt(final String str) {
         try {
-            SecretKey secretKey = new SecretKeySpec(KEY, "AES");
+            byte[] keyBytes = getKey();
+            byte[] ivBytes = getIv();
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(IV));
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(ivBytes));
             byte[] encrypted = cipher.doFinal(str.getBytes(StandardCharsets.UTF_8));
 
             return new String(Base64.getEncoder().encode(encrypted));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException
                 | InvalidKeyException | BadPaddingException | IllegalBlockSizeException encE) {
-            log.error("AES256 Encrypt Error : ", encE);
+            log.error("AES256 암호화 오류", encE);
         } catch (Exception e) {
-            log.error("Unknown error : ", e);
+            log.error("알 수 없는 오류", e);
         }
         return "";
     }
 
     public static String decrypt(final String str) {
         try {
-            SecretKey secretKey = new SecretKeySpec(KEY, "AES");
+            byte[] keyBytes = getKey();
+            byte[] ivBytes = getIv();
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(IV));
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(ivBytes));
             byte[] decrypted = Base64.getDecoder().decode(str.getBytes(StandardCharsets.UTF_8));
 
             return new String(cipher.doFinal(decrypted), StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException
                 | InvalidKeyException | BadPaddingException | IllegalBlockSizeException decE) {
-            log.error("AES256 Decrypt Error : ", decE);
+            log.error("AES256 복호화 오류", decE);
         } catch (Exception e) {
-            log.error("Unknown error : ", e);
+            log.error("알 수 없는 오류", e);
         }
         return "";
     }

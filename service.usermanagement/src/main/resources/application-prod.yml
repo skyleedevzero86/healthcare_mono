@@ -19,3 +19,10 @@ logging:
     org.springframework.security: WARN
 
 debug: false
+
+encryption:
+  aes:
+    key: ${AES_ENCRYPTION_KEY}
+    iv: ${AES_IV}
+  jwt:
+    secret: ${JWT_SECRET}

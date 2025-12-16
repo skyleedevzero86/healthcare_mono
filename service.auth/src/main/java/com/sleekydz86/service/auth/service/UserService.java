@@ -38,4 +38,6 @@ public interface UserService {
     public Map<String, Object> findUserPw(FindDto dto);
 
     public int updateUserPw(FindDto dto);
+
+    public Integer getUserSeq(String userId);
 }

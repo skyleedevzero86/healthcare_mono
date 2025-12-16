@@ -39,9 +39,9 @@ spring:
 
   security:
     user:
-      name: admin
-      password: admin123
-      roles: ADMIN
+      name: ${SECURITY_USER_NAME:admin}
+      password: ${SECURITY_USER_PASSWORD:}
+      roles: ${SECURITY_USER_ROLES:ADMIN}
 
   config:
     import: optional:configserver:http://localhost:8888

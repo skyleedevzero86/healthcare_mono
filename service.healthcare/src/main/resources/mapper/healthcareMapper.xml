@@ -7,8 +7,7 @@
         (user_seq, heartrate_min, heartrate_max, heartrate_avg, temperature_min, temperature_max, temperature_avg
         , spo2_min, spo2_max, spo2_avg, step, stress_min, stress_max, stress_avg, bloodpress_min, bloodpress_max
         , repiratory_min, repiratory_max, repiratory_avg, sleep, time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE")
-        VALUES((select user_seq from user_mng um
-                where um.USER_ID = #{userId}),
+        VALUES(#{userSeq},
                #{heartrateMin}, #{heartrateMax}, #{heartrateAvg}, #{temperatureMin}, #{temperatureMax}, #{temperatureAvg}
               , #{spo2Min}, #{spo2Max}, #{spo2Avg}, #{step}, #{stressMin}, #{stressMax}, #{stressAvg}
               , #{bloodpressMin}, #{bloodpressMax}, #{repiratoryMin}, #{repiratoryMax}, #{repiratoryAvg}, #{sleep}, #{time}
@@ -19,8 +18,7 @@
         INSERT INTO health_data_minute
         (user_seq, tid, heartrate, temperature, spo2, step, stress, bloodpress_max, bloodpress_min, repiratory
         , time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE")
-        VALUES((select user_seq from user_mng um
-                where um.USER_ID = #{userId}), #{tid}
+        VALUES(#{userSeq}, #{tid}
               , #{heartrate}, #{temper}, #{spo2}, #{step}, #{stress}, #{bloodpressMin}, #{bloodpressMax}, #{repiratory}, #{time}
               , to_date(concat(#{year},'-',#{month},'-',#{day}),'YYYY-MM-DD'), #{year}, #{month}, #{day}, #{hour}, #{minute})
     </insert>
@@ -844,7 +842,7 @@
             ,to_char(now(),'dd')::text as "DAY"
         </if>
         ,cast(sum(${searchWrd}) as varchar) as ${searchWrd}
-        FROM health_data_minute where user_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+        FROM health_data_minute where user_seq = #{userSeq}
         and "YEAR" = to_char(now(),'YYYY')
         and "MONTH" = to_char(now(),'MM')
         <if test='query != "Y"'>
@@ -1231,8 +1229,7 @@
         , spo2_min, spo2_max, spo2_avg, step, stress_min, stress_max, stress_avg
         , bloodpress_min, bloodpress_max, bloodpress_avg, repiratory_min, repiratory_max, repiratory_avg
         , time, receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE", week_cnt)
-        VALUES((select user_seq from user_mng um
-        where USER_ID = #{userId}),
+        VALUES(#{userSeq},
         #{heartrateMin}, #{heartrateMax}, #{heartrateAvg},#{temperatureMin}, #{temperatureMax}, #{temperatureAvg}
         , #{spo2Min}, #{spo2Max}, #{spo2Avg}, #{step}, #{stressMin}, #{stressMax}, #{stressAvg}
         , #{bloodpressMin}, #{bloodpressMax}, #{bloodpressAvg}, #{repiratoryMin}, #{repiratoryMax}, #{repiratoryAvg}
@@ -1253,8 +1250,7 @@
     <insert id="testInsertMinute" parameterType="testDto">
         INSERT INTO healthcare.health_data_minute
         (user_seq, tid, heartrate, temperature, spo2, step, stress, bloodpress_min, bloodpress_max, repiratory, sleep, "time", receive_time, "YEAR", "MONTH", "DAY", "HOUR", "MINUTE", week_cnt)
-        VALUES((select user_seq from user_mng um
-                where USER_ID = #{userId}), '1234', #{heartrate}, #{temperature}, #{spo2}, #{step}, #{stress}, #{bloodpressMin}, #{bloodpressMax}, #{repiratory}, #{sleep}, #{time}
+        VALUES(#{userSeq}, '1234', #{heartrate}, #{temperature}, #{spo2}, #{step}, #{stress}, #{bloodpressMin}, #{bloodpressMax}, #{repiratory}, #{sleep}, #{time}
               , #{receiveTime}, to_char(now(),'YYYY'), to_char(now(),'MM')
               , to_char(now(),'DD'), #{hour}, #{minute}, date_part('week'::text, to_date(#{date},'YYYY-MM-DD')))
     </insert>
@@ -1264,7 +1260,7 @@
             sleep_total_time as sleep
         FROM
             daily_sleep
-        WHERE user_seq_fk =  (SELECT user_seq FROM user_mng um WHERE um.user_id = #{userId})
+        WHERE user_seq_fk = #{userSeq}
         ORDER BY calendar DESC
             LIMIT 1
     </select>
@@ -1475,7 +1471,7 @@
     <insert id="insertDailyStep" parameterType="Map">
         INSERT INTO healthcare.daily_step
         (user_seq_fk, tid, m_calendar, total_steps, total_calories, total_distance, run_steps, run_calories, run_distance, run_duration, walk_steps, walk_calories, walk_distance, walk_duration, hour_details, run_hour_details, walk_hour_details)
-        VALUES((select user_seq from user_mng um where USER_ID = #{userId}), #{tid}, to_date(#{mCalendar},'YYYYMMDD'), #{totalSteps}, #{totalCalories}, #{totalDistance}, #{runSteps}, #{runCalories}, #{runDistance}, #{runDuration}, #{walkSteps}, #{walkCalories}, #{walkDistance}, #{walkDuration}, #{hourDetails} , #{runHourDetails} , #{walkHourDetails} )
+        VALUES(#{userSeq}, #{tid}, to_date(#{mCalendar},'YYYYMMDD'), #{totalSteps}, #{totalCalories}, #{totalDistance}, #{runSteps}, #{runCalories}, #{runDistance}, #{runDuration}, #{walkSteps}, #{walkCalories}, #{walkDistance}, #{walkDuration}, #{hourDetails} , #{runHourDetails} , #{walkHourDetails} )
         ON CONFLICT (user_seq_fk, m_calendar)
         DO UPDATE
         SET tid = #{tid},
@@ -1499,7 +1495,7 @@
 
         INSERT INTO healthcare.daily_sleep
         (user_seq_fk, tid, awake_count, awake_time, begin_time, calendar, color_index_out, deep_time, end_time, light_time, rem_time, sleep_info_list, sleep_total_time, time_array, time_point)
-        VALUES((select user_seq from user_mng um where USER_ID = #{userId}), #{tid}, #{awakeCount}, #{awakeTime}, #{beginTime}, to_date(#{calendar},'YYYYMMDD'), #{colorIndexOut} , #{deepTime}, #{endTime}, #{lightTime}, #{remTime}, #{sleepInfoList} , #{sleepTotalTime}, #{timeArray} , #{timePoint} )
+        VALUES(#{userSeq}, #{tid}, #{awakeCount}, #{awakeTime}, #{beginTime}, to_date(#{calendar},'YYYYMMDD'), #{colorIndexOut} , #{deepTime}, #{endTime}, #{lightTime}, #{remTime}, #{sleepInfoList} , #{sleepTotalTime}, #{timeArray} , #{timePoint} )
         ON CONFLICT (user_seq_fk, calendar)
         DO UPDATE
         SET tid = #{tid},
@@ -1554,7 +1550,7 @@
             (user_seq_fk, user_stress_score, daily_date)
         </if>
         VALUES(
-        (select user_seq from user_mng um where USER_ID = #{userId}),
+        #{userSeq},
         #{userScore},
         to_date(#{date},'YYYY-MM-DD')
         )
@@ -1694,7 +1690,7 @@
         insert into healthcare.community_temp
         (user_seq, comment, heartrate, temperature, bloodpress, smoking,drinking,exercise,age)
         values
-            ((select user_seq from user_mng um where USER_ID = #{userId}), #{comment}, #{heartrate}, #{temperature}, #{bloodpress}, #{smoking}, #{drinking}, #{exercise}, #{age})
+            (#{userSeq}, #{comment}, #{heartrate}, #{temperature}, #{bloodpress}, #{smoking}, #{drinking}, #{exercise}, #{age})
     </insert>
 
     <select id ="commulist" parameterType="Map" resultType="camelMap">
@@ -1706,12 +1702,12 @@
 
     <select id="getAiResponse" parameterType="Map" resultType="camelMap">
         select ai_response as aiResponse from healthcare_ai_handler
-        where user_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+        where user_seq = #{userSeq}
           and reg_date=  TO_TIMESTAMP(#{regDate},'YYYY-MM-DD')
     </select>
 
     <insert id="insAiResponse" parameterType="Map">
         insert into healthcare_ai_handler (user_seq, ai_response)
-        values ((select user_seq from user_mng where user_id = #{userId}), #{aiResponse})
+        values (#{userSeq}, #{aiResponse})
     </insert>
 </mapper>

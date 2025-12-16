@@ -62,7 +62,6 @@
 
       <div id="signup-screen" class="auth-screen hidden">
         <div class="auth-header">
-          <button class="back-button" id="back-to-login">← 뒤로</button>
           <h1 class="auth-title">회원가입</h1>
         </div>
 
@@ -167,6 +166,10 @@
           <button type="submit" class="auth-button">
             <span class="button-text">회원가입</span>
             <span class="button-loading hidden">가입 중...</span>
+          </button>
+
+          <button type="button" class="auth-button-back" id="back-to-login-bottom">
+            뒤로가기
           </button>
         </form>
       </div>
@@ -360,12 +363,24 @@
             </button>
           </div>
 
-          <div class="posts-list" id="posts-list">
-            <h3>최근 게시글</h3>
-            <div class="posts-container" id="posts-container"></div>
-            <div class="loading-more" id="loading-more" style="display: none">
-              <i class="fas fa-spinner fa-spin"></i>
-              <span>더 많은 게시글을 불러오는 중...</span>
+          <div class="tab-container">
+            <button class="tab-button active" data-tab="posts">최근 게시글</button>
+            <button class="tab-button" data-tab="announcements">공지사항</button>
+          </div>
+
+          <div class="tab-content active" id="tab-posts">
+            <div class="posts-list" id="posts-list">
+              <div class="posts-container" id="posts-container"></div>
+              <div class="loading-more" id="loading-more" style="display: none">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>더 많은 게시글을 불러오는 중...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-announcements">
+            <div class="posts-list" id="announcements-list">
+              <div class="posts-container" id="announcements-container"></div>
             </div>
           </div>
         </div>
@@ -605,11 +620,6 @@
           </div>
 
           <div class="profile-section">
-            <h3>상담 이력</h3>
-            <div id="profile-consultations-list" class="history-list"></div>
-          </div>
-
-          <div class="profile-section">
             <h3>예약 이력</h3>
             <div id="profile-reservations-list" class="history-list"></div>
           </div>
@@ -675,16 +685,6 @@
                   </div>
                   <label class="toggle-switch">
                     <input type="checkbox" id="setting-checkup-notification" checked />
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-                <div class="setting-item">
-                  <div class="setting-info">
-                    <span class="setting-label">약물 복용 알림</span>
-                    <span class="setting-description">약물 복용 시간 알림</span>
-                  </div>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="setting-medication-reminder" />
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
@@ -948,6 +948,16 @@
               rows="4"
             ></textarea>
 
+            <div class="input-group">
+              <label>해시태그 (선택사항)</label>
+              <input
+                type="text"
+                id="post-hashtags"
+                placeholder="예: 건강, 운동, 다이어트 (쉼표로 구분)"
+              />
+              <small class="input-hint">쉼표로 구분하여 여러 해시태그를 입력할 수 있습니다</small>
+            </div>
+
             <h4>건강 데이터 (선택사항)</h4>
             <div class="input-row">
               <div class="input-group">
@@ -956,7 +966,6 @@
                   type="number"
                   id="post-heartrate"
                   placeholder="70"
-                  disabled
                 />
               </div>
               <div class="input-group">
@@ -966,7 +975,6 @@
                   step="0.1"
                   id="post-temperature"
                   placeholder="36.5"
-                  disabled
                 />
               </div>
             </div>
@@ -977,12 +985,11 @@
                   type="number"
                   id="post-bloodpress"
                   placeholder="120"
-                  disabled
                 />
               </div>
               <div class="input-group">
                 <label>나이</label>
-                <input type="number" id="post-age" placeholder="30" disabled />
+                <input type="number" id="post-age" placeholder="30" />
               </div>
             </div>
             <div class="modal-actions">
@@ -1171,7 +1178,42 @@
             <div class="post-detail-content" id="detail-post-content">
               게시글 내용이 여기에 표시됩니다.
             </div>
+            <div class="post-detail-hashtags" id="detail-post-hashtags"></div>
             <div class="post-detail-health-data" id="detail-health-data"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="announcement-detail-modal" class="modal hidden">
+      <div class="modal-content write-modal-content">
+        <div class="modal-header">
+          <h3>공지사항 상세</h3>
+          <button class="modal-close" id="close-announcement-detail-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="write-form">
+            <div class="post-detail-header">
+              <div class="post-author-info">
+                <div class="author-avatar">
+                  <span id="detail-announcement-author-initial">관</span>
+                </div>
+                <div class="author-details">
+                  <span class="author-name" id="detail-announcement-author-name">관리자</span>
+                  <span class="post-date" id="detail-announcement-date">날짜</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+              <div class="post-title" id="detail-announcement-title" style="font-weight: 600; font-size: 1.2rem; margin: 0;"></div>
+              <span class="announcement-badge" id="detail-announcement-badge" style="display: none;">중요</span>
+            </div>
+            <div class="post-detail-content" id="detail-announcement-content">
+              공지사항 내용이 여기에 표시됩니다.
+            </div>
+            <div class="post-detail-hashtags" id="detail-announcement-hashtags"></div>
           </div>
         </div>
       </div>
@@ -1675,7 +1717,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form id="consultation-request-form">
+          <form id="consultation-request-form" novalidate>
             <div class="input-group">
               <label>의사 선택 *</label>
               <select id="consultation-doctor" required>
@@ -1704,6 +1746,12 @@
             <div class="input-group">
               <label>상담 내용 *</label>
               <textarea id="consultation-content" rows="5" placeholder="상담하고 싶은 내용을 자세히 입력해주세요." required></textarea>
+            </div>
+            <div class="input-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consultation-share-consent" />
+                <span>가족 또는 보호자에게 상담 이력을 공개하는 것에 동의합니다</span>
+              </label>
             </div>
             <div class="modal-actions">
               <button type="button" class="form-button cancel-button" id="cancel-consultation-request">

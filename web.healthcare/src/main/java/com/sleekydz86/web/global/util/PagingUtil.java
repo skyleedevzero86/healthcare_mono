@@ -1,10 +1,12 @@
 package com.sleekydz86.web.global.util;
 
 import com.sleekydz86.web.common.pagination.PaginationInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 
+@Slf4j
 @Component("pagingUtil")
 public class PagingUtil {
 
@@ -62,7 +64,7 @@ public class PagingUtil {
             field.setInt(vo, paginationInfo.getRecordCountPerPage());
 
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
+            log.error("페이징 정보 설정 중 오류 발생", e);
         }
 
         return paginationInfo;

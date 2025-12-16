@@ -83,7 +83,8 @@ public class ChatgptService {
     }
 
     private String generateDummyResponse(String query) {
-        if (query != null && query.contains("심박수") && query.contains("혈압")) {
+        if (query != null && (query.contains("heart rate") || query.contains("blood pressure") || 
+            query.contains("심박수") || query.contains("혈압"))) {
             return "건강 상태를 분석한 결과, 정기적인 운동과 균형 잡힌 식단을 권장합니다. " +
                     "심박수와 혈압 수치를 지속적으로 모니터링하시기 바랍니다.";
         }

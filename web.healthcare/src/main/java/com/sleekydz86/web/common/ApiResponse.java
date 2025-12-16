@@ -2,16 +2,24 @@ package com.sleekydz86.web.common;
 
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+
 public class ApiResponse<T> {
 
     private int status;
     private String message;
     private T data;
+    private LocalDateTime timestamp;
 
     public ApiResponse(HttpStatus status, String message, T data) {
         this.status = status.value();
         this.message = message;
         this.data = data;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(HttpStatus.OK, "성공", data);
     }
 
     public static <T> ApiResponse<T> of(HttpStatus status, T data) {
@@ -19,31 +27,38 @@ public class ApiResponse<T> {
         return new ApiResponse<>(status, message, data);
     }
 
-    private static String getDefaultMessageForStatusCode(HttpStatus status) {
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+    }
 
+    public static <T> ApiResponse<T> error(String errorCode, String message) {
+        return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+    }
+
+    private static String getDefaultMessageForStatusCode(HttpStatus status) {
         switch (status) {
             case OK:
-                return "Operation succeeded";
+                return "작업이 성공적으로 완료되었습니다.";
             case CREATED:
-                return "Resource created successfully";
+                return "리소스가 성공적으로 생성되었습니다.";
             case NO_CONTENT:
-                return "Resource deleted successfully";
+                return "리소스가 성공적으로 삭제되었습니다.";
             case BAD_REQUEST:
-                return "Invalid request format";
+                return "잘못된 요청 형식입니다.";
             case UNAUTHORIZED:
-                return "Authentication required";
+                return "인증이 필요합니다.";
             case FORBIDDEN:
-                return "Access denied";
+                return "접근이 거부되었습니다.";
             case NOT_FOUND:
-                return "Resource not found";
+                return "리소스를 찾을 수 없습니다.";
             case CONFLICT:
-                return "Conflict detected";
+                return "충돌이 감지되었습니다.";
             case UNPROCESSABLE_ENTITY:
-                return "Unable to process the contained instructions";
+                return "포함된 지시사항을 처리할 수 없습니다.";
             case INTERNAL_SERVER_ERROR:
-                return "Internal server error occurred";
+                return "내부 서버 오류가 발생했습니다.";
             default:
-                return "HTTP Status " + status.value();
+                return "HTTP 상태 코드 " + status.value();
         }
     }
 
@@ -57,5 +72,9 @@ public class ApiResponse<T> {
 
     public T getData() {
         return data;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 }

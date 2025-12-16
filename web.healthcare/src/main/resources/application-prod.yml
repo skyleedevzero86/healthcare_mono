@@ -42,3 +42,10 @@ logging:
 
 # 운영용 설정
 debug: false
+
+encryption:
+  aes:
+    key: ${AES_ENCRYPTION_KEY}
+    iv: ${AES_IV}
+  jwt:
+    secret: ${JWT_SECRET}

@@ -47,4 +47,6 @@ public interface UserMapper {
 
     int updateUserPw(FindDto dto);
 
+    Integer getUserSeq(@Param("userId") String userId);
+
 }

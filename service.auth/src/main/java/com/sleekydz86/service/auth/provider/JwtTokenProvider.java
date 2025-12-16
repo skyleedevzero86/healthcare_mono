@@ -53,7 +53,7 @@ public class JwtTokenProvider {
                 accessTokenExpiresIn = dtFormat.parse("99991231");
                 refreshTokenExpiresIn = dtFormat.parse("99991231");
             } catch (ParseException e) {
-                e.printStackTrace();
+                log.error("날짜 파싱 오류", e);
             }
         } else {
             accessTokenExpiresIn = new Date(now + ACCESS_EXPIRED_TIME);
@@ -101,19 +101,19 @@ public class JwtTokenProvider {
 
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+            log.info("유효하지 않은 JWT 토큰", e);
             throw e;
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            log.info("만료된 JWT 토큰", e);
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
-            throw new UnsupportedJwtException("Unsupported JWT Token");
+            log.info("지원하지 않는 JWT 토큰", e);
+            throw new UnsupportedJwtException("지원하지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
-            throw new UnsupportedJwtException("JWT claims string is empty");
+            log.info("JWT claims 문자열이 비어있습니다.", e);
+            throw new UnsupportedJwtException("JWT claims 문자열이 비어있습니다.");
         } catch (Exception e) {
-            throw new UnsupportedJwtException("JWT Unkown Error");
+            throw new UnsupportedJwtException("JWT 알 수 없는 오류가 발생했습니다.");
         }
     }
 
@@ -127,19 +127,19 @@ public class JwtTokenProvider {
             }
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+            log.info("유효하지 않은 JWT 토큰", e);
             throw e;
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            log.info("만료된 JWT 토큰", e);
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
-            throw new UnsupportedJwtException("Unsupported JWT Token");
+            log.info("지원하지 않는 JWT 토큰", e);
+            throw new UnsupportedJwtException("지원하지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
-            throw new UnsupportedJwtException("JWT claims string is empty");
+            log.info("JWT claims 문자열이 비어있습니다.", e);
+            throw new UnsupportedJwtException("JWT claims 문자열이 비어있습니다.");
         } catch (Exception e) {
-            throw new UnsupportedJwtException("JWT Unkown Error");
+            throw new UnsupportedJwtException("JWT 알 수 없는 오류가 발생했습니다.");
         }
     }
 

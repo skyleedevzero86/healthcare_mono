@@ -7,6 +7,8 @@ public class MonthDayDataDto {
 
     private String userId;
 
+    private Integer userSeq;
+
     private String time;
 
     private String year;
@@ -63,6 +65,14 @@ public class MonthDayDataDto {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Integer getUserSeq() {
+        return userSeq;
+    }
+
+    public void setUserSeq(Integer userSeq) {
+        this.userSeq = userSeq;
     }
 
     public String getTime() {

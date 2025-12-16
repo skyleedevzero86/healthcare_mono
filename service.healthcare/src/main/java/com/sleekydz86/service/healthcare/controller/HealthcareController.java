@@ -1,13 +1,18 @@
 package com.sleekydz86.service.healthcare.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sleekydz86.service.healthcare.common.ServiceResponse;
 import com.sleekydz86.service.healthcare.dto.*;
 import com.sleekydz86.service.healthcare.service.ChatService;
-import com.sleekydz86.service.healthcare.service.HealthcareService;
+import com.sleekydz86.service.healthcare.service.ai.AIResponseService;
+import com.sleekydz86.service.healthcare.service.chart.ChartDataService;
+import com.sleekydz86.service.healthcare.service.community.CommunityService;
+import com.sleekydz86.service.healthcare.service.healthdata.HealthDataService;
+import com.sleekydz86.service.healthcare.service.score.HealthScoreService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -24,19 +30,74 @@ import java.util.Map;
 @Validated
 public class HealthcareController {
 
-    @Autowired
-    HealthcareService healthcareService;
-    @Autowired
-    Environment env;
-    @Autowired
-    ChatService chatService;
-    @Autowired
-    BioInfoDto bioInfoDto;
-    @Autowired
-    com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer;
+    private final HealthDataService healthDataService;
+    private final ChartDataService chartDataService;
+    private final HealthScoreService healthScoreService;
+    private final AIResponseService aiResponseService;
+    private final CommunityService communityService;
+    private final Environment env;
+    private final ChatService chatService;
+    private final BioInfoDto bioInfoDto;
+    private final com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer;
+
+    public HealthcareController(HealthDataService healthDataService,
+                               ChartDataService chartDataService,
+                               HealthScoreService healthScoreService,
+                               AIResponseService aiResponseService,
+                               CommunityService communityService,
+                               Environment env,
+                               ChatService chatService,
+                               BioInfoDto bioInfoDto,
+                               com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer) {
+        this.healthDataService = healthDataService;
+        this.chartDataService = chartDataService;
+        this.healthScoreService = healthScoreService;
+        this.aiResponseService = aiResponseService;
+        this.communityService = communityService;
+        this.env = env;
+        this.chatService = chatService;
+        this.bioInfoDto = bioInfoDto;
+        this.inputSanitizer = inputSanitizer;
+    }
 
     private LocalDate getToday() {
         return LocalDate.now();
+    }
+
+    @PostMapping("/healthdata/minute")
+    public ResponseEntity<ServiceResponse<Integer>> insertMinuteData(@RequestBody MinuteDataDto dto) {
+        ServiceResponse<Integer> response = healthDataService.insertMinuteData(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/healthdata/info")
+    public ResponseEntity<ServiceResponse<List<HealthData>>> getHealthInfo(@RequestParam Map<String, Object> params) {
+        ServiceResponse<List<HealthData>> response = healthDataService.getHealthInfo(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/chart/healthinfo")
+    public ResponseEntity<ServiceResponse<Map<String, Object>>> getHealthInfoChart(@RequestParam Map<String, Object> params) {
+        ServiceResponse<Map<String, Object>> response = chartDataService.getHealthInfoChart(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/score/sleep")
+    public ResponseEntity<ServiceResponse<Integer>> calculateSleepScore(@RequestBody Map<String, Object> params) {
+        ServiceResponse<Integer> response = healthScoreService.calculateSleepScore(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/ai/response")
+    public ResponseEntity<ServiceResponse<Map<String, Object>>> getAIResponse(@RequestParam Map<String, Object> params) {
+        ServiceResponse<Map<String, Object>> response = aiResponseService.getAIResponse(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/community/post")
+    public ResponseEntity<ServiceResponse<Integer>> createPost(@RequestBody Map<String, Object> params) {
+        ServiceResponse<Integer> response = communityService.createPost(params);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("insertHealthInfo")
@@ -58,16 +119,28 @@ public class HealthcareController {
                 for (HealthDataItemDto item : requestDto.getData()) {
                     MinuteDataDto dto = mapper.convertValue(item, MinuteDataDto.class);
                     dto.setUserId(requestDto.getUserId());
-                    healthcareService.insMinuteData(dto);
+                    ServiceResponse<Integer> response = healthDataService.insertMinuteData(dto);
+                    if (!response.isSuccess()) {
+                        return convertToApiResponse(response);
+                    }
                 }
             } else {
                 for (HealthDataItemDto item : requestDto.getData()) {
                     MonthDayDataDto dto = mapper.convertValue(item, MonthDayDataDto.class);
                     dto.setUserId(requestDto.getUserId());
-                    healthcareService.insMonthDayData(dto);
+                    ServiceResponse<Integer> response = healthDataService.insertMonthDayData(dto);
+                    if (!response.isSuccess()) {
+                        return convertToApiResponse(response);
+                    }
                     map.put("date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                    healthcareService.insExerciseScore(map);
-                    healthcareService.insStressScore(map);
+                    ServiceResponse<Integer> exerciseResponse = healthScoreService.calculateExerciseScore(map);
+                    if (!exerciseResponse.isSuccess()) {
+                        return convertToApiResponse(exerciseResponse);
+                    }
+                    ServiceResponse<Integer> stressResponse = healthScoreService.calculateStressScore(map);
+                    if (!stressResponse.isSuccess()) {
+                        return convertToApiResponse(stressResponse);
+                    }
                 }
             }
             return ApiResponse.ok();
@@ -91,7 +164,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.minmaxHealthInfo(map));
+            ServiceResponse response = healthDataService.getMinMaxHealthInfo(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -107,7 +181,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.healthInfo(map));
+            ServiceResponse response = healthDataService.getHealthInfo(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -123,7 +198,11 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            Map<String, Object> result = healthcareService.healthInfoChart(map);
+            ServiceResponse<Map<String, Object>> response = chartDataService.getHealthInfoChart(map);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            Map<String, Object> result = response.getData();
             String[] strArr = (String[]) result.get("lv");
             if (strArr == null || strArr.length == 0) {
                 return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
@@ -166,7 +245,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.customMinuteChartData(map));
+            ServiceResponse response = chartDataService.getCustomMinuteChartData(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -182,7 +262,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.customMinuteDashBRDChart(map));
+            ServiceResponse response = chartDataService.getCustomMinuteDashBRDChart(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -199,8 +280,17 @@ public class HealthcareController {
         try {
             validateUserId(map);
             map.put("todayDate", getToday());
-            Map<String, Object> responseData = healthcareService.realtimeBiodata(map);
-            Map<String, Object> sleepData = healthcareService.todaySleepdata(map);
+            ServiceResponse<Map<String, Object>> responseDataResponse = chartDataService.getRealtimeBiodata(map);
+            if (!responseDataResponse.isSuccess()) {
+                return convertToApiResponse(responseDataResponse);
+            }
+            Map<String, Object> responseData = responseDataResponse.getData();
+            
+            ServiceResponse<Map<String, Object>> sleepDataResponse = chartDataService.getTodaySleepdata(map);
+            if (!sleepDataResponse.isSuccess()) {
+                return convertToApiResponse(sleepDataResponse);
+            }
+            Map<String, Object> sleepData = sleepDataResponse.getData();
 
             TargetDto dto = new TargetDto();
             if (responseData != null && !responseData.isEmpty()) {
@@ -218,7 +308,11 @@ public class HealthcareController {
                 dto.setTotalSleep(0);
             }
 
-            Map<String, Object> targetData = healthcareService.getTarget(dto);
+            ServiceResponse<Map<String, Object>> targetResponse = healthScoreService.getTarget(dto);
+            if (!targetResponse.isSuccess()) {
+                return convertToApiResponse(targetResponse);
+            }
+            Map<String, Object> targetData = targetResponse.getData();
             responseData.putAll(sleepData);
             responseData.putAll(targetData);
 
@@ -243,7 +337,11 @@ public class HealthcareController {
         try {
             validateUserId(map);
             map.put("todayDate", getToday());
-            Map<String, Object> responseData = healthcareService.realtimeBiodata(map);
+            ServiceResponse<Map<String, Object>> responseDataResponse = chartDataService.getRealtimeBiodata(map);
+            if (!responseDataResponse.isSuccess()) {
+                return convertToApiResponse(responseDataResponse);
+            }
+            Map<String, Object> responseData = responseDataResponse.getData();
 
             TargetDto dto = new TargetDto();
             if (responseData != null && !responseData.isEmpty()) {
@@ -264,7 +362,11 @@ public class HealthcareController {
                 dto.setTotalSleep(0);
             }
 
-            Map<String, Object> targetData = healthcareService.getTarget(dto);
+            ServiceResponse<Map<String, Object>> targetResponse = healthScoreService.getTarget(dto);
+            if (!targetResponse.isSuccess()) {
+                return convertToApiResponse(targetResponse);
+            }
+            Map<String, Object> targetData = targetResponse.getData();
             responseData.putAll(targetData);
 
             if (responseData.isEmpty()) {
@@ -287,7 +389,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.graphBiodata(map));
+            ServiceResponse response = chartDataService.getGraphBiodata(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -302,7 +405,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.healthinfoDailySleep(map));
+            ServiceResponse response = chartDataService.getHealthinfoDailySleep(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -318,10 +422,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            ServiceResponse<Integer> response = healthDataService.insertDailyStep(map);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
             Map<String, Object> result = new HashMap<>();
-            result.put("count", healthcareService.insertDailyStep(map));
+            result.put("count", response.getData());
 
-            if ((int) result.get("count") == 0) {
+            if (response.getData() == null || response.getData() == 0) {
                 return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
@@ -341,12 +449,20 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            ServiceResponse<Integer> response = healthDataService.insertDailySleep(map);
+            if (!response.isSuccess()) {
+                return convertToApiResponse(response);
+            }
+            
+            ServiceResponse<Integer> sleepScoreResponse = healthScoreService.calculateSleepScore(map);
+            if (!sleepScoreResponse.isSuccess()) {
+                return convertToApiResponse(sleepScoreResponse);
+            }
+
             Map<String, Object> result = new HashMap<>();
-            result.put("count", healthcareService.insertDailySleep(map));
+            result.put("count", response.getData());
 
-            healthcareService.insSleepScore(map);
-
-            if ((int) result.get("count") == 0) {
+            if (response.getData() == null || response.getData() == 0) {
                 return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
@@ -365,7 +481,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.healthScoreList(map));
+            ServiceResponse response = healthScoreService.getHealthScoreList(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -380,7 +497,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.inscommunity(map));
+            ServiceResponse response = communityService.createPost(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -395,7 +513,8 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
-            return ApiResponse.ok(healthcareService.commuList(map));
+            ServiceResponse response = communityService.getPostList(map);
+            return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -417,18 +536,24 @@ public class HealthcareController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String formattedDate = today.format(formatter);
             paramMap.put("regDate", formattedDate);
-            Map<String, Object> responseMap = healthcareService.getAiResponse(paramMap);
+            ServiceResponse<Map<String, Object>> aiResponseResponse = aiResponseService.getAIResponse(paramMap);
             String aiResponse = "";
-            if (responseMap != null) {
+            if (aiResponseResponse.isSuccess() && aiResponseResponse.getData() != null) {
+                Map<String, Object> responseMap = aiResponseResponse.getData();
                 aiResponse = (String) responseMap.get("airesponse");
-            } else {
+            }
+            
+            if (aiResponse == null || aiResponse.isEmpty()) {
                 AIHandleDto aiHandleDto = new AIHandleDto();
                 String query = aiHandleDto.getQuery(bioInfoDto.getBioInfoDto(map));
 
                 aiResponse = chatService.getChatResponse(query);
 
                 paramMap.put("aiResponse", aiResponse);
-                healthcareService.insAiResponse(paramMap);
+                ServiceResponse<Integer> saveResponse = aiResponseService.saveAIResponse(paramMap);
+                if (!saveResponse.isSuccess()) {
+                    return convertToApiResponse(saveResponse);
+                }
             }
 
             Map<String, Object> result = new HashMap<>();
@@ -475,6 +600,20 @@ public class HealthcareController {
             return Integer.parseInt(value.toString());
         } catch (NumberFormatException e) {
             return defaultValue;
+        }
+    }
+
+    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+        if (serviceResponse.isSuccess()) {
+            return ApiResponse.ok(serviceResponse.getData());
+        } else {
+            ApiResultCode errorCode = ApiResultCode.UNKOWN_ERR;
+            if ("400".equals(serviceResponse.getResultCode())) {
+                errorCode = ApiResultCode.PARAM_VALID_ERR;
+            } else if ("500".equals(serviceResponse.getResultCode())) {
+                errorCode = ApiResultCode.UNKOWN_ERR;
+            }
+            return ApiResponse.error(errorCode, serviceResponse.getMessage());
         }
     }
 }

@@ -3,7 +3,9 @@
 
 <mapper namespace="com.sleekydz86.service.usermanagement.global.mapper.UserMapper">
     <sql id="paging">
-        OFFSET #{pageOffset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+        <if test="pageOffset != null and pageSize != null">
+            OFFSET #{pageOffset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+        </if>
     </sql>
     <select id="userInfo_v2" parameterType="userDto" resultType="camelMap">
         SELECT
@@ -18,30 +20,25 @@
         ,um.gender
         ,um.blood_type
         ,um.user_profile
-        ,(SELECT ARRAY_TO_STRING(ARRAY_AGG((SELECT concat(user_nm,' ',tel_num_enc)  FROM user_mng WHERE user_seq = guardian_seq)),', ') FROM guardian_mapping_info gi WHERE gi.user_seq_fk = um.user_seq) AS guardian_nm
-        ,(select cast(array_to_json(array_agg(a)) as varchar)
-        from (select
-        gi.guardian_seq
-        , gi.guardian_id
-        , umg.user_nm , umg.tel_num_enc
-        FROM guardian_mapping_info gi
-        left join user_mng umg on gi.guardian_seq = umg.user_seq
-        WHERE gi.user_seq_fk = um.user_seq) a) as guardian
-        ,(select user_nm
-        FROM user_mng
-        WHERE di.doctor_seq = user_seq ) AS doctor_nm
-        ,(select dept_nm
-        FROM user_mng
-        WHERE di.doctor_seq = user_seq ) AS doctor_dept
-        ,(select doctor_seq
-        FROM user_mng
-        WHERE di.doctor_seq = user_seq ) AS doctor_seq
-        ,(select user_id
-        FROM user_mng
-        WHERE di.doctor_seq = user_seq ) AS doctor_id
+        ,(SELECT ARRAY_TO_STRING(ARRAY_AGG(concat(umg2.user_nm,' ',umg2.tel_num_enc)),', ') 
+          FROM guardian_mapping_info gi 
+          LEFT JOIN user_mng umg2 ON gi.guardian_seq = umg2.user_seq
+          WHERE gi.user_seq_fk = um.user_seq) AS guardian_nm
+        ,(SELECT cast(array_to_json(array_agg(row_to_json(t))) as varchar)
+          FROM (
+            SELECT gi.guardian_seq, gi.guardian_id, umg.user_nm, umg.tel_num_enc
+            FROM guardian_mapping_info gi
+            LEFT JOIN user_mng umg ON gi.guardian_seq = umg.user_seq
+            WHERE gi.user_seq_fk = um.user_seq
+          ) t) as guardian
+        ,dm.user_nm AS doctor_nm
+        ,dm.dept_nm AS doctor_dept
+        ,di.doctor_seq AS doctor_seq
+        ,dm.user_id AS doctor_id
         FROM user_mng um
+        LEFT JOIN USER_AUTH_INFO ua ON ua.USER_SEQ = um.USER_SEQ
         LEFT JOIN doctor_mapping_info di ON di.user_seq_fk = um.user_seq
-        LEFT JOIN USER_AUTH_INFO ua on ua.USER_SEQ = um.USER_SEQ
+        LEFT JOIN user_mng dm ON di.doctor_seq = dm.user_seq
         <where>
             and ua.user_role_fk = #{userRoleFk}
             and um.user_id = #{userId}
@@ -69,20 +66,19 @@
     </select>
 
     <select id="searchParentCount" parameterType="userDto" resultType="int">
-        select count(*)
-        from guardian_mapping_info
-        where user_seq_fk = (select user_seq
-                             from user_mng um
-                             where um.user_id = #{userId})
+        SELECT COUNT(*)
+        FROM guardian_mapping_info gmi
+        INNER JOIN user_mng um ON gmi.user_seq_fk = um.user_seq
+        WHERE um.user_id = #{userId}
     </select>
 
     <delete id="deleteParentMapping" parameterType="userDto">
-        delete from guardian_mapping_info
-        where user_seq_fk = (select user_seq
-        from user_mng um
-        where um.user_id = #{userId})
+        DELETE FROM guardian_mapping_info gmi
+        USING user_mng um
+        WHERE gmi.user_seq_fk = um.user_seq
+        AND um.user_id = #{userId}
         <if test="guardianSeqArray != null">
-            and guardian_seq not in
+            AND gmi.guardian_seq NOT IN
             <foreach collection="guardianSeqArray" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
@@ -117,13 +113,13 @@
     </update>
 
     <update id="deleteUserInfo" parameterType="userDto">
-        UPDATE user_auth_info
+        UPDATE user_auth_info ua
         SET use_yn = 'N'
-        WHERE user_seq = (select user_seq
-                          from user_mng um
-                          where user_id = #{userId})
-          and user_role_fk = #{userRoleFk}
-          and use_yn = 'Y'
+        FROM user_mng um
+        WHERE ua.user_seq = um.user_seq
+          AND um.user_id = #{userId}
+          AND ua.user_role_fk = #{userRoleFk}
+          AND ua.use_yn = 'Y'
     </update>
 
     <select id="doctorListCount" parameterType="userDto" resultType="int">
@@ -212,48 +208,29 @@
     </select>
 
     <select id="userListCount" parameterType="userDto" resultType="int">
-        SELECT
-        count(*)
+        SELECT COUNT(*)
         FROM USER_AUTH_INFO UA
-        LEFT JOIN user_mng um on UA.USER_SEQ = um.USER_SEQ
+        LEFT JOIN user_mng um ON UA.USER_SEQ = um.USER_SEQ
         LEFT JOIN doctor_mapping_info di ON di.user_seq_fk = um.user_seq
-        LEFT JOIN healthcare.guardian_mapping_info gmi on gmi.user_seq_fk = um.user_seq
+        LEFT JOIN healthcare.guardian_mapping_info gmi ON gmi.user_seq_fk = um.user_seq
+        <if test='userId != "" and userId != null'>
+            LEFT JOIN healthcare.user_auth_info UA2 ON UA2.USER_SEQ = (SELECT um2.user_seq FROM healthcare.user_mng um2 WHERE um2.user_id = #{userId})
+            LEFT JOIN healthcare.user_mng um2 ON um2.user_id = #{userId} AND um2.user_seq = UA2.USER_SEQ
+        </if>
         <where>
             <if test='userRoleFk != "" and userRoleFk != null'>
                 AND UA.USER_ROLE_FK = #{userRoleFk}
             </if>
             <if test='searchKeyword != "" and searchKeyword != null'>
-                AND UM.USER_NM Like CONCAT('%',#{searchKeyword},'%')
+                AND um.USER_NM LIKE CONCAT('%',#{searchKeyword},'%')
             </if>
             <if test='userId != "" and userId != null'>
                 AND (
                 CASE
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '4'
-                THEN
-                TRUE
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '3'
-                THEN
-                (di.doctor_id = #{userId})
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '2'
-                THEN
-                (gmi.guardian_id = #{userId})
-                ELSE
-                FALSE
+                WHEN UA2.user_role_fk = '4' THEN TRUE
+                WHEN UA2.user_role_fk = '3' THEN (di.doctor_id = #{userId})
+                WHEN UA2.user_role_fk = '2' THEN (gmi.guardian_id = #{userId})
+                ELSE FALSE
                 END
                 )
             </if>
@@ -263,7 +240,7 @@
 
     <select id="userList" parameterType="userDto" resultType="camelMap">
         SELECT
-        ROW_NUMBER() OVER(ORDER BY user_nm DESC) AS ROWNUM
+        ROW_NUMBER() OVER(ORDER BY um.user_nm DESC) AS ROWNUM
         , um.USER_SEQ
         , um.USER_ID
         , um.USER_NM
@@ -272,59 +249,42 @@
         , um.TEL_NUM_ENC
         , um.EMAIL
         , um.AGREEMENT_YN
-        ,(SELECT ARRAY_TO_STRING(ARRAY_AGG((SELECT user_nm FROM user_mng WHERE user_seq = guardian_seq)),', ') FROM guardian_mapping_info gi WHERE gi.user_seq_fk = um.user_seq) AS parent_nm
-        ,(SELECT user_nm
-        FROM user_mng
-        WHERE di.doctor_seq = user_seq ) AS doctor_nm
-        ,COALESCE((select
-        <![CDATA[
-				min(spo2) <= 90
-				]]>
-        from healthcare.health_data_minute hdm
-        where user_seq = um.USER_SEQ
-        and receive_time = to_date(to_char(now(), 'YYYY-MM-DD'),'YYYY-MM-DD')
-        and spo2 != 0
-        group by user_seq), false) as "warning"
+        ,(SELECT ARRAY_TO_STRING(ARRAY_AGG(umg3.user_nm),', ') 
+          FROM guardian_mapping_info gi 
+          LEFT JOIN user_mng umg3 ON gi.guardian_seq = umg3.user_seq
+          WHERE gi.user_seq_fk = um.user_seq) AS parent_nm
+        ,dm.user_nm AS doctor_nm
+        ,COALESCE((
+            SELECT CASE WHEN MIN(hdm.spo2) &lt;= 90 THEN true ELSE false END
+            FROM healthcare.health_data_minute hdm
+            WHERE hdm.user_seq = um.USER_SEQ
+            AND hdm.receive_time = CURRENT_DATE
+            AND hdm.spo2 != 0
+            GROUP BY hdm.user_seq
+        ), false) as "warning"
         FROM USER_AUTH_INFO UA
-        LEFT JOIN user_mng um on UA.USER_SEQ = um.USER_SEQ
+        LEFT JOIN user_mng um ON UA.USER_SEQ = um.USER_SEQ
         LEFT JOIN doctor_mapping_info di ON di.user_seq_fk = um.user_seq
-        LEFT JOIN healthcare.guardian_mapping_info gmi on gmi.user_seq_fk = um.user_seq
+        LEFT JOIN user_mng dm ON di.doctor_seq = dm.user_seq
+        LEFT JOIN healthcare.guardian_mapping_info gmi ON gmi.user_seq_fk = um.user_seq
+        <if test='userId != "" and userId != null'>
+            LEFT JOIN healthcare.user_auth_info UA2 ON UA2.USER_SEQ = (SELECT um2.user_seq FROM healthcare.user_mng um2 WHERE um2.user_id = #{userId})
+            LEFT JOIN healthcare.user_mng um2 ON um2.user_id = #{userId} AND um2.user_seq = UA2.USER_SEQ
+        </if>
         <where>
             <if test='userRoleFk != "" and userRoleFk != null'>
                 AND UA.USER_ROLE_FK = #{userRoleFk}
             </if>
             <if test='searchKeyword != "" and searchKeyword != null'>
-                AND UM.USER_NM Like CONCAT('%',#{searchKeyword},'%')
+                AND um.USER_NM LIKE CONCAT('%',#{searchKeyword},'%')
             </if>
             <if test='userId != "" and userId != null'>
                 AND (
                 CASE
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '4'
-                THEN
-                TRUE
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '3'
-                THEN
-                (di.doctor_id = #{userId})
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '2'
-                THEN
-                (gmi.guardian_id = #{userId})
-                ELSE
-                FALSE
+                WHEN UA2.user_role_fk = '4' THEN TRUE
+                WHEN UA2.user_role_fk = '3' THEN (di.doctor_id = #{userId})
+                WHEN UA2.user_role_fk = '2' THEN (gmi.guardian_id = #{userId})
+                ELSE FALSE
                 END
                 )
             </if>
@@ -410,40 +370,22 @@
         um.USER_ID
         , um.USER_NM
         FROM USER_AUTH_INFO UA
-        LEFT JOIN user_mng um on UA.USER_SEQ = um.USER_SEQ
+        LEFT JOIN user_mng um ON UA.USER_SEQ = um.USER_SEQ
         LEFT JOIN doctor_mapping_info di ON di.user_seq_fk = um.user_seq
-        LEFT JOIN healthcare.guardian_mapping_info gmi on gmi.user_seq_fk = um.user_seq
+        LEFT JOIN healthcare.guardian_mapping_info gmi ON gmi.user_seq_fk = um.user_seq
+        <if test='userId != "" and userId != null'>
+            LEFT JOIN healthcare.user_auth_info UA2 ON UA2.USER_SEQ = (SELECT um2.user_seq FROM healthcare.user_mng um2 WHERE um2.user_id = #{userId})
+            LEFT JOIN healthcare.user_mng um2 ON um2.user_id = #{userId} AND um2.user_seq = UA2.USER_SEQ
+        </if>
         <where>
             AND UA.USER_ROLE_FK = '1'
             <if test='userId != "" and userId != null'>
                 AND (
                 CASE
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '4'
-                THEN
-                TRUE
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '3'
-                THEN
-                (di.doctor_id = #{userId})
-                WHEN (
-                SELECT user_role_fk
-                FROM healthcare.user_auth_info UA2
-                LEFT JOIN healthcare.user_mng um2 ON UA2.USER_SEQ = um2.USER_SEQ
-                WHERE um2.user_id = #{userId}
-                ) = '2'
-                THEN
-                (gmi.guardian_id = #{userId})
-                ELSE
-                FALSE
+                WHEN UA2.user_role_fk = '4' THEN TRUE
+                WHEN UA2.user_role_fk = '3' THEN (di.doctor_id = #{userId})
+                WHEN UA2.user_role_fk = '2' THEN (gmi.guardian_id = #{userId})
+                ELSE FALSE
                 END
                 )
             </if>
@@ -453,67 +395,48 @@
     </select>
 
     <select id="searchguardianList" parameterType="userDto" resultType="camelMap">
-
         SELECT
-            ('보호자')as user_role, dept_nm, user_nm, email, tel_num_enc
+            ('보호자') as user_role, UM.dept_nm, UM.user_nm, UM.email, UM.tel_num_enc
         FROM
-            user_mng UM
-                RIGHT OUTER JOIN
-            (
-                SELECT
-                    guardian_seq
-                FROM guardian_mapping_info
-                where  user_seq_fk = (select user_seq from user_mng um where um.user_id = #{userId})
-            ) GM
-            ON UM.USER_SEQ = GM.guardian_seq
+            guardian_mapping_info gmi
+            INNER JOIN user_mng um_source ON gmi.user_seq_fk = um_source.user_seq AND um_source.user_id = #{userId}
+            RIGHT OUTER JOIN user_mng UM ON UM.USER_SEQ = gmi.guardian_seq
     </select>
     <select id="searchdoctorList" parameterType="userDto" resultType="camelMap">
         SELECT
-            ('의사')as user_role, dept_nm, user_nm, email, tel_num_enc
+            ('의사') as user_role, UM.dept_nm, UM.user_nm, UM.email, UM.tel_num_enc
         FROM
-            user_mng UM
-                RIGHT OUTER JOIN
-            (
-                SELECT
-                    doctor_seq
-                FROM doctor_mapping_info
-                where  user_seq_fk = (select user_seq from user_mng um where um.user_id = #{userId})
-            ) GM
-            ON UM.USER_SEQ = GM.doctor_seq
+            doctor_mapping_info dmi
+            INNER JOIN user_mng um_source ON dmi.user_seq_fk = um_source.user_seq AND um_source.user_id = #{userId}
+            RIGHT OUTER JOIN user_mng UM ON UM.USER_SEQ = dmi.doctor_seq
     </select>
     <select id="manage_userList_cnt" parameterType="userDto" resultType="int">
-        SELECT
-        COUNT(*) AS rownum
+        SELECT COUNT(*) AS rownum
         FROM
         <if test='userRoleFk == "2"'>
-            healthcare.guardian_mapping_info where guardian_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+            healthcare.guardian_mapping_info gmi
+            INNER JOIN user_mng um ON gmi.guardian_seq = um.user_seq
+            WHERE um.user_id = #{userId}
         </if>
         <if test='userRoleFk == "3"'>
-            healthcare.doctor_mapping_info where guardian_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+            healthcare.doctor_mapping_info dmi
+            INNER JOIN user_mng um ON dmi.doctor_seq = um.user_seq
+            WHERE um.user_id = #{userId}
         </if>
     </select>
 
     <select id="manage_userList" parameterType="userDto" resultType="camelMap">
-        SELECT * FROM
-        (
-        SELECT
-        *
+        SELECT a.*, b.*
         FROM
         <if test='userRoleFk == "2"'>
-            guardian_mapping_info where guardian_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+            guardian_mapping_info a
+            INNER JOIN user_mng um ON a.guardian_seq = um.user_seq AND um.user_id = #{userId}
         </if>
         <if test='userRoleFk == "3"'>
-            doctor_mapping_info where guardian_seq = (select user_seq from user_mng um where um.user_id = #{userId})
+            doctor_mapping_info a
+            INNER JOIN user_mng um ON a.doctor_seq = um.user_seq AND um.user_id = #{userId}
         </if>
-        )a
-        LEFT OUTER JOIN
-        (
-        SELECT
-        *
-        FROM
-        user_mng
-        )b
-        ON a.user_seq_fk = b.user_seq
+        LEFT OUTER JOIN user_mng b ON a.user_seq_fk = b.user_seq
     </select>
 
     <select id="searchuserList" parameterType="Map" resultType="camelMap">
