@@ -27,7 +27,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/healthcare/v1/")
 @Validated
-@RequiredArgsConstructor
 public class HealthcareController {
 
     private final HealthDataService healthDataService;
@@ -39,6 +38,26 @@ public class HealthcareController {
     private final ChatService chatService;
     private final BioInfoDto bioInfoDto;
     private final com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer;
+
+    public HealthcareController(HealthDataService healthDataService,
+                               ChartDataService chartDataService,
+                               HealthScoreService healthScoreService,
+                               AIResponseService aiResponseService,
+                               CommunityService communityService,
+                               Environment env,
+                               ChatService chatService,
+                               BioInfoDto bioInfoDto,
+                               com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer) {
+        this.healthDataService = healthDataService;
+        this.chartDataService = chartDataService;
+        this.healthScoreService = healthScoreService;
+        this.aiResponseService = aiResponseService;
+        this.communityService = communityService;
+        this.env = env;
+        this.chatService = chatService;
+        this.bioInfoDto = bioInfoDto;
+        this.inputSanitizer = inputSanitizer;
+    }
 
     private LocalDate getToday() {
         return LocalDate.now();
