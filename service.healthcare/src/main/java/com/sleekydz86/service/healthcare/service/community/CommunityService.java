@@ -7,6 +7,6 @@ import java.util.Map;
 
 public interface CommunityService {
     ServiceResponse<Integer> createPost(Map<String, Object> params);
-    ServiceResponse<List<Map<String, Object>>> getPostList(Map<String, Object> params);
+    ServiceResponse<List<CommunityPost>> getPostList(Map<String, Object> params);
 }
 

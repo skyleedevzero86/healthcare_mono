@@ -74,9 +74,9 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Cacheable(value = "community", key = "#params['pageIdx'] + '_' + (#params['searchKeyword'] != null ? #params['searchKeyword'] : '')")
-    public ServiceResponse<List<Map<String, Object>>> getPostList(Map<String, Object> params) {
+    public ServiceResponse<List<CommunityPost>> getPostList(Map<String, Object> params) {
         try {
-            List<Map<String, Object>> result = communityRepository.findPostList(params);
+            List<CommunityPost> result = communityRepository.findPostList(params);
             return ServiceResponse.success(result);
         } catch (Exception e) {
             log.error("커뮤니티 게시글 목록 조회 중 오류 발생", e);

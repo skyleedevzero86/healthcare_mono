@@ -25,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HealthScoreServiceImpl implements HealthScoreService {
     private final HealthScoreRepository healthScoreRepository;
-    private final ScoreCalculator scoreCalculator;
     private final HealthDataValidator healthDataValidator;
     private final AuthServiceClient authServiceClient;
     private final HealthcareMetrics healthcareMetrics;
@@ -44,9 +43,7 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             healthDataValidator.validate(params);
             log.info("수면 점수 계산 중: {}", userId);
 
-            int score = scoreCalculator.calculateSleepScore(params);
-
-            log.info("수면 점수 계산 완료: {}, 사용자: {}", score, userId);
+            int score = healthScoreRepository.getSleepScore(params);
 
             if (params.get("userSeq") == null) {
                 Map<String, String> request = new HashMap<>();
@@ -100,10 +97,10 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             healthDataValidator.validate(params);
             log.info("운동 점수 계산 중: {}", userId);
 
-            double finalScore = scoreCalculator.calculateExerciseScore(params);
+            double personalScore = healthScoreRepository.getWeeklyPersonalExerciseScore(params);
+            double criteriaScore = healthScoreRepository.getCriteriaToCalculate(userId);
 
-            log.info("개인 운동 점수: {}, 연령별 기준 점수: {}, 최종 운동 점수: {}, 사용자: {}",
-                    personalScore, criteriaScore, finalScore, userId);
+            double finalScore = (personalScore / (criteriaScore * 7)) * 100;
 
             if (params.get("userSeq") == null) {
                 Map<String, String> request = new HashMap<>();
@@ -157,9 +154,7 @@ public class HealthScoreServiceImpl implements HealthScoreService {
             healthDataValidator.validate(params);
             log.info("스트레스 점수 계산 중: {}", userId);
 
-            int score = scoreCalculator.calculateStressScore(userId);
-
-            log.info("스트레스 점수 계산 완료: {}, 사용자: {}", score, userId);
+            int score = healthScoreRepository.getStressScore(userId);
 
             if (params.get("userSeq") == null) {
                 Map<String, String> request = new HashMap<>();

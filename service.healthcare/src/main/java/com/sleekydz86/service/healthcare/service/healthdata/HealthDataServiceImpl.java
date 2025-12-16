@@ -4,6 +4,7 @@ import com.sleekydz86.service.healthcare.client.AuthServiceClient;
 import com.sleekydz86.service.healthcare.common.ServiceResponse;
 import com.sleekydz86.service.healthcare.common.ValidationException;
 import com.sleekydz86.service.healthcare.dto.*;
+import com.sleekydz86.service.healthcare.dto.HealthData;
 import com.sleekydz86.service.healthcare.event.EventPublisher;
 import com.sleekydz86.service.healthcare.event.HealthDataEvent;
 import com.sleekydz86.service.healthcare.eventsourcing.EventStore;
@@ -169,7 +170,7 @@ public class HealthDataServiceImpl implements HealthDataService {
 
     @Override
     @Cacheable(value = "healthInfo", key = "#params['userId'] + '_' + #params['date']")
-    public ServiceResponse<List<Map<String, Object>>> getHealthInfo(Map<String, Object> params) {
+    public ServiceResponse<List<HealthData>> getHealthInfo(Map<String, Object> params) {
         String requestId = UUID.randomUUID().toString();
         String userId = params.get("userId") != null ? params.get("userId").toString() : "unknown";
         MDC.put("userId", userId);
@@ -181,7 +182,10 @@ public class HealthDataServiceImpl implements HealthDataService {
         try {
             healthDataValidator.validate(params);
             log.info("건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, params.get("date"));
-            List<Map<String, Object>> result = healthDataRepository.findHealthInfo(params);
+            List<Map<String, Object>> rawResult = healthDataRepository.findHealthInfo(params);
+            List<HealthData> result = rawResult.stream()
+                    .map(HealthData::new)
+                    .toList();
             log.info("건강 정보 조회 완료: 사용자 {}, 결과 크기: {}", userId, result != null ? result.size() : 0);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
@@ -198,7 +202,7 @@ public class HealthDataServiceImpl implements HealthDataService {
 
     @Override
     @Cacheable(value = "healthInfo", key = "#params['userId'] + '_' + #params['date'] + '_minmax'")
-    public ServiceResponse<List<Map<String, Object>>> getMinMaxHealthInfo(Map<String, Object> params) {
+    public ServiceResponse<List<HealthData>> getMinMaxHealthInfo(Map<String, Object> params) {
         String requestId = UUID.randomUUID().toString();
         String userId = params.get("userId") != null ? params.get("userId").toString() : "unknown";
         MDC.put("userId", userId);
@@ -210,7 +214,10 @@ public class HealthDataServiceImpl implements HealthDataService {
         try {
             healthDataValidator.validate(params);
             log.info("최소/최대 건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, params.get("date"));
-            List<Map<String, Object>> result = healthDataRepository.findMinMaxHealthInfo(params);
+            List<Map<String, Object>> rawResult = healthDataRepository.findMinMaxHealthInfo(params);
+            List<HealthData> result = rawResult.stream()
+                    .map(HealthData::new)
+                    .toList();
             log.info("최소/최대 건강 정보 조회 완료: 사용자 {}, 결과 크기: {}", userId, result != null ? result.size() : 0);
             return ServiceResponse.success(result);
         } catch (ValidationException e) {
@@ -286,21 +293,11 @@ public class HealthDataServiceImpl implements HealthDataService {
     public ServiceResponse<Integer> insertDailyStep(Map<String, Object> params) {
         try {
             healthDataValidator.validate(params);
-            List<Map<String, Object>> dataList = (List<Map<String, Object>>) params.get("data");
-            if (dataList == null || dataList.isEmpty()) {
-                return ServiceResponse.error("데이터 목록이 비어있습니다");
-            }
-
-            for (Map<String, Object> data : dataList) {
-                dataProcessingService.processData(data);
-                params.forEach((key, value) -> {
-                    if (!"data".equals(key)) {
-                        data.put(key, value);
-                    }
-                });
-            }
+            Map<String, Object> processedData = dataProcessingService.processData(params);
 
             int result = 0;
+            List<Map<String, Object>> dataList = (List<Map<String, Object>>) processedData.get("data");
+
             for (Map<String, Object> data : dataList) {
                 result += healthDataRepository.insertDailyStep(data);
             }
@@ -346,14 +343,5 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
     }
 
-    @Override
-    public ServiceResponse<List<Map<String, Object>>> selectList(Map<String, Object> map) {
-        try {
-            List<Map<String, Object>> result = healthDataRepository.selectList(map);
-            return ServiceResponse.success(result);
-        } catch (Exception e) {
-            return ServiceResponse.error("조회 실패: " + e.getMessage());
-        }
-    }
 }
 
