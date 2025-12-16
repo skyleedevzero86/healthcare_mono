@@ -9,7 +9,7 @@ public class Likeboard {
 
     @JoinColumn(name = "community_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    Community commu; //1:1 관계
+    Community commu;
 
     @JoinColumn(name = "user_seq")
     @ManyToOne

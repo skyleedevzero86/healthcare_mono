@@ -48,9 +48,10 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         String errorResponse = String.format(
-                "{\"resultCode\":\"%s\",\"resultMessage\":\"%s\",\"resultData\":null}",
+                "{\"resultCode\":\"%s\",\"resultMessage\":\"%s\",\"resultData\":null,\"timestamp\":\"%s\"}",
                 code,
-                message
+                message,
+                java.time.LocalDateTime.now()
         );
 
         DataBuffer buffer = response.bufferFactory().wrap(errorResponse.getBytes(StandardCharsets.UTF_8));

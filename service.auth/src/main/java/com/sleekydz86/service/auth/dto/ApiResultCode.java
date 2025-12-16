@@ -16,6 +16,8 @@ public enum ApiResultCode {
     UPDATE_FAIL				("3002","Update Fail (update row count : 0)"),
     INSERT_FAIL				("3003","Insert Fail (Insert row count : 0)"),
 
+    INVALID_REQUEST			("1002", "Invalid Request"),
+
     UNKOWN_ERR				("5001", "Unknown Error");
 
     public String code;

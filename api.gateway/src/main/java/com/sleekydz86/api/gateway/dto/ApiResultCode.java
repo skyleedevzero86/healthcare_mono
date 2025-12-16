@@ -9,7 +9,8 @@ public enum ApiResultCode {
     FORBIDDEN("4031", "접근 권한이 없습니다"),
     NOT_FOUND("4041", "리소스를 찾을 수 없습니다"),
     INTERNAL_ERROR("5001", "내부 서버 오류"),
-    SERVICE_UNAVAILABLE("5031", "서비스를 사용할 수 없습니다");
+    SERVICE_UNAVAILABLE("5031", "서비스를 사용할 수 없습니다"),
+    INVALID_REQUEST("1002", "잘못된 요청");
 
     public final String code;
     public final String message;
@@ -18,4 +19,6 @@ public enum ApiResultCode {
         this.code = code;
         this.message = message;
     }
+
+    public static ApiResultCode UNKOWN_ERR = INTERNAL_ERROR;
 }

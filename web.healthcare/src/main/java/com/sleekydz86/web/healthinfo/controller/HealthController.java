@@ -82,9 +82,9 @@ public class HealthController {
                 session.removeAttribute("rfToken");
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("실시간 생체 데이터 조회 중 오류 발생", e);
         }
         return result;
     }
@@ -117,9 +117,9 @@ public class HealthController {
             log.info("ash realtime param " + str);
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("실시간 생체 데이터 조회 중 오류 발생", e);
         }
         return result;
     }
@@ -255,9 +255,9 @@ public class HealthController {
                 session.removeAttribute("rfToken");
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("실시간 생체 데이터 조회 중 오류 발생", e);
         }
         return result;
     }

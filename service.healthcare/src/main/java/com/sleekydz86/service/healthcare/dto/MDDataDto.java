@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class MDDataDto {
     private String userId;
+    private Integer userSeq;
     private int heartrateMin;
     private int heartrateMax;
     private int heartrateAvg;

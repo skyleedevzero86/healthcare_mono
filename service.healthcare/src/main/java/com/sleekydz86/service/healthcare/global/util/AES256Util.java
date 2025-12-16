@@ -1,5 +1,7 @@
 package com.sleekydz86.service.healthcare.global.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,52 +11,74 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+@Slf4j
 public class AES256Util {
 
     private AES256Util() {
     }
 
-    private static final byte[] KEY = {
-            103, 102, 48, 57, 88, 69, 55, 104,
-            56, 118, 75, 53, 101, 86, 113, 52,
-            70, 87, 85, 97, 104, 54, 80, 113,
-            65, 110, 57, 100, 106, 107, 68, 81
-    };
-    private static final byte[] IV = {
-            75, 74, 100, 48, 108, 99, 53, 121,
-            111, 117, 99, 55, 115, 49, 57, 50
-    };
+    private static byte[] getKey() {
+        String keyEnv = System.getenv("ENCRYPTION_AES256_KEY");
+        if (keyEnv == null || keyEnv.isEmpty()) {
+            keyEnv = System.getProperty("encryption.aes256.key");
+        }
+        if (keyEnv == null || keyEnv.isEmpty()) {
+            throw new IllegalStateException("AES256 encryption key is not configured. Set ENCRYPTION_AES256_KEY environment variable or encryption.aes256.key system property.");
+        }
+        if (keyEnv.length() != 32) {
+            throw new IllegalStateException("AES256 encryption key must be 32 bytes (256 bits).");
+        }
+        return keyEnv.getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static byte[] getIv() {
+        String ivEnv = System.getenv("ENCRYPTION_AES256_IV");
+        if (ivEnv == null || ivEnv.isEmpty()) {
+            ivEnv = System.getProperty("encryption.aes256.iv");
+        }
+        if (ivEnv == null || ivEnv.isEmpty()) {
+            throw new IllegalStateException("AES256 encryption IV is not configured. Set ENCRYPTION_AES256_IV environment variable or encryption.aes256.iv system property.");
+        }
+        if (ivEnv.length() != 16) {
+            throw new IllegalStateException("AES256 encryption IV must be 16 bytes (128 bits).");
+        }
+        return ivEnv.getBytes(StandardCharsets.UTF_8);
+    }
 
     public static String encrypt(final String str) {
         try {
-            SecretKey secretKey = new SecretKeySpec(KEY, "AES");
+            byte[] keyBytes = getKey();
+            byte[] ivBytes = getIv();
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(IV));
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(ivBytes));
             byte[] encrypted = cipher.doFinal(str.getBytes(StandardCharsets.UTF_8));
 
             return new String(Base64.getEncoder().encode(encrypted));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException
                 | InvalidKeyException | BadPaddingException | IllegalBlockSizeException encE) {
-            System.err.println(encE);
+            log.error("AES256 암호화 오류", encE);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("AES256 암호화 중 예상치 못한 오류", e);
         }
         return "";
     }
 
     public static String decrypt(final String str) {
         try {
-            SecretKey secretKey = new SecretKeySpec(KEY, "AES");
+            byte[] keyBytes = getKey();
+            byte[] ivBytes = getIv();
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(IV));
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(ivBytes));
             byte[] decrypted = Base64.getDecoder().decode(str.getBytes(StandardCharsets.UTF_8));
 
             return new String(cipher.doFinal(decrypted), StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException
                 | InvalidKeyException | BadPaddingException | IllegalBlockSizeException decE) {
-            System.err.println(decE);
+            log.error("AES256 복호화 오류", decE);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("AES256 복호화 중 예상치 못한 오류", e);
         }
         return "";
     }

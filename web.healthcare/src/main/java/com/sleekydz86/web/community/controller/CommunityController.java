@@ -94,9 +94,9 @@ public class CommunityController {
             }
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("커뮤니티 조회 중 오류 발생", e);
         }
 
         return result;

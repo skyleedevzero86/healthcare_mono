@@ -160,4 +160,13 @@
           AND UM.BIRTH_ENC = #{birthEnc}
           AND UA.USE_YN = 'Y'
     </select>
+
+    <select id="getUserSeq" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT
+            USER_SEQ
+        FROM
+            USER_MNG
+        WHERE
+            USER_ID = #{userId}
+    </select>
 </mapper>

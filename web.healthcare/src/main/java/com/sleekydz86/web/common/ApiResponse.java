@@ -2,16 +2,24 @@ package com.sleekydz86.web.common;
 
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+
 public class ApiResponse<T> {
 
     private int status;
     private String message;
     private T data;
+    private LocalDateTime timestamp;
 
     public ApiResponse(HttpStatus status, String message, T data) {
         this.status = status.value();
         this.message = message;
         this.data = data;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(HttpStatus.OK, "Success", data);
     }
 
     public static <T> ApiResponse<T> of(HttpStatus status, T data) {
@@ -19,8 +27,15 @@ public class ApiResponse<T> {
         return new ApiResponse<>(status, message, data);
     }
 
-    private static String getDefaultMessageForStatusCode(HttpStatus status) {
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+    }
 
+    public static <T> ApiResponse<T> error(String errorCode, String message) {
+        return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+    }
+
+    private static String getDefaultMessageForStatusCode(HttpStatus status) {
         switch (status) {
             case OK:
                 return "Operation succeeded";
@@ -57,5 +72,9 @@ public class ApiResponse<T> {
 
     public T getData() {
         return data;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 }

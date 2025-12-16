@@ -1,19 +1,41 @@
 ﻿package com.sleekydz86.api.gateway.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
-@Data @Builder
+import java.time.LocalDateTime;
+
+@Slf4j
+@Data
+@Builder
 public class ApiResponse {
 
     private String resultCode;
     private String resultMessage;
     private Object resultData;
+    private LocalDateTime timestamp;
+
+    public static <T> ApiResponse<T> success(T data) {
+        return ApiResponse.<T>builder()
+                .resultCode(ApiResultCode.SUCCESS.getCode())
+                .resultMessage(ApiResultCode.SUCCESS.getMessage())
+                .resultData(data)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 
     public static String error(ApiResultCode errorCode) {
-        return response(errorCode.code, errorCode.message, null);
+        return response(errorCode.getCode(), errorCode.getMessage(), null);
+    }
+
+    public static String error(ApiResultCode errorCode, String customMessage) {
+        return response(errorCode.getCode(), customMessage, null);
+    }
+
+    public static String error(String errorCode, String message) {
+        return response(errorCode, message, null);
     }
 
     private static String response(String code, String message, Object data) {
@@ -21,18 +43,18 @@ public class ApiResponse {
                 .resultCode(code)
                 .resultMessage(message)
                 .resultData(data)
+                .timestamp(LocalDateTime.now())
                 .build();
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.writeValueAsString(apiResponse);
-        }catch (Exception e) {
-            e.printStackTrace();
-            return "{\r\n" +
-                    "    \"resultCode\": \"" + ApiResultCode.UNKOWN_ERR.code + "\",\r\n" +
-                    "    \"resultMessage\": \"" + ApiResultCode.UNKOWN_ERR.message + "\",\r\n" +
-                    "    \"resultData\": null\r\n" +
-                    "}";
+        } catch (Exception e) {
+            log.error("ApiResponse 직렬화 실패", e);
+            return String.format(
+                    "{\"resultCode\":\"%s\",\"resultMessage\":\"%s\",\"resultData\":null,\"timestamp\":null}",
+                    ApiResultCode.INTERNAL_ERROR.getCode(),
+                    ApiResultCode.INTERNAL_ERROR.getMessage()
+            );
         }
-
     }
 }

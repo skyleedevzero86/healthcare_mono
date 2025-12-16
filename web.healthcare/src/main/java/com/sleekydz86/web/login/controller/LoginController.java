@@ -5,7 +5,7 @@ import com.sleekydz86.web.global.util.AES256Util;
 import com.sleekydz86.web.global.util.GatewayUtils;
 import com.sleekydz86.web.global.util.ImagesUtil;
 import com.sleekydz86.web.global.util.JwtTokenUtils;
-import com.sleekydz86.web.global.util.Sha256;
+import com.sleekydz86.web.global.service.PasswordService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 @Slf4j
@@ -43,6 +42,9 @@ public class LoginController {
 
     @Autowired
     JwtTokenUtils jwtTokenUtils;
+
+    @Autowired
+    PasswordService passwordService;
 
     @GetMapping("/signin")
     public String singin(HttpServletRequest req, HttpServletResponse res, HttpSession session,
@@ -87,11 +89,7 @@ public class LoginController {
         for (String str : map.keySet()) {
             if (str.equals("userPwEnc")) {
                 String passwd = (String) map.get("userPwEnc");
-                try {
-                    passwd = Sha256.encryt(passwd);
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
+                passwd = passwordService.encode(passwd);
                 body.put(str, passwd);
             } else if (str.equals("birthEnc") || str.equals("telNumEnc")) {
                 body.put(str, AES256Util.encrypt((String) map.get(str)));
@@ -113,9 +111,9 @@ public class LoginController {
         try {
             str = (String) GatewayUtils.post(new URL(authUri + version + "/signup"), null, body.toString());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("잘못된 URL: {}", authUri + version + "/signup", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("회원가입 요청 중 오류 발생", e);
         }
         JSONObject result = new JSONObject(str);
         model.addAttribute("result", result);
@@ -136,7 +134,7 @@ public class LoginController {
         model.addAttribute("url", req.getRequestURL());
 
         JSONObject body = new JSONObject();
-        String passwd = Sha256.encryt((String) map.get("userPwEnc"));
+        String passwd = passwordService.encode((String) map.get("userPwEnc"));
 
         for (String str : map.keySet()) {
             if (str.equals("userPwEnc")) {

@@ -191,6 +191,21 @@ public class UserController {
         }
     }
 
+    @PostMapping("/v1/getUserSeq")
+    public ResponseEntity<ApiResponse> getUserSeq(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        if (userId == null || userId.isEmpty()) {
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+        }
+        Integer userSeq = userService.getUserSeq(userId);
+        if (userSeq == null) {
+            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("userSeq", userSeq);
+        return ApiResponse.ok(result);
+    }
+
     @PostMapping("/v1/refresh")
     public ResponseEntity<ApiResponse> refresh(HttpServletRequest req) throws Exception {
         String accessToken = "";

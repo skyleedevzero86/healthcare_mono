@@ -24,3 +24,10 @@ token:
   secret: ${JWT_SECRET:healthcare-lifelink-jwt-secret-key-for-authentication-service-2025-prod}
   access-expired-time: 1800000
   refresh-expired-time: 604800000
+
+encryption:
+  aes:
+    key: ${AES_ENCRYPTION_KEY}
+    iv: ${AES_IV}
+  jwt:
+    secret: ${JWT_SECRET}

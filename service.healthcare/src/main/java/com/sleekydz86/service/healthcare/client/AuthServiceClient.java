@@ -18,5 +18,8 @@ public interface AuthServiceClient {
     
     @PostMapping("/getUserInfo")
     Map<String, Object> getUserInfo(@RequestBody Map<String, Object> request);
+
+    @PostMapping("/getUserSeq")
+    Map<String, Object> getUserSeq(@RequestBody Map<String, String> request);
 }
 

@@ -6,6 +6,8 @@ public class MinuteDataDto {
 
     private String userId;
 
+    private Integer userSeq;
+
     private String tid;
 
     private String time;
@@ -44,6 +46,14 @@ public class MinuteDataDto {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Integer getUserSeq() {
+        return userSeq;
+    }
+
+    public void setUserSeq(Integer userSeq) {
+        this.userSeq = userSeq;
     }
 
     public String getTid() {

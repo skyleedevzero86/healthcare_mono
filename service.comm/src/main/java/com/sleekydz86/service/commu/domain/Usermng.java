@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import java.util.Date;
 
-@Entity //이클래스를 테이블과 매핑
+@Entity
 @Table(name = "user_mng")
 @Getter
 @RequiredArgsConstructor

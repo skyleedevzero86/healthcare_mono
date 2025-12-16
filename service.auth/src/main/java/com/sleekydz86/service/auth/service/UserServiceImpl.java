@@ -5,10 +5,14 @@ import com.sleekydz86.service.auth.dto.*;
 import com.sleekydz86.service.auth.event.EventPublisher;
 import com.sleekydz86.service.auth.event.UserEvent;
 import com.sleekydz86.service.auth.mapper.UserMapper;
+import com.sleekydz86.service.auth.metrics.AuthMetrics;
 import com.sleekydz86.service.auth.provider.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import io.micrometer.core.instrument.Timer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
@@ -18,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -26,50 +31,100 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final EventPublisher eventPublisher;
     private final com.sleekydz86.service.auth.security.TokenBlacklistService tokenBlacklistService;
+    private final AuthMetrics authMetrics;
 
     public Map<Object, Object> signin(SigninDto user) throws Exception {
-        UserDto dto = userMapper.signin(user);
-        if (dto == null) {
-            throw new AuthenticationException();
-        }
-        String userId = user.getUserId();
-        String userRole = dto.getUserRoleFk();
-        String source = user.getSource();
-        JwtTokenDto tokenInfo = jwtTokenProvider.generateToken(userId, userRole, source);
-        ObjectMapper mapper = new ObjectMapper();
-        Map<Object, Object> map = mapper.convertValue(tokenInfo, HashMap.class);
-        map.put("userId", dto.getUserId());
-        map.put("userNm", dto.getUserNm());
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("userId", user.getUserId());
+        MDC.put("requestId", requestId);
+        MDC.put("operation", "signin");
+        
+        authMetrics.incrementSigninAttempts();
+        Timer.Sample sample = authMetrics.startSigninProcessingTimer();
+        
+        try {
+            log.info("사용자 로그인 처리 중: {}", user.getUserId());
+            
+            UserDto dto = userMapper.signin(user);
+            if (dto == null) {
+                authMetrics.incrementSigninFailure();
+                log.error("로그인 실패 - 사용자를 찾을 수 없음: {}", user.getUserId());
+                throw new AuthenticationException();
+            }
+            String userId = user.getUserId();
+            String userRole = dto.getUserRoleFk();
+            String source = user.getSource();
+            JwtTokenDto tokenInfo = jwtTokenProvider.generateToken(userId, userRole, source);
+            ObjectMapper mapper = new ObjectMapper();
+            Map<Object, Object> map = mapper.convertValue(tokenInfo, HashMap.class);
+            map.put("userId", dto.getUserId());
+            map.put("userNm", dto.getUserNm());
 
-        userMapper.updateToken(userId, userRole, source, tokenInfo.getRefreshToken());
-        
-        UserEvent loginEvent = new UserEvent(
-            UUID.randomUUID().toString(),
-            "USER_LOGIN",
-            userId,
-            Map.of("role", userRole, "source", source),
-            LocalDateTime.now()
-        );
-        eventPublisher.publishUserEvent(loginEvent);
-        
-        return map;
+            userMapper.updateToken(userId, userRole, source, tokenInfo.getRefreshToken());
+            
+            authMetrics.incrementSigninSuccess();
+            authMetrics.incrementTokenGenerated();
+            
+            UserEvent loginEvent = new UserEvent(
+                UUID.randomUUID().toString(),
+                "USER_LOGIN",
+                userId,
+                Map.of("role", userRole, "source", source),
+                LocalDateTime.now()
+            );
+            eventPublisher.publishUserEvent(loginEvent);
+            
+            log.info("로그인 처리 완료: {}", userId);
+            return map;
+        } catch (Exception e) {
+            authMetrics.incrementSigninFailure();
+            log.error("로그인 처리 중 오류 발생: {}", user.getUserId(), e);
+            throw e;
+        } finally {
+            sample.stop(authMetrics.getSigninProcessingTime());
+            MDC.clear();
+        }
     }
 
     public int signup(SignupDto user) throws Exception {
-        int result = userMapper.signup(user);
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("userId", user.getUserId());
+        MDC.put("requestId", requestId);
+        MDC.put("operation", "signup");
         
-        if (result > 0) {
-            UserEvent signupEvent = new UserEvent(
-                UUID.randomUUID().toString(),
-                "USER_CREATED",
-                user.getUserId(),
-                user,
-                LocalDateTime.now()
-            );
-            eventPublisher.publishUserEvent(signupEvent);
+        authMetrics.incrementSignupAttempts();
+        Timer.Sample sample = authMetrics.startSignupProcessingTimer();
+        
+        try {
+            log.info("회원가입 처리 중: {}", user.getUserId());
+            
+            int result = userMapper.signup(user);
+            
+            if (result > 0) {
+                authMetrics.incrementSignupSuccess();
+                
+                UserEvent signupEvent = new UserEvent(
+                    UUID.randomUUID().toString(),
+                    "USER_CREATED",
+                    user.getUserId(),
+                    user,
+                    LocalDateTime.now()
+                );
+                eventPublisher.publishUserEvent(signupEvent);
+                
+                log.info("회원가입 처리 완료: {}", user.getUserId());
+            } else {
+                log.warn("회원가입 실패 - 데이터베이스 삽입 결과 0: {}", user.getUserId());
+            }
+            
+            return result;
+        } catch (Exception e) {
+            log.error("회원가입 처리 중 오류 발생: {}", user.getUserId(), e);
+            throw e;
+        } finally {
+            sample.stop(authMetrics.getSignupProcessingTime());
+            MDC.clear();
         }
-        
-        return result;
     }
 
     public boolean duplicateId(UserDto dto) {
@@ -89,49 +144,90 @@ public class UserServiceImpl implements UserService {
     }
 
     public void logout(String token) throws Exception {
-        jwtTokenProvider.validateToken(token);
-        Claims claims = jwtTokenProvider.parseClaims(token);
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
+        MDC.put("operation", "logout");
+        
+        try {
+            jwtTokenProvider.validateToken(token);
+            Claims claims = jwtTokenProvider.parseClaims(token);
 
-        String userId = (String) claims.get("id");
-        String userRole = (String) claims.get("role");
-        String source = (String) claims.get("source");
-        userMapper.updateToken(userId, userRole, source, null);
-        
-        long expirationTime = claims.getExpiration() != null 
-            ? claims.getExpiration().getTime() - System.currentTimeMillis()
-            : 3600000;
-        if (expirationTime > 0) {
-            tokenBlacklistService.addToBlacklist(token, expirationTime);
+            String userId = (String) claims.get("id");
+            String userRole = (String) claims.get("role");
+            String source = (String) claims.get("source");
+            
+            MDC.put("userId", userId != null ? userId : "unknown");
+            
+            log.info("로그아웃 처리 중: {}", userId);
+            
+            userMapper.updateToken(userId, userRole, source, null);
+            
+            long expirationTime = claims.getExpiration() != null 
+                ? claims.getExpiration().getTime() - System.currentTimeMillis()
+                : 3600000;
+            if (expirationTime > 0) {
+                tokenBlacklistService.addToBlacklist(token, expirationTime);
+            }
+            
+            authMetrics.incrementLogoutCount();
+            
+            UserEvent logoutEvent = new UserEvent(
+                UUID.randomUUID().toString(),
+                "USER_LOGOUT",
+                userId,
+                Map.of("role", userRole, "source", source),
+                LocalDateTime.now()
+            );
+            eventPublisher.publishUserEvent(logoutEvent);
+            
+            log.info("로그아웃 처리 완료: {}", userId);
+        } catch (Exception e) {
+            log.error("로그아웃 처리 중 오류 발생", e);
+            throw e;
+        } finally {
+            MDC.clear();
         }
-        
-        UserEvent logoutEvent = new UserEvent(
-            UUID.randomUUID().toString(),
-            "USER_LOGOUT",
-            userId,
-            Map.of("role", userRole, "source", source),
-            LocalDateTime.now()
-        );
-        eventPublisher.publishUserEvent(logoutEvent);
     }
 
     public JwtTokenDto refresh(String accessToken, String refreshToken) throws Exception {
-        Claims claims = jwtTokenProvider.parseClaims(accessToken);
-        String userId = (String) claims.get("id");
-        String userRole = (String) claims.get("role");
-        String source = (String) claims.get("source");
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
+        MDC.put("operation", "refresh");
+        
+        try {
+            Claims claims = jwtTokenProvider.parseClaims(accessToken);
+            String userId = (String) claims.get("id");
+            String userRole = (String) claims.get("role");
+            String source = (String) claims.get("source");
+            
+            MDC.put("userId", userId != null ? userId : "unknown");
+            
+            log.info("토큰 갱신 처리 중: {}", userId);
 
-        String originRefreshToken = userMapper.selectRefreshToken(userId, userRole, source);
-        if (originRefreshToken == null || "".equals(originRefreshToken)) {
-            throw new AuthenticationException();
-        }
+            String originRefreshToken = userMapper.selectRefreshToken(userId, userRole, source);
+            if (originRefreshToken == null || "".equals(originRefreshToken)) {
+                log.error("유효하지 않은 리프레시 토큰 - 토큰을 찾을 수 없음: {}", userId);
+                throw new AuthenticationException();
+            }
 
-        jwtTokenProvider.validateRefreshToken(refreshToken);
-        if (originRefreshToken.equals(refreshToken)) {
-            JwtTokenDto tokenInfo = jwtTokenProvider.generateToken(userId, userRole, source);
-            userMapper.updateToken(userId, userRole, source, tokenInfo.getRefreshToken());
-            return tokenInfo;
-        } else {
-            throw new AuthenticationException();
+            jwtTokenProvider.validateRefreshToken(refreshToken);
+            if (originRefreshToken.equals(refreshToken)) {
+                JwtTokenDto tokenInfo = jwtTokenProvider.generateToken(userId, userRole, source);
+                userMapper.updateToken(userId, userRole, source, tokenInfo.getRefreshToken());
+                
+                authMetrics.incrementTokenRefreshed();
+                
+                log.info("토큰 갱신 완료: {}", userId);
+                return tokenInfo;
+            } else {
+                log.error("유효하지 않은 리프레시 토큰 - 토큰 불일치: {}", userId);
+                throw new AuthenticationException();
+            }
+        } catch (Exception e) {
+            log.error("토큰 갱신 중 오류 발생", e);
+            throw e;
+        } finally {
+            MDC.clear();
         }
     }
 
@@ -165,6 +261,10 @@ public class UserServiceImpl implements UserService {
 
     public int updateUserPw(FindDto dto) {
         return userMapper.updateUserPw(dto);
+    }
+
+    public Integer getUserSeq(String userId) {
+        return userMapper.getUserSeq(userId);
     }
 
 }

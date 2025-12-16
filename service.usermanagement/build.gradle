@@ -47,6 +47,7 @@ dependencies {
 
     // Spring Boot Actuator (모니터링)
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-core")
 
     // Database & MyBatis
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -82,6 +83,9 @@ dependencies {
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
     // RabbitMQ for Event-Driven Architecture
     implementation("org.springframework.boot:spring-boot-starter-amqp")
+    
+    // Redis for Caching
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // Lombok
     compileOnly("org.projectlombok:lombok")
@@ -90,6 +94,10 @@ dependencies {
     // Test Dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.assertj:assertj-core")
     testImplementation("junit:junit:4.13.2")
 
     // SQL Logging

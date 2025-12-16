@@ -8,6 +8,8 @@ import lombok.Setter;
 public class ScoreDto {
 
     private String userId;
+
+    private Integer userSeq;
     private String scoreField;
     private double userScore;
     private String date;

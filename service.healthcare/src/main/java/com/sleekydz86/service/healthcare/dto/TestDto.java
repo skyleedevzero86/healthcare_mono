@@ -13,6 +13,8 @@ public class TestDto {
 
     private String userId;
 
+    private Integer userSeq;
+
     private String time;
 
     private int heartrate;
