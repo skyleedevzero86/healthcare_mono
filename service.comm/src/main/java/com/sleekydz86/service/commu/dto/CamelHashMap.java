@@ -18,3 +18,4 @@ public class CamelHashMap<K, V> extends HashMap<Object, Object> {
     }
 
 }
+

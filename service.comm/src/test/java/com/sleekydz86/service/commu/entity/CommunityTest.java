@@ -215,3 +215,4 @@ class CommunityTest {
         assertThat(community.getUserNm()).isEqualTo(emptyUserNm);
     }
 }
+
