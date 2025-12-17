@@ -26,12 +26,12 @@ public class AuthService {
     public AuthResponse authenticate(LoginRequest request) {
         Map<String, Object> userMap = userMapper.findByUsername(request.getUsername());
         if (userMap == null || userMap.isEmpty()) {
-            throw new RuntimeException("Invalid credentials");
+            throw new RuntimeException("유효하지 않은 인증 정보");
         }
 
         String storedPassword = (String) userMap.get("userPw");
         if (!passwordEncoder.matches(request.getPassword(), storedPassword)) {
-            throw new RuntimeException("Invalid credentials");
+            throw new RuntimeException("유효하지 않은 인증 정보");
         }
 
         String userId = (String) userMap.get("userId");

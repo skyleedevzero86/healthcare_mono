@@ -19,6 +19,8 @@ public class SigninDto {
     @NotEmpty
     private String userPwEnc;
 
+    private String userPw;
+
     private String userRoleFk;
 
     @NotEmpty

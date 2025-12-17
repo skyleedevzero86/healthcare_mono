@@ -52,6 +52,12 @@ public class HikariConfig {
         config.addDataSourceProperty("elideSetAutoCommits", "true");
         config.addDataSourceProperty("maintainTimeStats", "false");
         
+        config.addDataSourceProperty("ssl", "true");
+        config.addDataSourceProperty("sslmode", "require");
+        config.addDataSourceProperty("sslfactory", "org.postgresql.ssl.DefaultJavaSSLFactory");
+        config.addDataSourceProperty("encrypt", "true");
+        config.addDataSourceProperty("trustServerCertificate", "true");
+        
         return new HikariDataSource(config);
     }
 }

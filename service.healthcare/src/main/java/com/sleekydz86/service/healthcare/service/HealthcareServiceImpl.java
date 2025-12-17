@@ -5,6 +5,8 @@ import com.sleekydz86.service.healthcare.event.EventPublisher;
 import com.sleekydz86.service.healthcare.event.HealthDataEvent;
 import com.sleekydz86.service.healthcare.eventsourcing.EventStore;
 import com.sleekydz86.service.healthcare.global.mapper.HealthcareMapper;
+import com.sleekydz86.service.healthcare.global.util.HealthcareEncryptionUtil;
+import com.sleekydz86.service.healthcare.global.util.HealthcareEncryptionUtil.KeyType;
 import com.sleekydz86.service.healthcare.metrics.HealthcareMetrics;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +71,27 @@ public class HealthcareServiceImpl implements HealthcareService {
                 log.error("사용자 시퀀스를 찾을 수 없음: {}", dto.getUserId());
                 throw new IllegalStateException("사용자 시퀀스를 찾을 수 없습니다. 사용자 ID: " + dto.getUserId());
             }
+
+            if (dto.getSpo2() != 0) {
+                dto.setSpo2Enc(HealthcareEncryptionUtil.encrypt(
+                    String.valueOf(dto.getSpo2()),
+                    KeyType.HEALTH
+                ));
+            }
+            if (dto.getHeartrate() != 0) {
+                dto.setHeartrateEnc(HealthcareEncryptionUtil.encrypt(
+                    String.valueOf(dto.getHeartrate()),
+                    KeyType.HEALTH
+                ));
+            }
+            if (dto.getBloodpressMin() != 0 || dto.getBloodpressMax() != 0) {
+                String bloodpress = dto.getBloodpressMin() + "/" + dto.getBloodpressMax();
+                dto.setBloodpressEnc(HealthcareEncryptionUtil.encrypt(
+                    bloodpress,
+                    KeyType.HEALTH
+                ));
+            }
+
             int result = healthcareMapper.insMinuteData(dto);
 
             if (result > 0) {
@@ -195,6 +218,30 @@ public class HealthcareServiceImpl implements HealthcareService {
         try {
             log.info("건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, map.get("date"));
             List<Map<String, Object>> result = healthcareMapper.healthInfo(map);
+
+            if (result != null) {
+                for (Map<String, Object> data : result) {
+                    if (data.get("spo2Enc") != null) {
+                        data.put("spo2", HealthcareEncryptionUtil.decrypt(
+                            (String) data.get("spo2Enc"),
+                            KeyType.HEALTH
+                        ));
+                    }
+                    if (data.get("heartrateEnc") != null) {
+                        data.put("heartrate", HealthcareEncryptionUtil.decrypt(
+                            (String) data.get("heartrateEnc"),
+                            KeyType.HEALTH
+                        ));
+                    }
+                    if (data.get("bloodpressEnc") != null) {
+                        data.put("bloodpress", HealthcareEncryptionUtil.decrypt(
+                            (String) data.get("bloodpressEnc"),
+                            KeyType.HEALTH
+                        ));
+                    }
+                }
+            }
+
             log.info("건강 정보 조회 완료: 사용자 {}, 결과 크기: {}", userId, result != null ? result.size() : 0);
             return result;
         } catch (Exception e) {

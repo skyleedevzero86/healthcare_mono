@@ -12,10 +12,17 @@ spring:
   cloud:
     config:
       server:
+        encrypt:
+          enabled: true
         git:
           uri: file:///D:/intel/2005/healthcare_mono/
           search-paths: gits
           default-label: main
+        bootstrap: true
+  security:
+    user:
+      name: config-admin
+      password: ${CONFIG_ADMIN_PASSWORD:healthcare_config_2025}
 
 management:
   endpoints:

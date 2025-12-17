@@ -9,6 +9,8 @@ import com.sleekydz86.service.usermanagement.dto.UserhealthDto;
 import com.sleekydz86.service.usermanagement.global.mapper.UserMapper;
 import com.sleekydz86.service.usermanagement.global.util.PaginationInfo;
 import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
+import com.sleekydz86.service.usermanagement.global.util.HealthcareEncryptionUtil;
+import com.sleekydz86.service.usermanagement.global.util.HealthcareEncryptionUtil.KeyType;
 import com.sleekydz86.service.usermanagement.metrics.UserManagementMetrics;
 import io.micrometer.core.instrument.Timer;
 import jakarta.validation.Valid;
@@ -144,6 +146,19 @@ public class UserServiceImpl implements UserService {
                         result.put("guardian", res);
                     }
                 }
+
+                if (result.get("birthEnc") != null) {
+                    result.put("birthDecrypted", HealthcareEncryptionUtil.decrypt(
+                        (String) result.get("birthEnc"),
+                        KeyType.USER
+                    ));
+                }
+                if (result.get("telNumEnc") != null) {
+                    result.put("telNumDecrypted", HealthcareEncryptionUtil.decrypt(
+                        (String) result.get("telNumEnc"),
+                        KeyType.USER
+                    ));
+                }
             }
             
             log.info("사용자 정보 조회 완료: {}", userId);
@@ -170,6 +185,13 @@ public class UserServiceImpl implements UserService {
         
         try {
             log.info("사용자 정보 업데이트 중: {}", userId);
+            
+            if (dto.getBirthEnc() != null) {
+                dto.setBirthEnc(HealthcareEncryptionUtil.encrypt(dto.getBirthEnc(), KeyType.USER));
+            }
+            if (dto.getTelNumEnc() != null) {
+                dto.setTelNumEnc(HealthcareEncryptionUtil.encrypt(dto.getTelNumEnc(), KeyType.USER));
+            }
             
             ArrayList<Map<String, Object>> result = new ArrayList<>();
             String str = dto.getGuardian();

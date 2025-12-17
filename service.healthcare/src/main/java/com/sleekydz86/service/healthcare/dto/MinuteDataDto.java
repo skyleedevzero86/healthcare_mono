@@ -26,6 +26,12 @@ public class MinuteDataDto {
 
     private int bloodpressMax;
 
+    private String spo2Enc;
+
+    private String heartrateEnc;
+
+    private String bloodpressEnc;
+
     private int repiratory;
 
     private int sleep;
@@ -126,6 +132,30 @@ public class MinuteDataDto {
 
     public void setBloodpressMax(int bloodpressMax) {
         this.bloodpressMax = bloodpressMax;
+    }
+
+    public String getSpo2Enc() {
+        return spo2Enc;
+    }
+
+    public void setSpo2Enc(String spo2Enc) {
+        this.spo2Enc = spo2Enc;
+    }
+
+    public String getHeartrateEnc() {
+        return heartrateEnc;
+    }
+
+    public void setHeartrateEnc(String heartrateEnc) {
+        this.heartrateEnc = heartrateEnc;
+    }
+
+    public String getBloodpressEnc() {
+        return bloodpressEnc;
+    }
+
+    public void setBloodpressEnc(String bloodpressEnc) {
+        this.bloodpressEnc = bloodpressEnc;
     }
 
     public int getRepiratory() {

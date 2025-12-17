@@ -1,7 +1,21 @@
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:keystore/healthcare-keystore.p12
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:healthcare_ssl_2025}
+    key-store-type: PKCS12
+    key-alias: healthcare
+    trust-store: classpath:keystore/healthcare-truststore.p12
+    trust-store-password: ${SSL_TRUSTSTORE_PASSWORD:healthcare_trust_2025}
+    trust-store-type: PKCS12
+  port: 8443
+  http2:
+    enabled: true
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:healthcare_usermanagement}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:healthcare_usermanagement}?ssl=true&sslmode=require
     username: ${DB_USERNAME:healthcare_usermanagement_user}
     password: ${DB_PASSWORD:healthcare_usermanagement_pass}
     hikari:
@@ -10,6 +24,10 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      data-source-properties:
+        ssl: true
+        sslmode: require
+        sslfactory: org.postgresql.ssl.DefaultJavaSSLFactory
 
 logging:
   level:
