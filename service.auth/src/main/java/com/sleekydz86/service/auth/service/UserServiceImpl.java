@@ -7,6 +7,8 @@ import com.sleekydz86.service.auth.event.UserEvent;
 import com.sleekydz86.service.auth.mapper.UserMapper;
 import com.sleekydz86.service.auth.metrics.AuthMetrics;
 import com.sleekydz86.service.auth.provider.JwtTokenProvider;
+import com.sleekydz86.service.auth.security.HealthcareEncryptionUtil;
+import com.sleekydz86.service.auth.security.HealthcareEncryptionUtil.KeyType;
 import io.jsonwebtoken.Claims;
 import io.micrometer.core.instrument.Timer;
 import jakarta.validation.Valid;
@@ -51,6 +53,20 @@ public class UserServiceImpl implements UserService {
                 log.error("로그인 실패 - 사용자를 찾을 수 없음: {}", user.getUserId());
                 throw new AuthenticationException();
             }
+
+            if (user.getUserPw() != null && dto.getUserSalt() != null) {
+                String hashedPassword = HealthcareEncryptionUtil.hashPassword(
+                    user.getUserPw(),
+                    dto.getUserSalt()
+                );
+
+                if (!hashedPassword.equals(dto.getUserPwEnc())) {
+                    authMetrics.incrementSigninFailure();
+                    log.error("로그인 실패 - 비밀번호 불일치: {}", user.getUserId());
+                    throw new AuthenticationException();
+                }
+            }
+
             String userId = user.getUserId();
             String userRole = dto.getUserRoleFk();
             String source = user.getSource();
@@ -60,7 +76,11 @@ public class UserServiceImpl implements UserService {
             map.put("userId", dto.getUserId());
             map.put("userNm", dto.getUserNm());
 
-            userMapper.updateToken(userId, userRole, source, tokenInfo.getRefreshToken());
+            String encryptedRefreshToken = HealthcareEncryptionUtil.encrypt(
+                tokenInfo.getRefreshToken(),
+                KeyType.AUTH
+            );
+            userMapper.updateToken(userId, userRole, source, encryptedRefreshToken);
             
             authMetrics.incrementSigninSuccess();
             authMetrics.incrementTokenGenerated();
@@ -97,6 +117,20 @@ public class UserServiceImpl implements UserService {
         
         try {
             log.info("회원가입 처리 중: {}", user.getUserId());
+            
+            if (user.getUserPw() != null) {
+                String salt = HealthcareEncryptionUtil.generateSalt();
+                String hashedPassword = HealthcareEncryptionUtil.hashPassword(user.getUserPw(), salt);
+                user.setUserPwEnc(hashedPassword);
+                user.setUserSalt(salt);
+            }
+
+            if (user.getBirthEnc() != null) {
+                user.setBirthEnc(HealthcareEncryptionUtil.encrypt(user.getBirthEnc(), KeyType.USER));
+            }
+            if (user.getTelNumEnc() != null) {
+                user.setTelNumEnc(HealthcareEncryptionUtil.encrypt(user.getTelNumEnc(), KeyType.USER));
+            }
             
             int result = userMapper.signup(user);
             

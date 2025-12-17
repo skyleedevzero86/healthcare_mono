@@ -135,7 +135,7 @@ public class UserInfoController {
             for (Map<String, Object> d : (ArrayList<Map<String, Object>>) result.get("list")) {
                 birth = AES256Util.decrypt((String) d.get("birthEnc"));
                 d.put("birthEnc", birth);
-                userAge = 2024 - Integer.parseInt(birth.substring(0, 4));
+                userAge = LocalDate.now().getYear() - Integer.parseInt(birth.substring(0, 4));
                 d.put("userAge", userAge);
                 d.put("telNumEnc", AES256Util.decrypt((String) d.get("telNumEnc")));
                 d.put("age", userAge);

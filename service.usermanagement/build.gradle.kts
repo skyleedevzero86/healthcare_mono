@@ -1,13 +1,12 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.5.6'
-    id 'io.spring.dependency-management' version '1.1.7'
+    java
+    id("org.springframework.boot") version "3.5.6"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = 'com.sleekydz86'
-version = '0.0.1-SNAPSHOT'
-description = 'service.usermanagement'
-
+group = "com.sleekydz86"
+version = "0.0.1-SNAPSHOT"
+description = "service.usermanagement"
 
 java {
     toolchain {
@@ -19,79 +18,46 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    springCloudVersion = '2025.0.0'
-}
+extra["springCloudVersion"] = "2025.0.0"
 
 configurations {
     all {
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
 }
 
 dependencies {
-    // Spring Boot Web Starter
     implementation("org.springframework.boot:spring-boot-starter-web")
-
-    // Spring Boot Security (JWT 인증/인가)
     implementation("org.springframework.boot:spring-boot-starter-security")
-
-    // Spring Boot Validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
-
-    // Spring Cloud
     implementation("org.springframework.cloud:spring-cloud-starter")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-
-    // Spring Boot Actuator (모니터링)
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-core")
-
-    // Database & MyBatis
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2")
-
-    // Database Drivers
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
-
-    // Logging
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16")
-
-    // JSON Processing
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("org.json:json:20200518")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
-
-    // HTTP Client
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
-
-    // Utilities
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.codehaus.janino:janino:3.1.9")
-
-    // Circuit Breaker (Resilience4j)
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    // Distributed Tracing
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
-    // RabbitMQ for Event-Driven Architecture
     implementation("org.springframework.boot:spring-boot-starter-amqp")
-    
-    // Redis for Caching
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
-    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-
-    // Test Dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:testcontainers")
@@ -99,25 +65,26 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.assertj:assertj-core")
     testImplementation("junit:junit:4.13.2")
-
-    // SQL Logging
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
+    implementation("org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter:5.4.1")
+    implementation("org.springframework.kafka:spring-kafka")
 }
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
     }
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
 
-tasks.withType(Test) {
+tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.named('bootRun') {
-    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dspring.profiles.active=dev']
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    jvmArgs = listOf("-Dfile.encoding=UTF-8", "-Dspring.profiles.active=dev")
 }
+

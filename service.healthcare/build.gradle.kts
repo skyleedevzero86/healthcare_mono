@@ -6,7 +6,7 @@ plugins {
 
 group = "com.sleekydz86"
 version = "0.0.1-SNAPSHOT"
-description = "service.usermanagement"
+description = "service.healthcare"
 
 java {
     toolchain {
@@ -69,6 +69,8 @@ dependencies {
     testImplementation("org.assertj:assertj-core")
     testImplementation("junit:junit:4.13.2")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
+    implementation("org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter:5.4.1")
+    implementation("org.springframework.kafka:spring-kafka")
 }
 
 dependencyManagement {

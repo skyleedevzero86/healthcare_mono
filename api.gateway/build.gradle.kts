@@ -4,9 +4,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com"
+group = "com.sleekydz86"
 version = "0.0.1-SNAPSHOT"
-description = "service.commu"
+description = "api.gateway"
 
 java {
     toolchain {
@@ -32,10 +32,15 @@ dependencies {
     implementation ("org.springframework.cloud:spring-cloud-starter-config")
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
     implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+    implementation ("org.springframework.kafka:spring-kafka")
+    implementation ("com.fasterxml.jackson.core:jackson-databind")
     implementation ("org.projectlombok:lombok")
     annotationProcessor ("org.projectlombok:lombok")
     implementation ("org.springframework.boot:spring-boot-starter-validation")
     implementation ("org.springframework.boot:spring-boot-starter-log4j2")
+    implementation ("org.springframework.boot:spring-boot-starter-security")
+    implementation ("org.springframework.security:spring-security-oauth2-resource-server")
+    implementation ("org.springframework.security:spring-security-oauth2-jose")
     // JWT
     implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")

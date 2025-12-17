@@ -22,6 +22,10 @@ public class SignupDto {
     @NotEmpty
     private String userPwEnc;
 
+    private String userPw;
+
+    private String userSalt;
+
     @NotEmpty
     private String userNm;
 

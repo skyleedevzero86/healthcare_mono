@@ -33,7 +33,7 @@ public class EventHandlerImpl implements EventHandler {
             log.debug("이벤트 처리 완료: eventId={}", event.getEventId());
         } catch (Exception e) {
             log.error("이벤트 처리 중 오류 발생: eventId={}", event.getEventId(), e);
-            throw new RuntimeException("이벤트 처리 실패", e);
+            throw new com.sleekydz86.service.healthcare.exception.BusinessException("이벤트 처리 실패", e, com.sleekydz86.service.healthcare.dto.ApiResultCode.UNKOWN_ERR);
         }
     }
 

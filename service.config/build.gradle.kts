@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.sleekydz86"
-version = "0.1"
+version = "0.0.1-SNAPSHOT"
 description = "service.discovery"
 
 java {
@@ -24,6 +24,7 @@ dependencies {
     implementation ("org.springframework.cloud:spring-cloud-config-server")
     //cloud bus
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation ("io.micrometer:micrometer-core")
     implementation ("org.springframework.cloud:spring-cloud-starter-bus-amqp")
     implementation ("org.springframework.cloud:spring-cloud-starter-bootstrap")
     // Distributed Tracing

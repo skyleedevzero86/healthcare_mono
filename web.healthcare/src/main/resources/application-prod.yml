@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8443
   servlet:
     context-path: /
     encoding:
@@ -10,10 +10,22 @@ server:
     uri-encoding: UTF-8
     max-threads: 200
     min-spare-threads: 10
+  ssl:
+    enabled: true
+    key-store: classpath:keystore/healthcare-keystore.p12
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:healthcare_ssl_2025}
+    key-store-type: PKCS12
+    key-alias: healthcare
+    trust-store: classpath:keystore/healthcare-truststore.p12
+    trust-store-password: ${SSL_TRUSTSTORE_PASSWORD:healthcare_trust_2025}
+    trust-store-type: PKCS12
+  http2:
+    enabled: true
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/healthcare_prod
+    url: jdbc:postgresql://localhost:5432/healthcare_prod?ssl=true&sslmode=require
     username: ${DB_USERNAME:healthcare_user}
     password: ${DB_PASSWORD:healthcare_pass}
     hikari:
@@ -22,15 +34,10 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+      data-source-properties:
+        ssl: true
+        sslmode: require
+        sslfactory: org.postgresql.ssl.DefaultJavaSSLFactory
 
 # 운영 환경 로깅
 logging:

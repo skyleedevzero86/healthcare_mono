@@ -8,7 +8,6 @@ import com.sleekydz86.service.commu.dto.CommunityRequestDto;
 import com.sleekydz86.service.commu.service.CommunityService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +21,13 @@ import java.util.Map;
 @Validated
 public class CommunityController {
 
-    @Autowired
-    CommunityService communityService;
-    @Autowired
-    com.sleekydz86.service.commu.util.InputSanitizer inputSanitizer;
+    private final CommunityService communityService;
+    private final com.sleekydz86.service.commu.util.InputSanitizer inputSanitizer;
+
+    public CommunityController(CommunityService communityService, com.sleekydz86.service.commu.util.InputSanitizer inputSanitizer) {
+        this.communityService = communityService;
+        this.inputSanitizer = inputSanitizer;
+    }
 
     @PostMapping("writeBoard")
     public ResponseEntity<ApiResponse> writeBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
@@ -127,6 +129,33 @@ public class CommunityController {
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("게시글 수정 중 오류 발생", e);
+            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+        }
+    }
+
+    @PostMapping("deleteBoard")
+    public ResponseEntity<ApiResponse> deleteBoard(@Valid @RequestBody Map<String, Object> map) {
+        try {
+            Object commuSeqObj = map.get("commuSeq");
+            if (commuSeqObj == null) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            int commuSeq;
+            try {
+                commuSeq = Integer.parseInt(commuSeqObj.toString());
+            } catch (NumberFormatException e) {
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            }
+            
+            int result = communityService.deleteBoard(commuSeq);
+            
+            if (result == 1) {
+                return ApiResponse.ok();
+            } else {
+                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+            }
+        } catch (Exception e) {
+            log.error("게시글 삭제 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
         }
     }

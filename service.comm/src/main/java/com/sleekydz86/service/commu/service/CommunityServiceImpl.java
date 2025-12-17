@@ -9,7 +9,6 @@ import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -117,6 +116,74 @@ public class CommunityServiceImpl implements CommunityService {
             throw e;
         } finally {
             sample.stop(communityMetrics.getBoardQueryTime());
+            MDC.clear();
+        }
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "community", allEntries = true)
+    public int updateBoard(Community community) {
+        String requestId = UUID.randomUUID().toString();
+        String userId = community.getUserId() != null ? String.valueOf(community.getUserId()) : "unknown";
+        MDC.put("userId", userId);
+        MDC.put("requestId", requestId);
+        MDC.put("operation", "updateBoard");
+        MDC.put("commuSeq", String.valueOf(community.getCommuSeq()));
+        
+        communityMetrics.incrementBoardPostsUpdated();
+        Timer.Sample sample = communityMetrics.startBoardPostProcessingTimer();
+        
+        try {
+            log.info("게시글 수정 중: 사용자 {}, 게시글 번호: {}", userId, community.getCommuSeq());
+            
+            int result = communityRepository.updateBoard(community);
+            
+            if (result > 0) {
+                log.info("게시글 수정 완료: 사용자 {}, 게시글 번호: {}", userId, community.getCommuSeq());
+            } else {
+                log.warn("게시글 수정 실패 - 게시글을 찾을 수 없음: {}", community.getCommuSeq());
+            }
+            
+            return result;
+        } catch (Exception e) {
+            log.error("게시글 수정 중 오류 발생: 사용자 {}, 게시글 번호: {}", userId, community.getCommuSeq(), e);
+            throw e;
+        } finally {
+            sample.stop(communityMetrics.getBoardPostProcessingTime());
+            MDC.clear();
+        }
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "community", allEntries = true)
+    public int deleteBoard(int commuSeq) {
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
+        MDC.put("operation", "deleteBoard");
+        MDC.put("commuSeq", String.valueOf(commuSeq));
+        
+        communityMetrics.incrementBoardPostsDeleted();
+        Timer.Sample sample = communityMetrics.startBoardPostProcessingTimer();
+        
+        try {
+            log.info("게시글 삭제 중: {}", commuSeq);
+            
+            int result = communityRepository.deleteBoard(commuSeq);
+            
+            if (result > 0) {
+                log.info("게시글 삭제 완료: {}", commuSeq);
+            } else {
+                log.warn("게시글 삭제 실패 - 게시글을 찾을 수 없음: {}", commuSeq);
+            }
+            
+            return result;
+        } catch (Exception e) {
+            log.error("게시글 삭제 중 오류 발생: {}", commuSeq, e);
+            throw e;
+        } finally {
+            sample.stop(communityMetrics.getBoardPostProcessingTime());
             MDC.clear();
         }
     }

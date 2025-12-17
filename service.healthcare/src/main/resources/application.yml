@@ -88,6 +88,16 @@ spring:
       base-url: http://localhost:9411
     sampler:
       probability: 1.0
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
@@ -122,3 +132,18 @@ chatgpt:
   api:
     url: ${CHATGPT_API_URL:https://api.openai.com/v1/chat/completions}
     key: ${CHATGPT_API_KEY:}
+
+sharding:
+  datasource:
+    ds0:
+      url: ${SHARDING_DS0_URL:jdbc:postgresql://shard0-db:5432/healthcare}
+    ds1:
+      url: ${SHARDING_DS1_URL:jdbc:postgresql://shard1-db:5432/healthcare}
+    ds2:
+      url: ${SHARDING_DS2_URL:jdbc:postgresql://shard2-db:5432/healthcare}
+    ds3:
+      url: ${SHARDING_DS3_URL:jdbc:postgresql://shard3-db:5432/healthcare}
+    username: ${SHARDING_DATASOURCE_USERNAME:healthcare_user}
+    password: ${SHARDING_DATASOURCE_PASSWORD:healthcare_pass}
+    maximum-pool-size: ${SHARDING_DATASOURCE_MAX_POOL_SIZE:20}
+    minimum-idle: ${SHARDING_DATASOURCE_MIN_IDLE:5}

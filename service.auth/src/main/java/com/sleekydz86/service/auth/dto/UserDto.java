@@ -19,6 +19,8 @@ public class UserDto {
 
     private String userPwEnc;
 
+    private String userSalt;
+
     private String userRoleFk;
 
     private String birthEnc;
