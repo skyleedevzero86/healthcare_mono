@@ -1,16 +1,16 @@
 plugins {
-    id("java")
+    java
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.sleekydz86"
 version = "0.0.1-SNAPSHOT"
-description = "service.healthcare"
+description = "service.auth"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -40,6 +40,9 @@ dependencies {
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16")
     implementation("com.fasterxml.jackson.core:jackson-databind")
@@ -51,12 +54,11 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.codehaus.janino:janino:3.1.9")
-    // Circuit Breaker (Resilience4j)
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    // Distributed Tracing
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
-    // RabbitMQ for Event-Driven Architecture
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     compileOnly("org.projectlombok:lombok")
@@ -69,8 +71,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core")
     testImplementation("junit:junit:4.13.2")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
-    implementation("org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter:5.4.1")
-    implementation("org.springframework.kafka:spring-kafka")
 }
 
 dependencyManagement {
@@ -90,3 +90,4 @@ tasks.withType<Test> {
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
     jvmArgs = listOf("-Dfile.encoding=UTF-8", "-Dspring.profiles.active=dev")
 }
+

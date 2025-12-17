@@ -4,7 +4,6 @@ import com.sleekydz86.service.auth.dto.AuthResponse;
 import com.sleekydz86.service.auth.dto.LoginRequest;
 import com.sleekydz86.service.auth.dto.TokenRequest;
 import com.sleekydz86.service.auth.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,24 +15,22 @@ import java.time.Duration;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+    private final org.springframework.data.redis.core.RedisTemplate<String, Object> redisTemplate;
 
-    @Autowired
-    private org.springframework.data.redis.core.RedisTemplate<String, Object> redisTemplate;
+    public AuthController(AuthService authService, org.springframework.data.redis.core.RedisTemplate<String, Object> redisTemplate) {
+        this.authService = authService;
+        this.redisTemplate = redisTemplate;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        try {
-            AuthResponse response = authService.authenticate(request);
+        AuthResponse response = authService.authenticate(request);
 
-            String sessionKey = "session:" + response.getToken();
-            redisTemplate.opsForValue().set(sessionKey, response.getUser(), Duration.ofHours(24));
+        String sessionKey = "session:" + response.getToken();
+        redisTemplate.opsForValue().set(sessionKey, response.getUser(), Duration.ofHours(24));
 
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/validate")

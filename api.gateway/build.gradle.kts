@@ -4,9 +4,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com"
+group = "com.sleekydz86"
 version = "0.0.1-SNAPSHOT"
-description = "service.commu"
+description = "api.gateway"
 
 java {
     toolchain {

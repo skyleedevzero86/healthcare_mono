@@ -2,7 +2,7 @@ package com.sleekydz86.service.healthcare.service.sharding;
 
 import com.sleekydz86.service.healthcare.entity.Appointment;
 import com.sleekydz86.service.healthcare.repository.AppointmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,13 +11,11 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class AppointmentShardingService {
 
-    @Autowired
-    private AppointmentRepository appointmentRepository;
-
-    @Autowired
-    private ShardingKeyGenerator shardingKeyGenerator;
+    private final AppointmentRepository appointmentRepository;
+    private final ShardingKeyGenerator shardingKeyGenerator;
 
     public Appointment createAppointment(Appointment appointment) {
         if (appointment.getDateHash() == null && appointment.getAppointmentDate() != null) {

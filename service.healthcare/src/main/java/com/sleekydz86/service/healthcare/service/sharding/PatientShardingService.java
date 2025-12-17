@@ -2,7 +2,7 @@ package com.sleekydz86.service.healthcare.service.sharding;
 
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,13 +11,11 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class PatientShardingService {
 
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private ShardingKeyGenerator shardingKeyGenerator;
+    private final PatientRepository patientRepository;
+    private final ShardingKeyGenerator shardingKeyGenerator;
 
     public Patient createPatient(Patient patient) {
         String regionId = patient.getRegionId();

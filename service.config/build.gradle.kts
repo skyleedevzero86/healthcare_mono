@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.sleekydz86"
-version = "0.1"
+version = "0.0.1-SNAPSHOT"
 description = "service.discovery"
 
 java {

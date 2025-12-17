@@ -4,7 +4,6 @@ import com.sleekydz86.api.gateway.client.AuthClient;
 import com.sleekydz86.api.gateway.client.HealthcareClient;
 import com.sleekydz86.api.gateway.client.TokenRequest;
 import com.sleekydz86.api.gateway.dto.Patient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +16,13 @@ import java.util.Map;
 @RequestMapping("/api")
 public class GatewayController {
 
-    @Autowired
-    private HealthcareClient healthcareClient;
+    private final HealthcareClient healthcareClient;
+    private final AuthClient authClient;
 
-    @Autowired
-    private AuthClient authClient;
+    public GatewayController(HealthcareClient healthcareClient, AuthClient authClient) {
+        this.healthcareClient = healthcareClient;
+        this.authClient = authClient;
+    }
 
     @GetMapping("/healthcare/patients/{id}")
     public ResponseEntity<Patient> getPatient(@PathVariable Long id,

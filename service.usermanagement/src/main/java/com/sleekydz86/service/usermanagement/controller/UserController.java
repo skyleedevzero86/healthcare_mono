@@ -3,7 +3,6 @@ package com.sleekydz86.service.usermanagement.controller;
 import com.sleekydz86.service.usermanagement.entity.User;
 import com.sleekydz86.service.usermanagement.service.user.UserManagementService;
 import com.sleekydz86.service.usermanagement.service.cache.CacheService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +11,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
-    private UserManagementService userManagementService;
+    private final UserManagementService userManagementService;
+    private final CacheService cacheService;
 
-    @Autowired
-    private CacheService cacheService;
+    public UserController(UserManagementService userManagementService, CacheService cacheService) {
+        this.userManagementService = userManagementService;
+        this.cacheService = cacheService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {

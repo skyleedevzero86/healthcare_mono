@@ -2,20 +2,18 @@ package com.sleekydz86.service.healthcare.service.cache;
 
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
 @Service
+@RequiredArgsConstructor
 public class PatientCacheService {
 
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final PatientRepository patientRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String PATIENT_CACHE_PREFIX = "patient:";
     private static final Duration CACHE_TTL = Duration.ofHours(24);

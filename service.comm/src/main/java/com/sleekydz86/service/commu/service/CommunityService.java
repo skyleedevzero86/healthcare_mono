@@ -6,9 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface CommunityService {
-    public int writeBoard(Community community);
+    int writeBoard(Community community);
 
-    public Community findBoard(int commuSeq);
+    Community findBoard(int commuSeq);
 
-    public List<Community> findBoardList(Map<String,Object> map);
+    List<Community> findBoardList(Map<String,Object> map);
+    
+    int updateBoard(Community community);
+    
+    int deleteBoard(int commuSeq);
 }

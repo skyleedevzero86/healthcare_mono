@@ -2,16 +2,16 @@ package com.sleekydz86.service.healthcare.core.readmodel;
 
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class PatientReadModelRepositoryImpl implements PatientReadModelRepository {
 
-    @Autowired
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
 
     @Override
     public Optional<PatientReadModel> findByPatientId(String patientId) {

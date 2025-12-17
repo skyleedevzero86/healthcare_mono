@@ -1,11 +1,12 @@
 package com.sleekydz86.service.auth.service;
 
+import com.sleekydz86.service.auth.dto.ApiResultCode;
 import com.sleekydz86.service.auth.dto.AuthResponse;
 import com.sleekydz86.service.auth.dto.LoginRequest;
 import com.sleekydz86.service.auth.dto.User;
+import com.sleekydz86.service.auth.exception.BusinessException;
 import com.sleekydz86.service.auth.mapper.UserMapper;
 import com.sleekydz86.service.auth.provider.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +15,25 @@ import java.util.Map;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthService(UserMapper userMapper, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder) {
+        this.userMapper = userMapper;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public AuthResponse authenticate(LoginRequest request) {
         Map<String, Object> userMap = userMapper.findByUsername(request.getUsername());
         if (userMap == null || userMap.isEmpty()) {
-            throw new RuntimeException("유효하지 않은 인증 정보");
+            throw new BusinessException("유효하지 않은 인증 정보", ApiResultCode.AUTH_ERR);
         }
 
         String storedPassword = (String) userMap.get("userPw");
         if (!passwordEncoder.matches(request.getPassword(), storedPassword)) {
-            throw new RuntimeException("유효하지 않은 인증 정보");
+            throw new BusinessException("유효하지 않은 인증 정보", ApiResultCode.AUTH_ERR);
         }
 
         String userId = (String) userMap.get("userId");

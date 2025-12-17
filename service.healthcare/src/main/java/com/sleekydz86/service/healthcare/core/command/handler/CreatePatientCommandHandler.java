@@ -4,22 +4,22 @@ import com.sleekydz86.api.gateway.cqrs.command.CommandHandler;
 import com.sleekydz86.service.healthcare.core.command.CreatePatientCommand;
 import com.sleekydz86.service.healthcare.core.event.EventPublisher;
 import com.sleekydz86.service.healthcare.core.event.PatientCreatedEvent;
+import com.sleekydz86.service.healthcare.dto.ApiResultCode;
 import com.sleekydz86.service.healthcare.entity.Patient;
+import com.sleekydz86.service.healthcare.exception.BusinessException;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CompletableFuture;
 
 @Component
+@RequiredArgsConstructor
 public class CreatePatientCommandHandler implements CommandHandler<CreatePatientCommand, String> {
 
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private EventPublisher eventPublisher;
+    private final PatientRepository patientRepository;
+    private final EventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -50,7 +50,7 @@ public class CreatePatientCommandHandler implements CommandHandler<CreatePatient
 
                 return command.getPatientId();
             } catch (Exception e) {
-                throw new RuntimeException("환자 생성 실패", e);
+                throw new BusinessException("환자 생성 실패", e, ApiResultCode.UNKOWN_ERR);
             }
         });
     }

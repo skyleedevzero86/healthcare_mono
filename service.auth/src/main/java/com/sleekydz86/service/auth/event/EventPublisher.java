@@ -1,5 +1,7 @@
 ﻿package com.sleekydz86.service.auth.event;
 
+import com.sleekydz86.service.auth.dto.ApiResultCode;
+import com.sleekydz86.service.auth.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -24,7 +26,7 @@ public class EventPublisher {
                 event.getEventId(), event.getEventType(), event.getUserId());
         } catch (Exception e) {
             log.error("사용자 이벤트 발행 실패", e);
-            throw new RuntimeException("이벤트 발행 실패", e);
+            throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 }

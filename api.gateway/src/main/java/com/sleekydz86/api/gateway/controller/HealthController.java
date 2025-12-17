@@ -1,6 +1,5 @@
 package com.sleekydz86.api.gateway.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +16,11 @@ import java.util.Map;
 @RequestMapping("/actuator")
 public class HealthController {
 
-    @Autowired
-    private ReactiveRedisConnectionFactory redisConnectionFactory;
+    private final ReactiveRedisConnectionFactory redisConnectionFactory;
+
+    public HealthController(ReactiveRedisConnectionFactory redisConnectionFactory) {
+        this.redisConnectionFactory = redisConnectionFactory;
+    }
 
     @GetMapping("/health")
     public Mono<ResponseEntity<Map<String, Object>>> health() {

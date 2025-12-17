@@ -4,7 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com"
+group = "com.sleekydz86"
 version = "0.0.1-SNAPSHOT"
 description = "service.commu"
 
@@ -32,7 +32,10 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.postgresql:postgresql")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("org.apache.commons:commons-lang3:3.14.0")

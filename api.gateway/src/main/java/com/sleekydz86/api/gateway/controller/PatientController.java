@@ -4,7 +4,6 @@ import com.sleekydz86.api.gateway.cqrs.command.CommandBus;
 import com.sleekydz86.api.gateway.cqrs.query.QueryBus;
 import com.sleekydz86.service.healthcare.core.command.CreatePatientCommand;
 import com.sleekydz86.service.healthcare.core.query.GetPatientQuery;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,11 +13,13 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/api/patients")
 public class PatientController {
 
-    @Autowired
-    private CommandBus commandBus;
+    private final CommandBus commandBus;
+    private final QueryBus queryBus;
 
-    @Autowired
-    private QueryBus queryBus;
+    public PatientController(CommandBus commandBus, QueryBus queryBus) {
+        this.commandBus = commandBus;
+        this.queryBus = queryBus;
+    }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<String>> createPatient(@RequestBody CreatePatientRequest request) {

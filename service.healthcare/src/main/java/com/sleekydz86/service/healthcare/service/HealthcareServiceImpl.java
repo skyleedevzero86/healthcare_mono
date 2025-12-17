@@ -30,9 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HealthcareServiceImpl implements HealthcareService {
 
-    @Autowired
-    HealthcareMapper healthcareMapper;
-
+    private final HealthcareMapper healthcareMapper;
     private final EventPublisher eventPublisher;
     private final EventStore eventStore;
     private final com.sleekydz86.service.healthcare.client.AuthServiceClient authServiceClient;

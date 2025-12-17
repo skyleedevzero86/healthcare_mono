@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import java.util.Date;
 
+@Entity
+@Table(name = "health_community")
 @Getter @Setter
 public class Community {
 

@@ -4,7 +4,7 @@ import com.sleekydz86.service.healthcare.entity.MedicalRecord;
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.repository.MedicalRecordRepository;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,16 +14,12 @@ import java.time.Duration;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CacheService {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private MedicalRecordRepository medicalRecordRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final PatientRepository patientRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
 
     @Cacheable(value = "patients", key = "#patientId", unless = "#result == null")
     public Patient getPatient(Long patientId) {

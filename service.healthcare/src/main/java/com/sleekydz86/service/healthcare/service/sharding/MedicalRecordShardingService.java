@@ -2,7 +2,7 @@ package com.sleekydz86.service.healthcare.service.sharding;
 
 import com.sleekydz86.service.healthcare.entity.MedicalRecord;
 import com.sleekydz86.service.healthcare.repository.MedicalRecordRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +11,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class MedicalRecordShardingService {
 
-    @Autowired
-    private MedicalRecordRepository medicalRecordRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
 
     public MedicalRecord createMedicalRecord(MedicalRecord medicalRecord) {
         return medicalRecordRepository.save(medicalRecord);

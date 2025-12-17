@@ -2,7 +2,6 @@
 
 import com.sleekydz86.api.gateway.dto.ApiResultCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -24,8 +23,11 @@ import java.util.Set;
 @Component
 public class RoleBasedAccessFilter implements GlobalFilter, Ordered {
 
-    @Autowired(required = false)
-    private com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac;
+    private final com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac;
+
+    public RoleBasedAccessFilter(com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac) {
+        this.rbac = rbac;
+    }
 
     private static final Set<String> PUBLIC_PATHS = new HashSet<>(Arrays.asList(
         "/auth/v1/signin",

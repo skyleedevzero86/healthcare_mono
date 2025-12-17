@@ -4,7 +4,6 @@ import com.sleekydz86.web.client.HealthcareClient;
 import com.sleekydz86.web.client.UserClient;
 import com.sleekydz86.web.dto.User;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,11 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class WebController {
 
-    @Autowired
-    private HealthcareClient healthcareClient;
+    private final HealthcareClient healthcareClient;
+    private final UserClient userClient;
 
-    @Autowired
-    private UserClient userClient;
+    public WebController(HealthcareClient healthcareClient, UserClient userClient) {
+        this.healthcareClient = healthcareClient;
+        this.userClient = userClient;
+    }
 
     @GetMapping("/")
     public String index(Model model) {

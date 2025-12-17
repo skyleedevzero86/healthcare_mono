@@ -1,6 +1,5 @@
 package com.sleekydz86.service.auth.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +17,13 @@ import java.util.Map;
 @RequestMapping("/actuator")
 public class HealthController {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final DataSource dataSource;
 
-    @Autowired
-    private DataSource dataSource;
+    public HealthController(RedisTemplate<String, Object> redisTemplate, DataSource dataSource) {
+        this.redisTemplate = redisTemplate;
+        this.dataSource = dataSource;
+    }
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {

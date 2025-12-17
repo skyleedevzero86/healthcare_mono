@@ -3,17 +3,17 @@ package com.sleekydz86.service.healthcare.core.events.handler;
 import com.sleekydz86.service.healthcare.core.event.PatientCreatedEvent;
 import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModel;
 import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class PatientEventHandler {
 
-    @Autowired
-    private PatientReadModelRepository patientReadModelRepository;
+    private final PatientReadModelRepository patientReadModelRepository;
 
     @KafkaListener(topics = "healthcare-events", groupId = "healthcare-service")
     public void handlePatientCreated(PatientCreatedEvent event) {

@@ -6,16 +6,16 @@ import com.sleekydz86.api.gateway.saga.SagaStepResult;
 import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.service.PatientService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
 
 @Component
+@RequiredArgsConstructor
 public class CreatePatientStep implements SagaStep {
 
-    @Autowired
-    private PatientService patientService;
+    private final PatientService patientService;
 
     @Override
     public CompletableFuture<SagaStepResult> execute(Saga saga) {

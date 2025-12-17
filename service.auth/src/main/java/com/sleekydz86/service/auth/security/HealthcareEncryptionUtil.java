@@ -1,5 +1,8 @@
 package com.sleekydz86.service.auth.security;
 
+import com.sleekydz86.service.auth.dto.ApiResultCode;
+import com.sleekydz86.service.auth.exception.BusinessException;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,7 +45,7 @@ public class HealthcareEncryptionUtil {
 
             return Base64.getEncoder().encodeToString(encryptedWithIv);
         } catch (Exception e) {
-            throw new RuntimeException("암호화 실패", e);
+            throw new BusinessException("암호화 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 
@@ -65,7 +68,7 @@ public class HealthcareEncryptionUtil {
             byte[] plainText = cipher.doFinal(cipherText);
             return new String(plainText, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException("복호화 실패", e);
+            throw new BusinessException("복호화 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 
@@ -89,7 +92,7 @@ public class HealthcareEncryptionUtil {
             byte[] hashedBytes = md.digest();
             return Base64.getEncoder().encodeToString(hashedBytes);
         } catch (Exception e) {
-            throw new RuntimeException("해시 생성 실패", e);
+            throw new BusinessException("해시 생성 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 

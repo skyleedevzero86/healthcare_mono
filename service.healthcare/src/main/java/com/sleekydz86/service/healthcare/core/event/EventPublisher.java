@@ -1,15 +1,17 @@
 package com.sleekydz86.service.healthcare.core.event;
 
+import com.sleekydz86.service.healthcare.dto.ApiResultCode;
+import com.sleekydz86.service.healthcare.exception.BusinessException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class EventPublisher {
     
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
     
     @Value("${spring.rabbitmq.exchange:healthcare.exchange}")
     private String exchange;
@@ -19,7 +21,7 @@ public class EventPublisher {
             String routingKey = "patient." + event.getClass().getSimpleName().toLowerCase();
             rabbitTemplate.convertAndSend(exchange, routingKey, event);
         } catch (Exception e) {
-            throw new RuntimeException("이벤트 발행 실패", e);
+            throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 }

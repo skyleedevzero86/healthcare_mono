@@ -3,7 +3,9 @@ package com.sleekydz86.service.healthcare.core.eventsourcing;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.api.gateway.eventsourcing.DomainEvent;
 import com.sleekydz86.service.healthcare.core.event.EventPublisher;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sleekydz86.service.healthcare.dto.ApiResultCode;
+import com.sleekydz86.service.healthcare.exception.BusinessException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,14 +14,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class EventStore {
 
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private EventPublisher eventPublisher;
-
+    private final EventRepository eventRepository;
+    private final EventPublisher eventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -48,7 +47,7 @@ public class EventStore {
                 }
 
             } catch (Exception e) {
-                throw new RuntimeException("이벤트 저장 실패", e);
+                throw new BusinessException("이벤트 저장 실패", e, ApiResultCode.UNKOWN_ERR);
             }
         });
     }
@@ -66,7 +65,7 @@ public class EventStore {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (Exception e) {
-            throw new RuntimeException("이벤트 직렬화 실패", e);
+            throw new BusinessException("이벤트 직렬화 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 
@@ -76,7 +75,7 @@ public class EventStore {
             Class<? extends DomainEvent> eventClass = getEventClass(eventType);
             return objectMapper.readValue(eventEntity.getEventData(), eventClass);
         } catch (Exception e) {
-            throw new RuntimeException("이벤트 역직렬화 실패", e);
+            throw new BusinessException("이벤트 역직렬화 실패", e, ApiResultCode.UNKOWN_ERR);
         }
     }
 

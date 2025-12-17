@@ -1,6 +1,5 @@
 package com.sleekydz86.api.gateway.saga;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,11 +9,13 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class SagaOrchestrator {
 
-    @Autowired
-    private SagaRepository sagaRepository;
+    private final SagaRepository sagaRepository;
+    private final List<SagaStep> sagaSteps;
 
-    @Autowired
-    private List<SagaStep> sagaSteps;
+    public SagaOrchestrator(SagaRepository sagaRepository, List<SagaStep> sagaSteps) {
+        this.sagaRepository = sagaRepository;
+        this.sagaSteps = sagaSteps;
+    }
 
     public CompletableFuture<SagaResult> executeSaga(Saga saga) {
         return CompletableFuture.supplyAsync(() -> {

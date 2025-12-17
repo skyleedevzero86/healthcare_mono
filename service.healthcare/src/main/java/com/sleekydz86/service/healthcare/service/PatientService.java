@@ -4,7 +4,6 @@ import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
 import com.sleekydz86.service.healthcare.service.cache.CacheService;
 import com.sleekydz86.service.healthcare.service.sharding.PatientShardingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,14 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PatientService {
 
-    @Autowired
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
+    private final PatientShardingService shardingService;
+    private final CacheService cacheService;
 
-    @Autowired
-    private PatientShardingService shardingService;
-
-    @Autowired
-    private CacheService cacheService;
+    public PatientService(PatientRepository patientRepository, PatientShardingService shardingService, CacheService cacheService) {
+        this.patientRepository = patientRepository;
+        this.shardingService = shardingService;
+        this.cacheService = cacheService;
+    }
 
     public Patient createPatient(Patient patient) {
         Patient createdPatient = shardingService.createPatient(patient);
