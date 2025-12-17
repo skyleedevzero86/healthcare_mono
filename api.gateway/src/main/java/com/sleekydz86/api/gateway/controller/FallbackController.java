@@ -54,5 +54,25 @@ public class FallbackController {
         response.put("resultData", null);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
+    
+    @GetMapping("/comm")
+    public ResponseEntity<Map<String, Object>> commFallback() {
+        log.warn("Communication Service Circuit Breaker 활성화 - Fallback 응답");
+        Map<String, Object> response = new HashMap<>();
+        response.put("resultCode", "5031");
+        response.put("resultMessage", "커뮤니케이션 서비스가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.");
+        response.put("resultData", null);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+    
+    @GetMapping("/usermanagement")
+    public ResponseEntity<Map<String, Object>> usermanagementFallback() {
+        log.warn("User Management Service Circuit Breaker 활성화 - Fallback 응답");
+        Map<String, Object> response = new HashMap<>();
+        response.put("resultCode", "5031");
+        response.put("resultMessage", "사용자 관리 서비스가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.");
+        response.put("resultData", null);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
 }
 

@@ -9,18 +9,25 @@ import com.sleekydz86.service.usermanagement.dto.UserDto;
 import com.sleekydz86.service.usermanagement.global.util.PaginationInfo;
 import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
 import com.sleekydz86.service.usermanagement.metrics.UserManagementMetrics;
+import com.sleekydz86.service.usermanagement.entity.User;
+import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
 import com.sleekydz86.service.usermanagement.repository.UserRepository;
+import com.sleekydz86.service.usermanagement.service.cache.CacheService;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -30,6 +37,15 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final UserRepository userRepository;
     private final PagingUtil pagingUtil;
     private final UserManagementMetrics userManagementMetrics;
+
+    @Autowired
+    private UserJpaRepository userJpaRepository;
+
+    @Autowired
+    private CacheService cacheService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Cacheable(value = "userList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
@@ -268,6 +284,44 @@ public class UserManagementServiceImpl implements UserManagementService {
         } finally {
             MDC.clear();
         }
+    }
+
+    @Override
+    @Transactional
+    public User createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User createdUser = userJpaRepository.save(user);
+        cacheService.cacheUserData(createdUser);
+        return createdUser;
+    }
+
+    @Override
+    public User getUser(Long id) {
+        User user = cacheService.getCachedUser(id);
+        if (user != null) {
+            return user;
+        }
+        Optional<User> optionalUser = userJpaRepository.findById(id);
+        user = optionalUser.orElse(null);
+        if (user != null) {
+            cacheService.cacheUserData(user);
+        }
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public User updateUser(User user) {
+        User updatedUser = userJpaRepository.save(user);
+        cacheService.cacheUserData(updatedUser);
+        return updatedUser;
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        userJpaRepository.deleteById(id);
+        cacheService.removeUserFromCache(id);
     }
 }
 

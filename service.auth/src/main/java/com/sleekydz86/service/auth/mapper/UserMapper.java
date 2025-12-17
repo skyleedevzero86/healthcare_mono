@@ -49,4 +49,6 @@ public interface UserMapper {
 
     Integer getUserSeq(@Param("userId") String userId);
 
+    Map<String, Object> findByUsername(@Param("username") String username);
+
 }

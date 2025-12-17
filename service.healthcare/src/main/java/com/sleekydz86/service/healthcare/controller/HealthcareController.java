@@ -3,8 +3,13 @@ package com.sleekydz86.service.healthcare.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.healthcare.common.ServiceResponse;
 import com.sleekydz86.service.healthcare.dto.*;
+import com.sleekydz86.service.healthcare.entity.MedicalRecord;
+import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.service.ChatService;
+import com.sleekydz86.service.healthcare.service.MedicalRecordService;
+import com.sleekydz86.service.healthcare.service.PatientService;
 import com.sleekydz86.service.healthcare.service.ai.AIResponseService;
+import com.sleekydz86.service.healthcare.service.cache.CacheService;
 import com.sleekydz86.service.healthcare.service.chart.ChartDataService;
 import com.sleekydz86.service.healthcare.service.community.CommunityService;
 import com.sleekydz86.service.healthcare.service.healthdata.HealthDataService;
@@ -39,6 +44,9 @@ public class HealthcareController {
     private final ChatService chatService;
     private final BioInfoDto bioInfoDto;
     private final com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer;
+    private final PatientService patientService;
+    private final MedicalRecordService medicalRecordService;
+    private final CacheService cacheService;
 
     public HealthcareController(HealthDataService healthDataService,
                                ChartDataService chartDataService,
@@ -48,7 +56,10 @@ public class HealthcareController {
                                Environment env,
                                ChatService chatService,
                                BioInfoDto bioInfoDto,
-                               com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer) {
+                               com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer,
+                               PatientService patientService,
+                               MedicalRecordService medicalRecordService,
+                               CacheService cacheService) {
         this.healthDataService = healthDataService;
         this.chartDataService = chartDataService;
         this.healthScoreService = healthScoreService;
@@ -58,6 +69,9 @@ public class HealthcareController {
         this.chatService = chatService;
         this.bioInfoDto = bioInfoDto;
         this.inputSanitizer = inputSanitizer;
+        this.patientService = patientService;
+        this.medicalRecordService = medicalRecordService;
+        this.cacheService = cacheService;
     }
 
     private LocalDate getToday() {
@@ -601,6 +615,35 @@ public class HealthcareController {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    @GetMapping("/api/healthcare/patients/{id}")
+    public ResponseEntity<Patient> getPatient(@PathVariable Long id) {
+        Patient patient = cacheService.getPatient(id);
+        if (patient == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(patient);
+    }
+
+    @PostMapping("/api/healthcare/patients")
+    public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
+        Patient createdPatient = patientService.createPatient(patient);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdPatient);
+    }
+
+    @GetMapping("/api/healthcare/patients/{patientId}/medical-records")
+    public ResponseEntity<List<MedicalRecord>> getMedicalRecords(@PathVariable Long patientId) {
+        List<MedicalRecord> records = cacheService.getMedicalRecords(patientId);
+        return ResponseEntity.ok(records);
+    }
+
+    @PostMapping("/api/healthcare/patients/{patientId}/medical-records")
+    public ResponseEntity<MedicalRecord> createMedicalRecord(@PathVariable Long patientId,
+                                                           @RequestBody MedicalRecord record) {
+        record.setPatientId(patientId);
+        MedicalRecord createdRecord = medicalRecordService.createMedicalRecord(record);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdRecord);
     }
 
     private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {

@@ -1,0 +1,16 @@
+eureka:
+  instance:
+    hostname: ${spring.application.name}-${random.int}
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000
+    response-cache-update-interval-ms: 5000
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLUSTER_URLS:http://eureka1:8761/eureka/,http://eureka2:8761/eureka/,http://eureka3:8761/eureka/}
+

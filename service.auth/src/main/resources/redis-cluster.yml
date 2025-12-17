@@ -1,0 +1,21 @@
+spring:
+  redis:
+    cluster:
+      nodes:
+        - ${REDIS_NODE1:redis-node1:6379}
+        - ${REDIS_NODE2:redis-node2:6379}
+        - ${REDIS_NODE3:redis-node3:6379}
+        - ${REDIS_NODE4:redis-node4:6379}
+        - ${REDIS_NODE5:redis-node5:6379}
+        - ${REDIS_NODE6:redis-node6:6379}
+      max-redirects: ${REDIS_MAX_REDIRECTS:3}
+    lettuce:
+      pool:
+        max-active: ${REDIS_POOL_MAX_ACTIVE:20}
+        max-idle: ${REDIS_POOL_MAX_IDLE:10}
+        min-idle: ${REDIS_POOL_MIN_IDLE:5}
+      cluster:
+        refresh:
+          adaptive: ${REDIS_CLUSTER_REFRESH_ADAPTIVE:true}
+          period: ${REDIS_CLUSTER_REFRESH_PERIOD:30s}
+
