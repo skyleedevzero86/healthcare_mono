@@ -53,5 +53,10 @@ public class CacheService {
         String key = "patient:" + patientId;
         return (Patient) redisTemplate.opsForValue().get(key);
     }
+
+    public void evictPatientData(Long patientId) {
+        String key = "patient:" + patientId;
+        redisTemplate.delete(key);
+    }
 }
 

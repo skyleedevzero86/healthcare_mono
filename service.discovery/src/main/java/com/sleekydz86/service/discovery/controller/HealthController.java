@@ -1,7 +1,5 @@
 package com.sleekydz86.service.discovery.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +13,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/actuator")
 public class HealthController {
-
-    @Autowired
-    private HealthIndicator healthIndicator;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {

@@ -32,7 +32,7 @@ public class HealthController {
         health.put("timestamp", Instant.now().toString());
 
         return Mono.just(ResponseEntity.status(overallHealthy ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE)
-            .body(health));
+                .body(health));
     }
 
     private boolean checkCacheHealth() {
@@ -44,4 +44,3 @@ public class HealthController {
         }
     }
 }
-

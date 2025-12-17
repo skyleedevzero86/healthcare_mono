@@ -14,13 +14,13 @@ public class HealthcareFallback implements HealthcareClient {
     public Patient getPatient(Long id) {
         Patient patient = new Patient();
         patient.setPatientId(id);
-        patient.setName("Service Unavailable");
+        patient.setName("서비스 사용 불가");
         return patient;
     }
 
     @Override
     public Patient createPatient(Patient patient) {
-        throw new RuntimeException("Healthcare service is temporarily unavailable");
+        throw new RuntimeException("헬스케어 서비스가 일시적으로 사용할 수 없습니다");
     }
 
     @Override
@@ -28,4 +28,3 @@ public class HealthcareFallback implements HealthcareClient {
         return Collections.emptyList();
     }
 }
-

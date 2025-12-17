@@ -71,6 +71,7 @@ dependencies {
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
     implementation("org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter:5.4.1")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.kafka:spring-kafka")
 }
 
 dependencyManagement {

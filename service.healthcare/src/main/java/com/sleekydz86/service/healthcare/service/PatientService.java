@@ -46,5 +46,10 @@ public class PatientService {
         cacheService.cachePatientData(updatedPatient);
         return updatedPatient;
     }
+
+    public void deletePatient(Long patientId) {
+        patientRepository.deleteById(patientId);
+        cacheService.evictPatientData(patientId);
+    }
 }
 
