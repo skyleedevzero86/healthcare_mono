@@ -1,71 +1,143 @@
 ﻿package com.sleekydz86.service.commu.repository;
 
-import com.sleekydz86.service.commu.domain.Community;
+import com.sleekydz86.service.commu.entity.Community;
+import com.sleekydz86.service.commu.exception.BusinessException;
+import com.sleekydz86.service.commu.dto.ApiResultCode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class CommunityRepository {
 
     @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
 
+    @Transactional
     public int writeBoard(Community community) {
         try {
+            log.debug("게시글 작성 시작: userId={}", community.getUserId());
             em.persist(community);
-            return 1;
+            em.flush();
+            log.info("게시글 작성 완료: commuSeq={}, userId={}", 
+                    community.getCommuSeq(), community.getUserId());
+            return community.getCommuSeq();
         } catch (Exception e) {
-            return 0;
+            log.error("게시글 작성 실패: userId={}", community.getUserId(), e);
+            throw new BusinessException(
+                "게시글 작성 중 오류가 발생했습니다: " + e.getMessage(), 
+                e, 
+                ApiResultCode.INSERT_FAIL
+            );
         }
     }
 
     public Community findBoard(int commuSeq) {
-        Community community = em.find(Community.class, commuSeq);
-        return community;
+        try {
+            log.debug("게시글 조회: commuSeq={}", commuSeq);
+            String jpql = "SELECT c FROM Community c WHERE c.commuSeq = :commuSeq";
+            jakarta.persistence.TypedQuery<Community> query = em.createQuery(jpql, Community.class);
+            query.setParameter("commuSeq", commuSeq);
+            Community community = query.getResultStream().findFirst().orElse(null);
+            if (community == null) {
+                log.warn("게시글을 찾을 수 없음: commuSeq={}", commuSeq);
+            }
+            return community;
+        } catch (Exception e) {
+            log.error("게시글 조회 실패: commuSeq={}", commuSeq, e);
+            throw new BusinessException(
+                "게시글 조회 중 오류가 발생했습니다: " + e.getMessage(),
+                e,
+                ApiResultCode.UNKOWN_ERR
+            );
+        }
     }
 
     public List<Community> findBoardList(Map<String, Object> map) {
-        String jpql = "select c from Community c";
+        try {
+            log.debug("게시글 목록 조회: 조건={}", map);
+            
+            StringBuilder jpql = new StringBuilder("SELECT c FROM Community c WHERE 1=1");
+            Map<String, Object> params = new java.util.HashMap<>();
 
-        if (map.containsKey("age") && map.get("age") != null) {
-            try {
-                int age = Integer.parseInt(map.get("age").toString());
-                int ageAvg = age / 10;
-                jpql += " where c.age/10 = :ageAvg";
-                return em.createQuery(jpql, Community.class)
-                        .setParameter("ageAvg", ageAvg)
-                        .getResultList();
-            } catch (NumberFormatException e) {
+            if (map.containsKey("age") && map.get("age") != null) {
+                try {
+                    int age = Integer.parseInt(map.get("age").toString());
+                    int ageAvg = age / 10;
+                    jpql.append(" AND c.age / 10 = :ageAvg");
+                    params.put("ageAvg", ageAvg);
+                } catch (NumberFormatException e) {
+                    log.warn("잘못된 나이 형식: {}", map.get("age"));
+                }
             }
+
+            if (map.containsKey("searchKeyword") && map.get("searchKeyword") != null) {
+                String keyword = map.get("searchKeyword").toString().trim();
+                if (!keyword.isEmpty()) {
+                    jpql.append(" AND c.content LIKE :keyword");
+                    params.put("keyword", "%" + keyword + "%");
+                }
+            }
+
+            jpql.append(" ORDER BY c.regDate DESC");
+
+            int pageIdx = map.containsKey("pageIdx") && map.get("pageIdx") != null
+                    ? Integer.parseInt(map.get("pageIdx").toString())
+                    : 0;
+            int pageSize = map.containsKey("pageSize") && map.get("pageSize") != null
+                    ? Integer.parseInt(map.get("pageSize").toString())
+                    : 10;
+
+            jakarta.persistence.TypedQuery<Community> query = em.createQuery(jpql.toString(), Community.class);
+            
+            params.forEach(query::setParameter);
+            
+            query.setFirstResult(pageIdx * pageSize);
+            query.setMaxResults(pageSize);
+
+            List<Community> result = query.getResultList();
+            log.info("게시글 목록 조회 완료: 결과 수={}", result.size());
+            return result;
+            
+        } catch (NumberFormatException e) {
+            log.error("페이징 파라미터 형식 오류: {}", map, e);
+            throw new BusinessException(
+                "잘못된 페이징 파라미터입니다.",
+                e,
+                ApiResultCode.PARAM_VALID_ERR
+            );
+        } catch (Exception e) {
+            log.error("게시글 목록 조회 실패: 조건={}", map, e);
+            throw new BusinessException(
+                "게시글 목록 조회 중 오류가 발생했습니다: " + e.getMessage(),
+                e,
+                ApiResultCode.UNKOWN_ERR
+            );
         }
-
-        int pageIdx = map.containsKey("pageIdx") && map.get("pageIdx") != null
-                ? Integer.parseInt(map.get("pageIdx").toString())
-                : 0;
-        int pageSize = map.containsKey("pageSize") && map.get("pageSize") != null
-                ? Integer.parseInt(map.get("pageSize").toString())
-                : 10;
-
-        jpql += " order by c.regDate desc";
-
-        return em.createQuery(jpql, Community.class)
-                .setFirstResult(pageIdx * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
     }
 
+    @Transactional
     public int updateBoard(Community community) {
         try {
+            log.debug("게시글 수정 시작: commuSeq={}", community.getCommuSeq());
+            
             Community existing = em.find(Community.class, community.getCommuSeq());
             if (existing == null) {
-                return 0;
+                log.warn("수정할 게시글을 찾을 수 없음: commuSeq={}", community.getCommuSeq());
+                throw new BusinessException(
+                    "게시글을 찾을 수 없습니다.",
+                    ApiResultCode.RESULT_IS_EMPTY
+                );
             }
+
             existing.setContent(community.getContent());
             existing.setHeartrate(community.getHeartrate());
             existing.setTemperature(community.getTemperature());
@@ -75,23 +147,50 @@ public class CommunityRepository {
             existing.setExercise(community.getExercise());
             existing.setAge(community.getAge());
             existing.setBodyAge(community.getBodyAge());
+            
             em.merge(existing);
+            log.info("게시글 수정 완료: commuSeq={}", community.getCommuSeq());
             return 1;
+            
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            return 0;
+            log.error("게시글 수정 실패: commuSeq={}", community.getCommuSeq(), e);
+            throw new BusinessException(
+                "게시글 수정 중 오류가 발생했습니다: " + e.getMessage(),
+                e,
+                ApiResultCode.UPDATE_FAIL
+            );
         }
     }
 
+    @Transactional
     public int deleteBoard(int commuSeq) {
         try {
+            log.debug("게시글 삭제 시작: commuSeq={}", commuSeq);
+            
             Community community = em.find(Community.class, commuSeq);
             if (community == null) {
-                return 0;
+                log.warn("삭제할 게시글을 찾을 수 없음: commuSeq={}", commuSeq);
+                throw new BusinessException(
+                    "게시글을 찾을 수 없습니다.",
+                    ApiResultCode.RESULT_IS_EMPTY
+                );
             }
+            
             em.remove(community);
+            log.info("게시글 삭제 완료: commuSeq={}", commuSeq);
             return 1;
+            
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            return 0;
+            log.error("게시글 삭제 실패: commuSeq={}", commuSeq, e);
+            throw new BusinessException(
+                "게시글 삭제 중 오류가 발생했습니다: " + e.getMessage(),
+                e,
+                ApiResultCode.DELETE_FAIL
+            );
         }
     }
 }

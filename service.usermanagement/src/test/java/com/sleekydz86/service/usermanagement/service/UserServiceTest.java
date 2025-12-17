@@ -39,8 +39,9 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+        String uniqueId = "testUser_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         userDto = new UserDto();
-        userDto.setUserId("testUser");
+        userDto.setUserId(uniqueId);
         userDto.setUserNm("테스트 사용자");
         userDto.setUserRoleFk("1");
         userDto.setPageIdx(1);
@@ -49,6 +50,13 @@ class UserServiceTest {
         userhealthDto = new UserhealthDto();
         userhealthDto.setAgeRange("20-30");
         userhealthDto.setGender("M");
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        userDto = null;
+        userhealthDto = null;
+        reset(userMapper, pagingUtil);
     }
 
     @Test

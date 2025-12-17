@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.commu.domain.dto;
+package com.sleekydz86.service.commu.dto;
 
 public enum ApiResultCode {
 
@@ -27,3 +27,4 @@ public enum ApiResultCode {
     }
 
 }
+

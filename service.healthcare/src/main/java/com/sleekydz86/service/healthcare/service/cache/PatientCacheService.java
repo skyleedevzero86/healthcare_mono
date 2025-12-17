@@ -1,5 +1,6 @@
 package com.sleekydz86.service.healthcare.service.cache;
 
+import com.sleekydz86.service.healthcare.config.PerformanceConfig;
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +13,11 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class PatientCacheService {
 
+    private static final String PATIENT_CACHE_PREFIX = "patient:";
+    private static final Duration CACHE_TTL = PerformanceConfig.PATIENTS_TTL;
+
     private final PatientRepository patientRepository;
     private final RedisTemplate<String, Object> redisTemplate;
-
-    private static final String PATIENT_CACHE_PREFIX = "patient:";
-    private static final Duration CACHE_TTL = Duration.ofHours(24);
 
     public Patient getPatient(Long patientId) {
         String cacheKey = PATIENT_CACHE_PREFIX + patientId;
@@ -45,7 +46,10 @@ public class PatientCacheService {
 
     public void deletePatient(Long patientId) {
         patientRepository.deleteById(patientId);
+        evictPatientCache(patientId);
+    }
 
+    public void evictPatientCache(Long patientId) {
         String cacheKey = PATIENT_CACHE_PREFIX + patientId;
         redisTemplate.delete(cacheKey);
     }

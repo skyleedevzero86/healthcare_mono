@@ -1,7 +1,7 @@
 package com.sleekydz86.service.commu.controller;
 
 import com.sleekydz86.service.commu.dto.NotificationRequest;
-import com.sleekydz86.service.commu.domain.Notification;
+import com.sleekydz86.service.commu.entity.Notification;
 import com.sleekydz86.service.commu.service.MessageService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

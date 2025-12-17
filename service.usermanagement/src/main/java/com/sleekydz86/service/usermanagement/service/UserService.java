@@ -19,7 +19,7 @@ public interface UserService {
     public List<Map<String, Object>> searchuserList(Map<String, Object> map);
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> userInfo(UserDto dto) throws Exception;
+    Map<String, Object> userInfo(UserDto dto);
 
     public int updateUserInfo(@Valid UserDto dto);
 

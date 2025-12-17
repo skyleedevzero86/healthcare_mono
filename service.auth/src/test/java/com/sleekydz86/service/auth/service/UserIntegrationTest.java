@@ -30,7 +30,7 @@ class UserIntegrationTest {
             .withDatabaseName("auth_test")
             .withUsername("test")
             .withPassword("test")
-            .withReuse(true);
+            .withReuse(false);
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -43,17 +43,19 @@ class UserIntegrationTest {
     private UserService userService;
 
     private SignupDto signupDto;
+    private String uniqueUserId;
 
     @BeforeEach
     void setUp() {
+        uniqueUserId = "testUser_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         signupDto = SignupDto.builder()
-                .userId("integrationTestUser")
+                .userId(uniqueUserId)
                 .userPwEnc("testPassword123")
                 .userNm("통합테스트 사용자")
                 .userRoleFk("1")
                 .birthEnc("19900101")
                 .telNumEnc("01012345678")
-                .email("integration@test.com")
+                .email("integration_" + System.currentTimeMillis() + "@test.com")
                 .deptNm("IT")
                 .height(170.0f)
                 .weight(70.0f)

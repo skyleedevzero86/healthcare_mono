@@ -21,16 +21,14 @@ repositories {
 extra["springCloudVersion"] = "2025.0.0"
 
 dependencies {
-    implementation ("org.springframework.cloud:spring-cloud-config-server")
-    //cloud bus
-    implementation ("org.springframework.boot:spring-boot-starter-actuator")
-    implementation ("io.micrometer:micrometer-core")
-    implementation ("org.springframework.cloud:spring-cloud-starter-bus-amqp")
-    implementation ("org.springframework.cloud:spring-cloud-starter-bootstrap")
-    // Distributed Tracing
-    implementation ("io.micrometer:micrometer-tracing-bridge-brave")
-    implementation ("io.zipkin.reporter2:zipkin-reporter-brave")
-    testImplementation ("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.springframework.cloud:spring-cloud-config-server")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-core")
+    implementation("org.springframework.cloud:spring-cloud-starter-bus-amqp")
+    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 dependencyManagement {

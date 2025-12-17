@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.repository;
 
-import com.sleekydz86.service.commu.domain.Community;
+import com.sleekydz86.service.commu.entity.Community;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;

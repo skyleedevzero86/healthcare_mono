@@ -1,10 +1,10 @@
-﻿package com.sleekydz86.service.commu.domain.dto;
+package com.sleekydz86.service.commu.dto;
 
 import com.google.common.base.CaseFormat;
 
 import java.util.HashMap;
 
-public class CamelHashMap<K,V> extends HashMap<Object, Object>{
+public class CamelHashMap<K, V> extends HashMap<Object, Object> {
 
     private static final long serialVersionUID = 1L;
 

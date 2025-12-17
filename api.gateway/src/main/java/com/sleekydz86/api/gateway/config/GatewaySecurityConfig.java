@@ -15,6 +15,8 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebFluxSecurity
 public class GatewaySecurityConfig {
@@ -40,9 +42,26 @@ public class GatewaySecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "http://localhost:8981",
+            "http://localhost:19006"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Content-Type",
+            "Authorization",
+            "X-Requested-With",
+            "X-User-Id",
+            "X-User-Role",
+            "X-User-Source"
+        ));
+        configuration.setExposedHeaders(Arrays.asList(
+            "X-User-Id",
+            "X-User-Role",
+            "X-User-Source"
+        ));
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

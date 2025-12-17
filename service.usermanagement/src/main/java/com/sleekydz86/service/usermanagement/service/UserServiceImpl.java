@@ -1,12 +1,12 @@
 package com.sleekydz86.service.usermanagement.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.usermanagement.dto.CamelHashMap;
 import com.sleekydz86.service.usermanagement.dto.CommonPagingResponse;
 import com.sleekydz86.service.usermanagement.dto.UserDto;
 import com.sleekydz86.service.usermanagement.dto.UserhealthDto;
+import com.sleekydz86.service.usermanagement.exception.BusinessException;
 import com.sleekydz86.service.usermanagement.global.mapper.UserMapper;
+import com.sleekydz86.service.usermanagement.util.DtoConverter;
 import com.sleekydz86.service.usermanagement.global.util.PaginationInfo;
 import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
 import com.sleekydz86.service.usermanagement.global.util.HealthcareEncryptionUtil;
@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
     PagingUtil pagingUtil;
 
     private final UserManagementMetrics userManagementMetrics;
+    private final DtoConverter dtoConverter;
 
     @Cacheable(value = "userList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public Object userList(UserDto dto) {
@@ -118,7 +119,7 @@ public class UserServiceImpl implements UserService {
 
     @SuppressWarnings("unchecked")
     @Cacheable(value = "userInfo", key = "#dto.userId + '_' + #dto.userRoleFk")
-    public Map<String, Object> userInfo(UserDto dto) throws Exception {
+    public Map<String, Object> userInfo(UserDto dto) {
         String requestId = UUID.randomUUID().toString();
         String userId = dto.getUserId() != null ? dto.getUserId() : "unknown";
         MDC.put("userId", userId);
@@ -132,15 +133,14 @@ public class UserServiceImpl implements UserService {
             log.info("사용자 정보 조회 중: 사용자 {}, 역할 {}", userId, dto.getUserRoleFk());
             
             Map<String, Object> result = userMapper.userInfo(dto);
-            ObjectMapper mapper = new ObjectMapper();
             ArrayList<CamelHashMap<String, Object>> res = new ArrayList<CamelHashMap<String, Object>>();
             if (result != null) {
                 if (result.containsKey("guardian")) {
                     if (result.get("guardian") != null && !result.get("guardian").equals("")) {
                         String str = (String) result.get("guardian");
-                        ArrayList<Map<String, Object>> arr = mapper.readValue(str, ArrayList.class);
+                        ArrayList<Map<String, Object>> arr = dtoConverter.fromJson(str, ArrayList.class);
                         for (Map<String, Object> s : arr) {
-                            CamelHashMap<String, Object> cm = mapper.convertValue(s, CamelHashMap.class);
+                            CamelHashMap<String, Object> cm = dtoConverter.convertToEntity(s, CamelHashMap.class);
                             res.add(cm);
                         }
                         result.put("guardian", res);
@@ -163,9 +163,15 @@ public class UserServiceImpl implements UserService {
             
             log.info("사용자 정보 조회 완료: {}", userId);
             return result;
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.error("사용자 정보 조회 중 오류 발생: {}", userId, e);
-            throw e;
+            throw new BusinessException(
+                "사용자 정보 조회 중 오류가 발생했습니다.",
+                e,
+                com.sleekydz86.service.usermanagement.dto.ApiResultCode.UNKOWN_ERR
+            );
         } finally {
             sample.stop(userManagementMetrics.getUserInfoQueryTime());
             MDC.clear();
@@ -195,13 +201,12 @@ public class UserServiceImpl implements UserService {
             
             ArrayList<Map<String, Object>> result = new ArrayList<>();
             String str = dto.getGuardian();
-            ObjectMapper obj = new ObjectMapper();
             try {
 
                 int cnt = userMapper.searchParentCount(dto);
                 ArrayList<Integer> arr = new ArrayList<Integer>();
                 if (str != null) {
-                    result = obj.readValue(str, ArrayList.class);
+                    result = dtoConverter.fromJson(str, ArrayList.class);
                     for (Map<String, Object> dt : result) {
                         arr.add((int) dt.get("guardianSeq"));
                         dto.setGuardianSeq((int) dt.get("guardianSeq"));
@@ -213,7 +218,7 @@ public class UserServiceImpl implements UserService {
                     dto.setGuardianSeqArray(arr);
                 int delCnt = userMapper.deleteParentMapping(dto);
 
-            } catch (JsonProcessingException e) {
+            } catch (IllegalArgumentException e) {
                 log.error("JSON 처리 중 오류 발생: 사용자 {}", userId, e);
             }
             if (dto.getDoctorSeq() != 0 && dto.getDoctorId() != null && !dto.getDoctorId().equals("")) {
@@ -335,8 +340,7 @@ public class UserServiceImpl implements UserService {
 
     @Cacheable(value = "userList", key = "'health_' + #map['userRoleFk'] + '_' + (#map['searchKeyword'] != null ? #map['searchKeyword'] : '')")
     public List<Map<String, Object>> searchHealthUserList(Map<String, Object> map) {
-        ObjectMapper mapper = new ObjectMapper();
-        UserDto dto = mapper.convertValue(map, UserDto.class);
+        UserDto dto = dtoConverter.convertFromMap(map, UserDto.class);
         return userMapper.searchHealthUserList(dto);
     }
 

@@ -1,6 +1,5 @@
 package com.sleekydz86.service.healthcare.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.healthcare.common.ServiceResponse;
 import com.sleekydz86.service.healthcare.dto.*;
 import com.sleekydz86.service.healthcare.entity.MedicalRecord;
@@ -14,6 +13,8 @@ import com.sleekydz86.service.healthcare.service.chart.ChartDataService;
 import com.sleekydz86.service.healthcare.service.community.CommunityService;
 import com.sleekydz86.service.healthcare.service.healthdata.HealthDataService;
 import com.sleekydz86.service.healthcare.service.score.HealthScoreService;
+import com.sleekydz86.service.healthcare.util.DtoConverter;
+import com.sleekydz86.service.healthcare.util.SqlInjectionValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/healthcare/v1/")
+@RequiredArgsConstructor
 @Validated
 public class HealthcareController {
 
@@ -47,6 +49,7 @@ public class HealthcareController {
     private final PatientService patientService;
     private final MedicalRecordService medicalRecordService;
     private final CacheService cacheService;
+    private final DtoConverter dtoConverter;
 
     public HealthcareController(HealthDataService healthDataService,
                                ChartDataService chartDataService,
@@ -124,14 +127,13 @@ public class HealthcareController {
                 return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
             }
             
-            ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> map = new HashMap<>();
             map.put("userId", sanitizedUserId);
             map.put("type", requestDto.getType());
             
             if ("m".equals(requestDto.getType())) {
                 for (HealthDataItemDto item : requestDto.getData()) {
-                    MinuteDataDto dto = mapper.convertValue(item, MinuteDataDto.class);
+                    MinuteDataDto dto = dtoConverter.convertToEntity(item, MinuteDataDto.class);
                     dto.setUserId(requestDto.getUserId());
                     ServiceResponse<Integer> response = healthDataService.insertMinuteData(dto);
                     if (!response.isSuccess()) {
@@ -140,7 +142,7 @@ public class HealthcareController {
                 }
             } else {
                 for (HealthDataItemDto item : requestDto.getData()) {
-                    MonthDayDataDto dto = mapper.convertValue(item, MonthDayDataDto.class);
+                    MonthDayDataDto dto = dtoConverter.convertToEntity(item, MonthDayDataDto.class);
                     dto.setUserId(requestDto.getUserId());
                     ServiceResponse<Integer> response = healthDataService.insertMonthDayData(dto);
                     if (!response.isSuccess()) {
@@ -178,6 +180,11 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                SqlInjectionValidator.sanitizeColumnName(searchWrd);
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
             ServiceResponse response = healthDataService.getMinMaxHealthInfo(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -195,6 +202,10 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
             ServiceResponse response = healthDataService.getHealthInfo(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -212,6 +223,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (map.containsKey("condition") && map.get("condition") != null) {
+                String condition = map.get("condition").toString();
+                map.put("condition", SqlInjectionValidator.sanitizeCondition(condition));
+            }
             ServiceResponse<Map<String, Object>> response = chartDataService.getHealthInfoChart(map);
             if (!response.isSuccess()) {
                 return convertToApiResponse(response);
@@ -259,6 +278,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (map.containsKey("condition") && map.get("condition") != null) {
+                String condition = map.get("condition").toString();
+                map.put("condition", SqlInjectionValidator.sanitizeCondition(condition));
+            }
             ServiceResponse response = chartDataService.getCustomMinuteChartData(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -276,6 +303,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (map.containsKey("condition") && map.get("condition") != null) {
+                String condition = map.get("condition").toString();
+                map.put("condition", SqlInjectionValidator.sanitizeCondition(condition));
+            }
             ServiceResponse response = chartDataService.getCustomMinuteDashBRDChart(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {

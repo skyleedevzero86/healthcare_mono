@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.service;
 
-import com.sleekydz86.service.commu.domain.Community;
+import com.sleekydz86.service.commu.entity.Community;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.commu.domain;
+package com.sleekydz86.service.commu.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,3 +82,4 @@ public class Usermng {
     final String user_profile;
 
 }
+

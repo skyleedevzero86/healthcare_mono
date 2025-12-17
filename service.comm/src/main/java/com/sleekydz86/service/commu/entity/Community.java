@@ -1,4 +1,4 @@
-package com.sleekydz86.service.commu.domain;
+package com.sleekydz86.service.commu.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,10 +8,12 @@ import java.util.Date;
 
 @Entity
 @Table(name = "health_community")
-@Getter @Setter
+@Getter
+@Setter
 public class Community {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "community_seq")
     private int commuSeq;
 

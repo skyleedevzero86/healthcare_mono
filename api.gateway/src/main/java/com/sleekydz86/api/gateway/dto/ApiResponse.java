@@ -1,6 +1,6 @@
 ﻿package com.sleekydz86.api.gateway.dto;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sleekydz86.api.gateway.util.DtoConverter;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +45,8 @@ public class ApiResponse {
                 .resultData(data)
                 .timestamp(LocalDateTime.now())
                 .build();
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.writeValueAsString(apiResponse);
+            return DtoConverter.getObjectMapper().writeValueAsString(apiResponse);
         } catch (Exception e) {
             log.error("ApiResponse 직렬화 실패", e);
             return String.format(

@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.service;
 
-import com.sleekydz86.service.commu.domain.Community;
+import com.sleekydz86.service.commu.entity.Community;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ class CommunityIntegrationTest {
             .withDatabaseName("community_test")
             .withUsername("test")
             .withPassword("test")
-            .withReuse(true);
+            .withReuse(false);
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -44,13 +44,15 @@ class CommunityIntegrationTest {
 
     private Community testCommunity;
     private Map<String, Object> searchMap;
+    private int uniqueUserId;
 
     @BeforeEach
     void setUp() {
+        uniqueUserId = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
         testCommunity = new Community();
-        testCommunity.setUserNm("통합테스트 사용자");
-        testCommunity.setContent("통합 테스트 게시글 내용입니다.");
-        testCommunity.setUserId(1);
+        testCommunity.setUserNm("통합테스트 사용자_" + uniqueUserId);
+        testCommunity.setContent("통합 테스트 게시글 내용입니다. " + System.currentTimeMillis());
+        testCommunity.setUserId(uniqueUserId);
         testCommunity.setHeartrate(72);
         testCommunity.setTemperature(36.5);
         testCommunity.setBloodpress(120.0);
@@ -65,6 +67,12 @@ class CommunityIntegrationTest {
         searchMap.put("age", 25);
     }
 
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        testCommunity = null;
+        searchMap = null;
+    }
+
     @Test
     @DisplayName("게시글 작성 및 조회 통합 테스트")
     void testWriteAndFindBoard() {
@@ -73,7 +81,7 @@ class CommunityIntegrationTest {
 
         Community foundBoard = communityService.findBoard(testCommunity.getCommuSeq());
         assertThat(foundBoard).isNotNull();
-        assertThat(foundBoard.getContent()).isEqualTo("통합 테스트 게시글 내용입니다.");
+        assertThat(foundBoard.getContent()).contains("통합 테스트 게시글 내용입니다.");
     }
 
     @Test
@@ -86,13 +94,29 @@ class CommunityIntegrationTest {
     @Test
     @DisplayName("게시글 전체 플로우 통합 테스트")
     void testCommunityFlow() {
-        int writeResult = communityService.writeBoard(testCommunity);
+        Community uniqueCommunity = new Community();
+        uniqueCommunity.setUserNm("플로우테스트_" + System.currentTimeMillis());
+        uniqueCommunity.setContent("플로우 테스트 게시글 " + System.currentTimeMillis());
+        uniqueCommunity.setUserId((int) (System.currentTimeMillis() % Integer.MAX_VALUE));
+        uniqueCommunity.setHeartrate(72);
+        uniqueCommunity.setTemperature(36.5);
+        uniqueCommunity.setBloodpress(120.0);
+        uniqueCommunity.setSmoking(0);
+        uniqueCommunity.setDrinking(0);
+        uniqueCommunity.setExercise(30);
+        uniqueCommunity.setAge(25);
+        uniqueCommunity.setBodyAge(23);
+
+        int writeResult = communityService.writeBoard(uniqueCommunity);
         assertThat(writeResult).isGreaterThan(0);
 
-        Community foundBoard = communityService.findBoard(testCommunity.getCommuSeq());
+        Community foundBoard = communityService.findBoard(uniqueCommunity.getCommuSeq());
         assertThat(foundBoard).isNotNull();
 
-        List<Community> boardList = communityService.findBoardList(searchMap);
+        Map<String, Object> uniqueSearchMap = new HashMap<>();
+        uniqueSearchMap.put("pageIdx", 1);
+        uniqueSearchMap.put("age", 25);
+        List<Community> boardList = communityService.findBoardList(uniqueSearchMap);
         assertThat(boardList).isNotNull();
     }
 }

@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.repository;
 
-import com.sleekydz86.service.commu.domain.Usermng;
+import com.sleekydz86.service.commu.entity.Usermng;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;

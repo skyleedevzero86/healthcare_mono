@@ -1,10 +1,10 @@
 ﻿package com.sleekydz86.service.commu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sleekydz86.service.commu.domain.Community;
-import com.sleekydz86.service.commu.domain.DiseaseCategory;
-import com.sleekydz86.service.commu.domain.Usermng;
-import com.sleekydz86.service.commu.domain.dto.ApiResultCode;
+import com.sleekydz86.service.commu.entity.Community;
+import com.sleekydz86.service.commu.entity.DiseaseCategory;
+import com.sleekydz86.service.commu.entity.Usermng;
+import com.sleekydz86.service.commu.dto.ApiResultCode;
 import com.sleekydz86.service.commu.service.CommunityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

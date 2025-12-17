@@ -1,4 +1,4 @@
-package com.sleekydz86.service.commu.domain;
+package com.sleekydz86.service.commu.entity;
 
 import jakarta.persistence.*;
 
@@ -16,3 +16,4 @@ public class Likeboard {
     Usermng user;
 
 }
+

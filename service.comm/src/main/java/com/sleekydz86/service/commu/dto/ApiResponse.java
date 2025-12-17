@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.commu.domain.dto;
+package com.sleekydz86.service.commu.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,3 +73,4 @@ public class ApiResponse<T> {
                 .build());
     }
 }
+

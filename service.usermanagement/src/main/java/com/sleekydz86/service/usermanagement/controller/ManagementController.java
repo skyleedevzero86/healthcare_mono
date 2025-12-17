@@ -37,8 +37,7 @@ public class ManagementController {
     private final com.sleekydz86.service.usermanagement.util.InputSanitizer inputSanitizer;
 
     @PostMapping("/v1/userInfo")
-    public ResponseEntity<ApiResponse> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
-            throws Exception {
+    public ResponseEntity<ApiResponse> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -59,8 +58,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/userBoardInfo")
-    public ResponseEntity<ApiResponse> userBoardInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
-            throws Exception {
+    public ResponseEntity<ApiResponse> userBoardInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
 
         Map<String, Object> responseData = new HashMap<>();
 
@@ -101,8 +99,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/updateUserInfo")
-    public ResponseEntity<ApiResponse> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
-            throws Exception {
+    public ResponseEntity<ApiResponse> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -146,8 +143,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/deleteUserInfo")
-    public ResponseEntity<ApiResponse> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto)
-            throws Exception {
+    public ResponseEntity<ApiResponse> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -178,8 +174,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/updatePasswd")
-    public ResponseEntity<ApiResponse> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto)
-            throws Exception {
+    public ResponseEntity<ApiResponse> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -266,7 +261,7 @@ public class ManagementController {
     }
 
     @RequestMapping("/v1/list")
-    public ResponseEntity<ApiResponse> userList(UserDto dto, @RequestBody Map<String, Object> map) throws Exception {
+    public ResponseEntity<ApiResponse> userList(UserDto dto, @RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
                 return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);

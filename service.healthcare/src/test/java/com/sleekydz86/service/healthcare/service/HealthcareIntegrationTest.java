@@ -31,7 +31,7 @@ class HealthcareIntegrationTest {
             .withDatabaseName("healthcare_test")
             .withUsername("test")
             .withPassword("test")
-            .withReuse(true);
+            .withReuse(false);
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -44,11 +44,13 @@ class HealthcareIntegrationTest {
     private HealthcareService healthcareService;
 
     private Map<String, Object> testMap;
+    private String uniqueUserId;
 
     @BeforeEach
     void setUp() {
+        uniqueUserId = "testUser_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         testMap = new HashMap<>();
-        testMap.put("userId", "testUser");
+        testMap.put("userId", uniqueUserId);
         testMap.put("date", "2025-01-01");
         testMap.put("query", "D");
     }
@@ -57,9 +59,9 @@ class HealthcareIntegrationTest {
     @DisplayName("헬스 데이터 플로우 통합 테스트")
     void testHealthDataFlow() {
         MinuteDataDto minuteDataDto = new MinuteDataDto();
-        minuteDataDto.setUserId("testUser");
+        minuteDataDto.setUserId(uniqueUserId);
         minuteDataDto.setUserSeq(1);
-        minuteDataDto.setTid("T001");
+        minuteDataDto.setTid("T001_" + System.currentTimeMillis());
         minuteDataDto.setTime("202501011200");
         minuteDataDto.setHeartrate(72);
         minuteDataDto.setTemper(36.5f);
@@ -84,7 +86,7 @@ class HealthcareIntegrationTest {
     @DisplayName("일 단위 헬스 데이터 저장 및 조회 통합 테스트")
     void testMonthDayDataFlow() {
         MonthDayDataDto monthDayDataDto = new MonthDayDataDto();
-        monthDayDataDto.setUserId("testUser");
+        monthDayDataDto.setUserId(uniqueUserId);
         monthDayDataDto.setUserSeq(1);
         monthDayDataDto.setTime("20250101");
         monthDayDataDto.setHeartrateMin(60);
@@ -121,13 +123,13 @@ class HealthcareIntegrationTest {
     @DisplayName("헬스 스코어 조회 통합 테스트")
     void testHealthScoreFlow() {
         Map<String, Object> scoreMap = new HashMap<>();
-        scoreMap.put("userId", "testUser");
+        scoreMap.put("userId", uniqueUserId);
         scoreMap.put("date", "2025-01-01");
 
         Map<String, Object> scoreList = healthcareService.healthScoreList(scoreMap);
         assertThat(scoreList).isNotNull();
 
-        Map<String, Object> infoScore = healthcareService.infoHealthScore("testUser");
+        Map<String, Object> infoScore = healthcareService.infoHealthScore(uniqueUserId);
         assertThat(infoScore).isNotNull();
     }
 }

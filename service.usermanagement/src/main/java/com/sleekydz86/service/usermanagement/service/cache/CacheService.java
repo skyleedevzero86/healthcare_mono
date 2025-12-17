@@ -1,8 +1,9 @@
 package com.sleekydz86.service.usermanagement.service.cache;
 
+import com.sleekydz86.service.usermanagement.config.CacheConfig;
 import com.sleekydz86.service.usermanagement.entity.User;
 import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,15 +13,16 @@ import java.time.Duration;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CacheService {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private static final String USER_KEY_PREFIX = "user:";
+    private static final Duration USER_DIRECT_TTL = CacheConfig.USER_INFO_TTL;
 
-    @Autowired
-    private UserJpaRepository userJpaRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final UserJpaRepository userJpaRepository;
 
-    @Cacheable(value = "userInfo", key = "#id", unless = "#result == null")
+    @Cacheable(value = CacheConfig.CACHE_USER_INFO, key = "#id", unless = "#result == null")
     public User getUser(Long id) {
         User user = getCachedUser(id);
         if (user != null) {
@@ -35,18 +37,22 @@ public class CacheService {
     }
 
     public void cacheUserData(User user) {
-        String key = "user:" + user.getId();
-        redisTemplate.opsForValue().set(key, user, Duration.ofHours(24));
+        String key = USER_KEY_PREFIX + user.getId();
+        redisTemplate.opsForValue().set(key, user, USER_DIRECT_TTL);
     }
 
     public User getCachedUser(Long id) {
-        String key = "user:" + id;
+        String key = USER_KEY_PREFIX + id;
         return (User) redisTemplate.opsForValue().get(key);
     }
 
-    @CacheEvict(value = "userInfo", key = "#id")
+    @CacheEvict(value = CacheConfig.CACHE_USER_INFO, key = "#id")
     public void removeUserFromCache(Long id) {
-        String key = "user:" + id;
+        evictUserDirectCache(id);
+    }
+
+    public void evictUserDirectCache(Long id) {
+        String key = USER_KEY_PREFIX + id;
         redisTemplate.delete(key);
     }
 }

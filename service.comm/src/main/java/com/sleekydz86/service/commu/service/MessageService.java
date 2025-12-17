@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.service;
 
-import com.sleekydz86.service.commu.domain.Notification;
+import com.sleekydz86.service.commu.entity.Notification;
 import com.sleekydz86.service.commu.dto.NotificationRequest;
 import com.sleekydz86.service.commu.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;

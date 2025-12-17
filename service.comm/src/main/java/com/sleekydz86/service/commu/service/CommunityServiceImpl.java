@@ -1,7 +1,7 @@
 ﻿package com.sleekydz86.service.commu.service;
 
-import com.sleekydz86.service.commu.domain.Community;
-import com.sleekydz86.service.commu.domain.Usermng;
+import com.sleekydz86.service.commu.entity.Community;
+import com.sleekydz86.service.commu.entity.Usermng;
 import com.sleekydz86.service.commu.metrics.CommunityMetrics;
 import com.sleekydz86.service.commu.repository.CommunityRepository;
 import com.sleekydz86.service.commu.repository.UserRepository;

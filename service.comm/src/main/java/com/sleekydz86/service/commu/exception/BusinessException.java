@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.exception;
 
-import com.sleekydz86.service.commu.domain.dto.ApiResultCode;
+import com.sleekydz86.service.commu.dto.ApiResultCode;
 import lombok.Getter;
 
 @Getter

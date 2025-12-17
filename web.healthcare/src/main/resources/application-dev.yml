@@ -40,7 +40,6 @@ spring:
       hibernate:
         format_sql: true
 
-# 개발 환경 로깅
 logging:
   level:
     com.sleekydz86: DEBUG
@@ -48,5 +47,4 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# 개발용 설정
 debug: true

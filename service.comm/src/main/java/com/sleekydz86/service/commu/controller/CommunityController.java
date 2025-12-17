@@ -1,12 +1,14 @@
 package com.sleekydz86.service.commu.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sleekydz86.service.commu.domain.Community;
-import com.sleekydz86.service.commu.domain.dto.ApiResponse;
-import com.sleekydz86.service.commu.domain.dto.ApiResultCode;
+import com.sleekydz86.service.commu.entity.Community;
+import com.sleekydz86.service.commu.dto.ApiResponse;
+import com.sleekydz86.service.commu.dto.ApiResultCode;
 import com.sleekydz86.service.commu.dto.CommunityRequestDto;
 import com.sleekydz86.service.commu.service.CommunityService;
+import com.sleekydz86.service.commu.util.DtoConverter;
+import com.sleekydz86.service.commu.util.InputSanitizer;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,16 +20,13 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/community/v1/")
+@RequiredArgsConstructor
 @Validated
 public class CommunityController {
 
     private final CommunityService communityService;
-    private final com.sleekydz86.service.commu.util.InputSanitizer inputSanitizer;
-
-    public CommunityController(CommunityService communityService, com.sleekydz86.service.commu.util.InputSanitizer inputSanitizer) {
-        this.communityService = communityService;
-        this.inputSanitizer = inputSanitizer;
-    }
+    private final InputSanitizer inputSanitizer;
+    private final DtoConverter dtoConverter;
 
     @PostMapping("writeBoard")
     public ResponseEntity<ApiResponse> writeBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
@@ -43,11 +42,10 @@ public class CommunityController {
             }
             requestDto.setUserId(sanitizedUserId);
             
-            ObjectMapper obj = new ObjectMapper();
-            Community community = obj.convertValue(requestDto, Community.class);
+            Community community = dtoConverter.convertToEntity(requestDto, Community.class);
             int result = communityService.writeBoard(community);
 
-            if (result == 1) {
+            if (result > 0) {
                 return ApiResponse.ok();
             } else {
                 return ApiResponse.error(ApiResultCode.INSERT_FAIL);
@@ -114,8 +112,7 @@ public class CommunityController {
             }
             requestDto.setUserId(sanitizedUserId);
             
-            ObjectMapper obj = new ObjectMapper();
-            Community community = obj.convertValue(requestDto, Community.class);
+            Community community = dtoConverter.convertToEntity(requestDto, Community.class);
             Community updatedCommu = communityService.findBoard(community.getCommuSeq());
             if (updatedCommu == null) {
                 return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);

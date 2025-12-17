@@ -39,7 +39,6 @@ spring:
         sslmode: require
         sslfactory: org.postgresql.ssl.DefaultJavaSSLFactory
 
-# 운영 환경 로깅
 logging:
   level:
     root: WARN
@@ -47,7 +46,6 @@ logging:
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
 
-# 운영용 설정
 debug: false
 
 encryption:

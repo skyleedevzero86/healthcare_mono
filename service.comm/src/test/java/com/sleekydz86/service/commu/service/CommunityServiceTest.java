@@ -1,6 +1,6 @@
 package com.sleekydz86.service.commu.service;
 
-import com.sleekydz86.service.commu.domain.Community;
+import com.sleekydz86.service.commu.entity.Community;
 import com.sleekydz86.service.commu.repository.CommunityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,10 +35,16 @@ class CommunityServiceTest {
     @BeforeEach
     void setUp() {
         testCommunity = new Community();
-        testCommunity.setUserNm("testUser");
-        testCommunity.setContent("테스트 게시글 내용입니다.");
+        testCommunity.setUserNm("testUser_" + System.currentTimeMillis());
+        testCommunity.setContent("테스트 게시글 내용입니다. " + System.currentTimeMillis());
         testCommunity.setRegDate(new Date());
-        testCommunity.setUserId(1);
+        testCommunity.setUserId((int) (System.currentTimeMillis() % Integer.MAX_VALUE));
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        testCommunity = null;
+        reset(communityRepository);
     }
 
     @Test

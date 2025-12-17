@@ -40,10 +40,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
-        String sessionKey = "session:" + token.replace("Bearer ", "");
-        redisTemplate.delete(sessionKey);
-
+    public ResponseEntity<Void> logout() {
+        String userId = com.sleekydz86.service.auth.util.UserContext.getUserId();
+        if (userId != null && !userId.isEmpty()) {
+            String sessionKey = "session:" + userId;
+            redisTemplate.delete(sessionKey);
+        }
         return ResponseEntity.ok().build();
     }
 }

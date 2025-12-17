@@ -3,6 +3,7 @@ package com.sleekydz86.service.usermanagement.controller;
 import com.sleekydz86.service.usermanagement.entity.User;
 import com.sleekydz86.service.usermanagement.service.user.UserManagementService;
 import com.sleekydz86.service.usermanagement.service.cache.CacheService;
+import com.sleekydz86.service.usermanagement.util.UserContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,24 +49,20 @@ public class UserController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<User> getCurrentUser(@RequestHeader("Authorization") String token) {
-        String actualToken = token.replace("Bearer ", "");
-        Long userId = extractUserIdFromToken(actualToken);
-        if (userId == null) {
+    public ResponseEntity<User> getCurrentUser() {
+        String userId = UserContext.getUserId();
+        if (userId == null || userId.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        User user = cacheService.getUser(userId);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(user);
-    }
-
-    private Long extractUserIdFromToken(String token) {
         try {
-            return Long.parseLong(token);
+            Long userIdLong = Long.parseLong(userId);
+            User user = cacheService.getUser(userIdLong);
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(user);
         } catch (NumberFormatException e) {
-            return null;
+            return ResponseEntity.notFound().build();
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.sleekydz86.service.usermanagement.service.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.usermanagement.common.ServiceResponse;
 import com.sleekydz86.service.usermanagement.common.ValidationException;
 import com.sleekydz86.service.usermanagement.dto.CamelHashMap;
@@ -13,6 +12,9 @@ import com.sleekydz86.service.usermanagement.entity.User;
 import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
 import com.sleekydz86.service.usermanagement.repository.UserRepository;
 import com.sleekydz86.service.usermanagement.service.cache.CacheService;
+import com.sleekydz86.service.usermanagement.util.DtoConverter;
+import com.sleekydz86.service.usermanagement.util.PasswordPolicyValidator;
+import com.sleekydz86.service.usermanagement.global.util.HealthcareEncryptionUtil;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,8 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final UserRepository userRepository;
     private final PagingUtil pagingUtil;
     private final UserManagementMetrics userManagementMetrics;
+    private final DtoConverter dtoConverter;
+    private final PasswordPolicyValidator passwordPolicyValidator;
 
     @Autowired
     private UserJpaRepository userJpaRepository;
@@ -166,15 +170,14 @@ public class UserManagementServiceImpl implements UserManagementService {
             log.info("사용자 정보 조회 중: 사용자 {}, 역할 {}", userId, dto.getUserRoleFk());
             
             Map<String, Object> result = userRepository.findUserInfo(dto);
-            ObjectMapper mapper = new ObjectMapper();
             ArrayList<CamelHashMap<String, Object>> res = new ArrayList<CamelHashMap<String, Object>>();
             if (result != null) {
                 if (result.containsKey("guardian")) {
                     if (result.get("guardian") != null && !result.get("guardian").equals("")) {
                         String str = (String) result.get("guardian");
-                        ArrayList<Map<String, Object>> arr = mapper.readValue(str, ArrayList.class);
+                        ArrayList<Map<String, Object>> arr = dtoConverter.fromJson(str, ArrayList.class);
                         for (Map<String, Object> s : arr) {
-                            CamelHashMap<String, Object> cm = mapper.convertValue(s, CamelHashMap.class);
+                            CamelHashMap<String, Object> cm = dtoConverter.convertToEntity(s, CamelHashMap.class);
                             res.add(cm);
                         }
                         result.put("guardian", res);
@@ -268,6 +271,41 @@ public class UserManagementServiceImpl implements UserManagementService {
             if (dto == null) {
                 return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
+            
+            if (dto.getUserPwEnc() == null || dto.getUserPwEnc().trim().isEmpty()) {
+                return ServiceResponse.error("현재 비밀번호를 입력해주세요.");
+            }
+            
+            if (dto.getNewUserPwEnc() == null || dto.getNewUserPwEnc().trim().isEmpty()) {
+                return ServiceResponse.error("새 비밀번호를 입력해주세요.");
+            }
+            
+            PasswordPolicyValidator.ValidationResult validationResult = passwordPolicyValidator.validate(dto.getNewUserPwEnc());
+            if (!validationResult.isValid()) {
+                return ServiceResponse.error(validationResult.getMessage());
+            }
+            
+            if (dto.getUserPwEnc().equals(dto.getNewUserPwEnc())) {
+                return ServiceResponse.error("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+            }
+            
+            Map<String, Object> userInfo = userRepository.findUserInfo(dto);
+            if (userInfo == null || userInfo.isEmpty()) {
+                return ServiceResponse.error("사용자를 찾을 수 없습니다.");
+            }
+            
+            String storedPassword = (String) userInfo.get("userPwEnc");
+            String userSalt = (String) userInfo.get("userSalt");
+            
+            if (storedPassword == null || userSalt == null) {
+                return ServiceResponse.error("비밀번호 정보를 찾을 수 없습니다.");
+            }
+            
+            String hashedCurrentPassword = HealthcareEncryptionUtil.hashPassword(dto.getUserPwEnc(), userSalt);
+            if (!hashedCurrentPassword.equals(storedPassword)) {
+                return ServiceResponse.error("현재 비밀번호가 올바르지 않습니다.");
+            }
+            
             log.info("비밀번호 변경 중: {}", userId);
             
             int result = userRepository.updatePassword(dto);
@@ -289,6 +327,12 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     @Transactional
     public User createUser(User user) {
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            PasswordPolicyValidator.ValidationResult validationResult = passwordPolicyValidator.validate(user.getPassword());
+            if (!validationResult.isValid()) {
+                throw new IllegalArgumentException(validationResult.getMessage());
+            }
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User createdUser = userJpaRepository.save(user);
         cacheService.cacheUserData(createdUser);

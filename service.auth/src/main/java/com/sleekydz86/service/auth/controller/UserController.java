@@ -34,7 +34,7 @@ public class UserController {
 
     @PostMapping("/v1/signup")
     @Transactional
-    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupDto user) throws Exception {
+    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupDto user) {
         try {
             String sanitizedUserId = inputSanitizer.sanitizeUserId(user.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(user.getUserId())) {
@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/duplicateId")
-    public ResponseEntity<ApiResponse> duplicateId(@RequestBody UserDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> duplicateId(@RequestBody UserDto dto) {
         try {
             if (dto.getUserId() == null || dto.getUserId().trim().isEmpty()) {
                 return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
@@ -109,7 +109,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/duplicateEmail")
-    public ResponseEntity<ApiResponse> duplicateEmail(@RequestBody UserDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> duplicateEmail(@RequestBody UserDto dto) {
         try {
             if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
                 return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
@@ -133,7 +133,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/searchDoctor")
-    public ResponseEntity<ApiResponse> serchDoctor(@RequestBody UserDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> serchDoctor(@RequestBody UserDto dto) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> list = userService.searchDoctor(dto);
         if (list.size() == 0) {
@@ -145,7 +145,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/searchParent")
-    public ResponseEntity<ApiResponse> serchParent(@RequestBody UserDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> serchParent(@RequestBody UserDto dto) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> list = userService.searchParent(dto);
         if (list.size() == 0) {
@@ -157,18 +157,18 @@ public class UserController {
     }
 
     @PostMapping("/v1/signin")
-    public ResponseEntity<ApiResponse> signin(@Valid @RequestBody SigninDto user) throws Exception {
+    public ResponseEntity<ApiResponse> signin(@Valid @RequestBody SigninDto user) {
         return ApiResponse.ok(userService.signin(user));
     }
 
     @PostMapping("/v1/findUserId")
-    public ResponseEntity<ApiResponse> findUserId(@RequestBody FindDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> findUserId(@RequestBody FindDto dto) {
         Map<String, Object> map = userService.findUserId(dto);
         return ApiResponse.ok(map);
     }
 
     @PostMapping("/v1/findUserPw")
-    public ResponseEntity<ApiResponse> findUserPw(@RequestBody FindDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> findUserPw(@RequestBody FindDto dto) {
         Map<String, Object> map = userService.findUserPw(dto);
         if (!map.isEmpty()) {
             if ((Long) map.get("count") != 0) {
@@ -182,7 +182,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/updateUserPw")
-    public ResponseEntity<ApiResponse> updateUserPw(@RequestBody FindDto dto) throws Exception {
+    public ResponseEntity<ApiResponse> updateUserPw(@RequestBody FindDto dto) {
         int result = userService.updateUserPw(dto);
         if (result > 0) {
             return ApiResponse.ok();
@@ -207,7 +207,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/refresh")
-    public ResponseEntity<ApiResponse> refresh(HttpServletRequest req) throws Exception {
+    public ResponseEntity<ApiResponse> refresh(HttpServletRequest req) {
         String accessToken = "";
         String bearerToken = req.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
@@ -224,7 +224,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/logout")
-    public ResponseEntity<ApiResponse> logout(HttpServletRequest req) throws Exception {
+    public ResponseEntity<ApiResponse> logout(HttpServletRequest req) {
         String token = "";
         String bearerToken = req.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {

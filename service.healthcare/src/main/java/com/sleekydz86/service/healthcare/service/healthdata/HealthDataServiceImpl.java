@@ -279,6 +279,10 @@ public class HealthDataServiceImpl implements HealthDataService {
 
         try {
             healthDataValidator.validate(params);
+            if (params.containsKey("searchWrd") && params.get("searchWrd") != null) {
+                String searchWrd = params.get("searchWrd").toString();
+                params.put("searchWrd", com.sleekydz86.service.healthcare.util.SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
             log.info("건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, params.get("date"));
             List<Map<String, Object>> rawResult = healthDataRepository.findHealthInfo(params);
             List<HealthData> result = rawResult.stream()
@@ -311,6 +315,10 @@ public class HealthDataServiceImpl implements HealthDataService {
 
         try {
             healthDataValidator.validate(params);
+            if (params.containsKey("searchWrd") && params.get("searchWrd") != null) {
+                String searchWrd = params.get("searchWrd").toString();
+                params.put("searchWrd", com.sleekydz86.service.healthcare.util.SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
             log.info("최소/최대 건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, params.get("date"));
             List<Map<String, Object>> rawResult = healthDataRepository.findMinMaxHealthInfo(params);
             List<HealthData> result = rawResult.stream()

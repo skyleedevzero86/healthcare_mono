@@ -1,8 +1,8 @@
 package com.sleekydz86.service.commu;
 
-import com.sleekydz86.service.commu.domain.Community;
-import com.sleekydz86.service.commu.domain.Usermng;
-import com.sleekydz86.service.commu.domain.DiseaseCategory;
+import com.sleekydz86.service.commu.entity.Community;
+import com.sleekydz86.service.commu.entity.Usermng;
+import com.sleekydz86.service.commu.entity.DiseaseCategory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.Test;
