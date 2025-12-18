@@ -17,24 +17,24 @@ public class LLMRequest {
     @NotBlank(message = "프롬프트는 필수입니다.")
     private String prompt;
 
-    private String template; // 프롬프트 템플릿 이름 (healthcare, general 등)
+    private String template;
     
-    private Map<String, Object> variables; // 템플릿 변수
+    private Map<String, Object> variables;
     
     private String userId;
     
-    private String conversationId; // 대화 세션 ID
+    private String conversationId;
     
-    private Integer maxTokens; // 최대 토큰 수 (기본값: 설정값 사용)
+    private Integer maxTokens;
     
-    private Double temperature; // 온도 (기본값: 설정값 사용)
+    private Double temperature;
     
-    private Double topP; // Top-P (기본값: 설정값 사용)
+    private Double topP;
     
-    private Integer topK; // Top-K (기본값: 설정값 사용)
+    private Integer topK;
     
-    private Boolean stream; // 스트리밍 응답 여부
+    private Boolean stream;
     
-    private String systemPrompt; // 시스템 프롬프트 오버라이드
+    private String systemPrompt;
 }
 

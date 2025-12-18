@@ -17,10 +17,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/llm/**").permitAll() // API Gateway에서 인증 처리
-                        .anyRequest().authenticated()
-                );
+                        .requestMatchers("/api/llm/**").permitAll()
+                        .anyRequest().authenticated());
         return http.build();
     }
 }
-

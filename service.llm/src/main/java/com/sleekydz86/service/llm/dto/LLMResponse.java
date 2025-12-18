@@ -24,14 +24,14 @@ public class LLMResponse {
     private Long processingTimeMs;
     private LocalDateTime timestamp;
     private Map<String, Object> metadata;
-    private List<Message> messages; // 대화 히스토리
+    private List<Message> messages;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Message {
-        private String role; // user, assistant, system
+        private String role;
         private String content;
         private LocalDateTime timestamp;
     }
