@@ -55,7 +55,7 @@ public class CommunityController {
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("게시글 작성 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -75,7 +75,7 @@ public class CommunityController {
             return ApiResponse.ok(communityService.findBoard(commuSeq));
         } catch (Exception e) {
             log.error("게시글 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -90,7 +90,7 @@ public class CommunityController {
             return ApiResponse.ok(items);
         } catch (Exception e) {
             log.error("게시글 목록 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -126,7 +126,7 @@ public class CommunityController {
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("게시글 수정 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -153,7 +153,7 @@ public class CommunityController {
             }
         } catch (Exception e) {
             log.error("게시글 삭제 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 }

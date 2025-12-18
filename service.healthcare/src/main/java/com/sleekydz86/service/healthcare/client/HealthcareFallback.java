@@ -22,7 +22,7 @@ public class HealthcareFallback implements HealthcareClient {
 
     @Override
     public Patient createPatient(Patient patient) {
-        throw new BusinessException("헬스케어 서비스가 일시적으로 사용할 수 없습니다", ApiResultCode.UNKOWN_ERR);
+        throw new BusinessException("헬스케어 서비스가 일시적으로 사용할 수 없습니다", ApiResultCode.UNKNOWN_ERR);
     }
 
     @Override

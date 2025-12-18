@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         log.error("NullPointerException 발생 - 프로그래밍 오류 가능성", ex);
         String userMessage = "처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.";
         ApiResponse<Void> response = ApiResponse.error(
-                ApiResultCode.UNKOWN_ERR.code, 
+                ApiResultCode.UNKNOWN_ERR.code, 
                 userMessage
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
         log.error("데이터베이스 접근 오류", ex);
         String userMessage = "데이터 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
         ApiResponse<Void> response = ApiResponse.error(
-                ApiResultCode.UNKOWN_ERR.code, 
+                ApiResultCode.UNKNOWN_ERR.code, 
                 userMessage
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler {
         log.error("예상치 못한 오류 발생", ex);
         String userMessage = "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
         ApiResponse<Void> response = ApiResponse.error(
-                ApiResultCode.UNKOWN_ERR.code, 
+                ApiResultCode.UNKNOWN_ERR.code, 
                 userMessage
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

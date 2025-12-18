@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -32,12 +31,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserMapper userMapper;
-
-    @Autowired
-    PagingUtil pagingUtil;
-
+    private final UserMapper userMapper;
+    private final PagingUtil pagingUtil;
     private final UserManagementMetrics userManagementMetrics;
     private final DtoConverter dtoConverter;
 
@@ -48,13 +43,13 @@ public class UserServiceImpl implements UserService {
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "userList");
-        
+
         userManagementMetrics.incrementUserListQueries();
         Timer.Sample sample = userManagementMetrics.startUserListQueryTimer();
-        
+
         try {
             log.info("사용자 목록 조회 중: 역할 {}, 페이지 {}", dto.getUserRoleFk(), dto.getPageIdx());
-            
+
             int totalCount = userMapper.userListCount(dto);
             PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
 
@@ -63,7 +58,7 @@ public class UserServiceImpl implements UserService {
                     .totalCount(paginationInfo.getTotalRecordCount())
                     .paginationInfo(paginationInfo)
                     .build();
-            
+
             log.info("사용자 목록 조회 완료: 역할 {}, 전체 개수: {}", dto.getUserRoleFk(), totalCount);
             return result;
         } catch (Exception e) {
@@ -125,13 +120,13 @@ public class UserServiceImpl implements UserService {
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "userInfo");
-        
+
         userManagementMetrics.incrementUserInfoQueries();
         Timer.Sample sample = userManagementMetrics.startUserInfoQueryTimer();
-        
+
         try {
             log.info("사용자 정보 조회 중: 사용자 {}, 역할 {}", userId, dto.getUserRoleFk());
-            
+
             Map<String, Object> result = userMapper.userInfo(dto);
             ArrayList<CamelHashMap<String, Object>> res = new ArrayList<CamelHashMap<String, Object>>();
             if (result != null) {
@@ -149,18 +144,16 @@ public class UserServiceImpl implements UserService {
 
                 if (result.get("birthEnc") != null) {
                     result.put("birthDecrypted", HealthcareEncryptionUtil.decrypt(
-                        (String) result.get("birthEnc"),
-                        KeyType.USER
-                    ));
+                            (String) result.get("birthEnc"),
+                            KeyType.USER));
                 }
                 if (result.get("telNumEnc") != null) {
                     result.put("telNumDecrypted", HealthcareEncryptionUtil.decrypt(
-                        (String) result.get("telNumEnc"),
-                        KeyType.USER
-                    ));
+                            (String) result.get("telNumEnc"),
+                            KeyType.USER));
                 }
             }
-            
+
             log.info("사용자 정보 조회 완료: {}", userId);
             return result;
         } catch (BusinessException e) {
@@ -168,37 +161,36 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             log.error("사용자 정보 조회 중 오류 발생: {}", userId, e);
             throw new BusinessException(
-                "사용자 정보 조회 중 오류가 발생했습니다.",
-                e,
-                com.sleekydz86.service.usermanagement.dto.ApiResultCode.UNKOWN_ERR
-            );
+                    "사용자 정보 조회 중 오류가 발생했습니다.",
+                    e,
+                    com.sleekydz86.service.usermanagement.dto.ApiResultCode.UNKNOWN_ERR);
         } finally {
             sample.stop(userManagementMetrics.getUserInfoQueryTime());
             MDC.clear();
         }
     }
 
-    @CacheEvict(value = {"userInfo", "userList"}, allEntries = true)
+    @CacheEvict(value = { "userInfo", "userList" }, allEntries = true)
     public int updateUserInfo(@Valid UserDto dto) {
         String requestId = UUID.randomUUID().toString();
         String userId = dto.getUserId() != null ? dto.getUserId() : "unknown";
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "updateUserInfo");
-        
+
         userManagementMetrics.incrementUserInfoUpdates();
         Timer.Sample sample = userManagementMetrics.startUserInfoUpdateTimer();
-        
+
         try {
             log.info("사용자 정보 업데이트 중: {}", userId);
-            
+
             if (dto.getBirthEnc() != null) {
                 dto.setBirthEnc(HealthcareEncryptionUtil.encrypt(dto.getBirthEnc(), KeyType.USER));
             }
             if (dto.getTelNumEnc() != null) {
                 dto.setTelNumEnc(HealthcareEncryptionUtil.encrypt(dto.getTelNumEnc(), KeyType.USER));
             }
-            
+
             ArrayList<Map<String, Object>> result = new ArrayList<>();
             String str = dto.getGuardian();
             try {
@@ -226,7 +218,7 @@ public class UserServiceImpl implements UserService {
             }
 
             int updateResult = userMapper.updateUserInfo(dto);
-            
+
             log.info("사용자 정보 업데이트 완료: 사용자 {}, 결과: {}", userId, updateResult);
             return updateResult;
         } catch (Exception e) {
@@ -238,23 +230,23 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @CacheEvict(value = {"userInfo", "userList", "parentList", "doctorList"}, allEntries = true)
+    @CacheEvict(value = { "userInfo", "userList", "parentList", "doctorList" }, allEntries = true)
     public int deleteUserInfo(@Valid UserDto dto) {
         String requestId = UUID.randomUUID().toString();
         String userId = dto.getUserId() != null ? dto.getUserId() : "unknown";
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "deleteUserInfo");
-        
+
         try {
             log.info("사용자 정보 삭제 중: {}", userId);
-            
+
             int result = userMapper.deleteUserInfo(dto);
-            
+
             if (result > 0) {
                 userManagementMetrics.incrementUserInfoDeletes();
             }
-            
+
             log.info("사용자 정보 삭제 완료: 사용자 {}, 결과: {}", userId, result);
             return result;
         } catch (Exception e) {
@@ -272,16 +264,16 @@ public class UserServiceImpl implements UserService {
         MDC.put("userId", userId);
         MDC.put("requestId", requestId);
         MDC.put("operation", "updatePasswd");
-        
+
         try {
             log.info("비밀번호 변경 중: {}", userId);
-            
+
             int result = userMapper.updatePasswd(dto);
-            
+
             if (result > 0) {
                 userManagementMetrics.incrementPasswordUpdates();
             }
-            
+
             log.info("비밀번호 변경 완료: 사용자 {}, 결과: {}", userId, result);
             return result;
         } catch (Exception e) {
@@ -297,14 +289,14 @@ public class UserServiceImpl implements UserService {
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
         MDC.put("operation", "searchDoctor");
-        
+
         try {
             log.info("의사 검색 중: 검색어 {}", dto.getUserNm());
-            
+
             List<Map<String, Object>> result = userMapper.searchDoctor(dto);
-            
+
             userManagementMetrics.incrementDoctorSearches();
-            
+
             log.info("의사 검색 완료, 결과 개수: {}", result != null ? result.size() : 0);
             return result;
         } catch (Exception e) {
@@ -320,14 +312,14 @@ public class UserServiceImpl implements UserService {
         String requestId = UUID.randomUUID().toString();
         MDC.put("requestId", requestId);
         MDC.put("operation", "searchParent");
-        
+
         try {
             log.info("보호자 검색 중: 검색어 {}", dto.getUserNm());
-            
+
             List<Map<String, Object>> result = userMapper.searchParent(dto);
-            
+
             userManagementMetrics.incrementParentSearches();
-            
+
             log.info("보호자 검색 완료, 결과 개수: {}", result != null ? result.size() : 0);
             return result;
         } catch (Exception e) {

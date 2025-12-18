@@ -81,7 +81,7 @@ public class AuthService {
             throw new BusinessException(
                 "인증 처리 중 오류가 발생했습니다.",
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         }
     }
@@ -131,7 +131,7 @@ public class AuthService {
             throw new BusinessException(
                 "사용자 정보 조회 중 오류가 발생했습니다.",
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         }
     }

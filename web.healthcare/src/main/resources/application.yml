@@ -44,10 +44,10 @@ spring:
       roles: ${SECURITY_USER_ROLES:ADMIN}
 
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
   cloud:
     config:
-      uri: http://localhost:8888
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
       fail-fast: false
       retry:
         initial-interval: 1000
@@ -76,13 +76,13 @@ spring:
 gateway:
   version: /v1
   auth:
-    uri: http://localhost:8082
+    uri: ${GATEWAY_AUTH_URI:http://localhost:8082}
   healthcare:
-    uri: http://localhost:8081
+    uri: ${GATEWAY_HEALTHCARE_URI:http://localhost:8081}
   usermanagement:
-    uri: http://localhost:8086
+    uri: ${GATEWAY_USERMANAGEMENT_URI:http://localhost:8086}
   community:
-    uri: http://localhost:8085
+    uri: ${GATEWAY_COMMUNITY_URI:http://localhost:8085}
 
 request:
   timeout: 30
@@ -95,7 +95,7 @@ token:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -123,7 +123,7 @@ management:
 spring:
   sleuth:
     zipkin:
-      base-url: http://localhost:9411
+      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
     sampler:
       probability: 1.0
 

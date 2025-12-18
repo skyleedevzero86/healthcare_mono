@@ -3,8 +3,8 @@ package com.sleekydz86.service.commu.controller;
 import com.sleekydz86.service.commu.dto.NotificationRequest;
 import com.sleekydz86.service.commu.entity.Notification;
 import com.sleekydz86.service.commu.service.MessageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +13,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/communication")
+@RequiredArgsConstructor
 public class MessageController {
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-
-    @Autowired
-    private MessageService messageService;
+    private final RabbitTemplate rabbitTemplate;
+    private final MessageService messageService;
 
     @PostMapping("/notifications")
     public ResponseEntity<Void> sendNotification(@RequestBody NotificationRequest request) {

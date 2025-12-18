@@ -17,7 +17,7 @@ public enum ApiResultCode {
     INSERT_FAIL				("3003","삽입 실패 (삽입된 행 수 : 0)"),
     SELECT_FAIL				("3004","조회 실패"),
 
-    UNKOWN_ERR				("5001", "알 수 없는 오류");
+    UNKNOWN_ERR				("5001", "알 수 없는 오류");
 
     public String code;
     public String message;

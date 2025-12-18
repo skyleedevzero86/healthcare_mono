@@ -22,5 +22,5 @@ public enum ApiResultCode {
         this.message = message;
     }
 
-    public static ApiResultCode UNKOWN_ERR = INTERNAL_ERROR;
+    public static ApiResultCode UNKNOWN_ERR = INTERNAL_ERROR;
 }

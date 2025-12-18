@@ -1,49 +1,23 @@
 package com.sleekydz86.service.healthcare.controller;
 
-import io.micrometer.core.instrument.MeterRegistry;
+import com.sleekydz86.service.healthcare.common.MetricsCollector;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/actuator/metrics")
+@RequiredArgsConstructor
 public class MetricsController {
 
-    private final MeterRegistry meterRegistry;
-
-    public MetricsController(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
-    }
+    private final MetricsCollector metricsCollector;
 
     @GetMapping("/custom")
     public ResponseEntity<Map<String, Object>> customMetrics() {
-        Map<String, Object> metrics = new HashMap<>();
-
-        try {
-            double cacheHitRate = meterRegistry.get("cache.hit.rate").gauge().value();
-            metrics.put("cacheHitRate", cacheHitRate);
-        } catch (Exception e) {
-            metrics.put("cacheHitRate", 0.0);
-        }
-
-        try {
-            double dbConnections = meterRegistry.get("database.connections.active").gauge().value();
-            metrics.put("databaseConnections", dbConnections);
-        } catch (Exception e) {
-            metrics.put("databaseConnections", 0.0);
-        }
-
-        try {
-            double requestCount = meterRegistry.get("http.requests.count").counter().count();
-            metrics.put("requestCount", requestCount);
-        } catch (Exception e) {
-            metrics.put("requestCount", 0.0);
-        }
-
-        return ResponseEntity.ok(metrics);
+        return ResponseEntity.ok(metricsCollector.collectCustomMetrics());
     }
 }

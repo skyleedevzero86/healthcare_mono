@@ -78,7 +78,7 @@ public class UserController {
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("회원가입 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -104,7 +104,7 @@ public class UserController {
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("ID 중복 확인 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -128,7 +128,7 @@ public class UserController {
             return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("이메일 중복 확인 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -177,7 +177,7 @@ public class UserController {
                 return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
             }
         } else {
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 

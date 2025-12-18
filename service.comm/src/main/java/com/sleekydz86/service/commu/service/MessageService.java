@@ -3,7 +3,7 @@ package com.sleekydz86.service.commu.service;
 import com.sleekydz86.service.commu.entity.Notification;
 import com.sleekydz86.service.commu.dto.NotificationRequest;
 import com.sleekydz86.service.commu.repository.NotificationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +13,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class MessageService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final NotificationRepository notificationRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public void saveNotification(NotificationRequest request) {
         Notification notification = Notification.builder()

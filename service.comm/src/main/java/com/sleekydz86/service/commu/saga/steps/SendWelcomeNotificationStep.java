@@ -6,16 +6,16 @@ import com.sleekydz86.api.gateway.saga.SagaStepResult;
 import com.sleekydz86.service.commu.dto.NotificationRequest;
 import com.sleekydz86.service.commu.service.MessageService;
 import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
 
 @Component
+@RequiredArgsConstructor
 public class SendWelcomeNotificationStep implements SagaStep {
 
-    @Autowired
-    private MessageService messageService;
+    private final MessageService messageService;
 
     @Override
     public CompletableFuture<SagaStepResult> execute(Saga saga) {

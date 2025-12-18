@@ -57,7 +57,7 @@ public class CreatePatientCommandHandler implements CommandHandler<CreatePatient
                 throw e;
             } catch (Exception e) {
                 log.error("환자 생성 실패", e);
-                throw new BusinessException("환자 생성 실패", e, ApiResultCode.UNKOWN_ERR);
+                throw new BusinessException("환자 생성 실패", e, ApiResultCode.UNKNOWN_ERR);
             }
         });
     }

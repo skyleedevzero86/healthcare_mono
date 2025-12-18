@@ -56,7 +56,7 @@ public class CommunityRepository {
             throw new BusinessException(
                 "게시글 조회 중 오류가 발생했습니다: " + e.getMessage(),
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         }
     }
@@ -119,7 +119,7 @@ public class CommunityRepository {
             throw new BusinessException(
                 "게시글 목록 조회 중 오류가 발생했습니다: " + e.getMessage(),
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         }
     }

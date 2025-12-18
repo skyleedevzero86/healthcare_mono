@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(
                 "로그인 처리 중 오류가 발생했습니다.",
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         } finally {
             sample.stop(authMetrics.getSigninProcessingTime());
@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(
                 "회원가입 처리 중 오류가 발생했습니다.",
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         } finally {
             sample.stop(authMetrics.getSignupProcessingTime());
@@ -272,7 +272,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(
                 "로그아웃 처리 중 오류가 발생했습니다.",
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         } finally {
             MDC.clear();
@@ -333,7 +333,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(
                 "토큰 갱신 중 오류가 발생했습니다.",
                 e,
-                ApiResultCode.UNKOWN_ERR
+                ApiResultCode.UNKNOWN_ERR
             );
         } finally {
             MDC.clear();

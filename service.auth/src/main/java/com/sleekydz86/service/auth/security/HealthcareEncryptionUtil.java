@@ -45,7 +45,7 @@ public class HealthcareEncryptionUtil {
 
             return Base64.getEncoder().encodeToString(encryptedWithIv);
         } catch (Exception e) {
-            throw new BusinessException("암호화 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("암호화 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -68,7 +68,7 @@ public class HealthcareEncryptionUtil {
             byte[] plainText = cipher.doFinal(cipherText);
             return new String(plainText, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new BusinessException("복호화 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("복호화 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -92,7 +92,7 @@ public class HealthcareEncryptionUtil {
             byte[] hashedBytes = md.digest();
             return Base64.getEncoder().encodeToString(hashedBytes);
         } catch (Exception e) {
-            throw new BusinessException("해시 생성 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("해시 생성 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 

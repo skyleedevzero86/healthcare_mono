@@ -6,16 +6,16 @@ import com.sleekydz86.api.gateway.saga.SagaStepResult;
 import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
 import com.sleekydz86.service.usermanagement.entity.User;
 import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
 
 @Component
+@RequiredArgsConstructor
 public class CreateUserAccountStep implements SagaStep {
 
-    @Autowired
-    private UserJpaRepository userJpaRepository;
+    private final UserJpaRepository userJpaRepository;
 
     @Override
     public CompletableFuture<SagaStepResult> execute(Saga saga) {

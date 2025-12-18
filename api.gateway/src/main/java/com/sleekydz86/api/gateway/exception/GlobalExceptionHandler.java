@@ -30,7 +30,7 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-        String code = ApiResultCode.UNKOWN_ERR.code;
+        String code = ApiResultCode.UNKNOWN_ERR.code;
 
         if (ex instanceof ResponseStatusException) {
             ResponseStatusException responseStatusException = (ResponseStatusException) ex;
@@ -55,12 +55,12 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         } else if (ex instanceof NullPointerException) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
             message = "처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.";
-            code = ApiResultCode.UNKOWN_ERR.code;
+            code = ApiResultCode.UNKNOWN_ERR.code;
             log.error("NullPointerException 발생 - 프로그래밍 오류 가능성", ex);
         } else if (ex instanceof DataAccessException) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
             message = "데이터 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-            code = ApiResultCode.UNKOWN_ERR.code;
+            code = ApiResultCode.UNKNOWN_ERR.code;
             log.error("데이터베이스 접근 오류", ex);
         } else if (ex instanceof DuplicateKeyException) {
             status = HttpStatus.CONFLICT;

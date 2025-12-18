@@ -31,7 +31,7 @@ spring:
           min-idle: 0
   sleuth:
     zipkin:
-      base-url: http://localhost:9411
+      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
     sampler:
       probability: 1.0
 

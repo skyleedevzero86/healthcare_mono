@@ -50,7 +50,7 @@ public class UpdatePatientCommandHandler implements CommandHandler<UpdatePatient
                 throw e;
             } catch (Exception e) {
                 log.error("환자 업데이트 실패", e);
-                throw new BusinessException("환자 업데이트 실패", e, ApiResultCode.UNKOWN_ERR);
+                throw new BusinessException("환자 업데이트 실패", e, ApiResultCode.UNKNOWN_ERR);
             }
         });
     }

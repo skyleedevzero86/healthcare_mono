@@ -57,7 +57,7 @@ public class EventStore {
             } catch (ConcurrencyException e) {
                 throw e;
             } catch (Exception e) {
-                throw new BusinessException("이벤트 저장 실패", e, ApiResultCode.UNKOWN_ERR);
+                throw new BusinessException("이벤트 저장 실패", e, ApiResultCode.UNKNOWN_ERR);
             }
         });
     }
@@ -90,7 +90,7 @@ public class EventStore {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (Exception e) {
-            throw new BusinessException("이벤트 직렬화 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("이벤트 직렬화 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -100,7 +100,7 @@ public class EventStore {
             Class<? extends DomainEvent> eventClass = getEventClass(eventType);
             return objectMapper.readValue(eventEntity.getEventData(), eventClass);
         } catch (Exception e) {
-            throw new BusinessException("이벤트 역직렬화 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("이벤트 역직렬화 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 

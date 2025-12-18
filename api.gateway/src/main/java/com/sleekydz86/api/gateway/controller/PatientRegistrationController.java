@@ -55,7 +55,7 @@ public class PatientRegistrationController {
                     return ResponseEntity.ok(response);
                 } else {
                     ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
-                        .resultCode(ApiResultCode.UNKOWN_ERR.getCode())
+                        .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                         .resultMessage(result.getMessage())
                         .resultData(null)
                         .timestamp(java.time.LocalDateTime.now())
@@ -65,7 +65,7 @@ public class PatientRegistrationController {
             } catch (Exception e) {
                 log.error("환자 등록 실패", e);
                 ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
-                    .resultCode(ApiResultCode.UNKOWN_ERR.getCode())
+                    .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                     .resultMessage("환자 등록 실패: " + e.getMessage())
                     .resultData(null)
                     .timestamp(java.time.LocalDateTime.now())
@@ -105,7 +105,7 @@ public class PatientRegistrationController {
             } catch (Exception e) {
                 log.error("Saga 상태 조회 실패", e);
                 ApiResponse<SagaStatus> response = ApiResponse.<SagaStatus>builder()
-                    .resultCode(ApiResultCode.UNKOWN_ERR.getCode())
+                    .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                     .resultMessage("Saga 상태 조회 실패: " + e.getMessage())
                     .resultData(null)
                     .timestamp(java.time.LocalDateTime.now())
@@ -135,7 +135,7 @@ public class PatientRegistrationController {
                     return ResponseEntity.ok(response);
                 } else {
                     ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
-                        .resultCode(ApiResultCode.UNKOWN_ERR.getCode())
+                        .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                         .resultMessage(result.getMessage())
                         .resultData(null)
                         .timestamp(java.time.LocalDateTime.now())
@@ -145,7 +145,7 @@ public class PatientRegistrationController {
             } catch (Exception e) {
                 log.error("Saga 재개 실패", e);
                 ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
-                    .resultCode(ApiResultCode.UNKOWN_ERR.getCode())
+                    .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                     .resultMessage("Saga 재개 실패: " + e.getMessage())
                     .resultData(null)
                     .timestamp(java.time.LocalDateTime.now())
