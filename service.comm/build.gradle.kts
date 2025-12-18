@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.flywaydb.flyway") version "10.8.1"
 }
 
 group = "com.sleekydz86"
@@ -57,8 +58,8 @@ dependencies {
     testImplementation("org.assertj:assertj-core")
     implementation("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16")
     implementation("org.codehaus.janino:janino:3.1.12")
-
-
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
 }
 
 dependencyManagement {

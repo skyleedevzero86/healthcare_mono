@@ -14,4 +14,12 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
     @Query("SELECT COALESCE(MAX(e.version), 0) FROM EventEntity e WHERE e.aggregateId = :aggregateId")
     int getLatestVersion(@Param("aggregateId") String aggregateId);
+    
+    @Query("SELECT e FROM EventEntity e WHERE e.aggregateId = :aggregateId AND e.version > :fromVersion ORDER BY e.version ASC")
+    List<EventEntity> findByAggregateIdAndVersionGreaterThanOrderByVersionAsc(
+        @Param("aggregateId") String aggregateId, 
+        @Param("fromVersion") int fromVersion);
+    
+    @Query("SELECT DISTINCT e.aggregateId FROM EventEntity e")
+    List<String> findAllDistinctAggregateIds();
 }

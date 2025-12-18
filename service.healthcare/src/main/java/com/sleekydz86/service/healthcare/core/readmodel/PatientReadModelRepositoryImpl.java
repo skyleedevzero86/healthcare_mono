@@ -5,6 +5,7 @@ import com.sleekydz86.service.healthcare.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -67,6 +68,16 @@ public class PatientReadModelRepositoryImpl implements PatientReadModelRepositor
         patient.setCreatedAt(readModel.getCreatedAt());
         patient.setUpdatedAt(readModel.getUpdatedAt());
         return patient;
+    }
+    
+    @Override
+    public List<PatientReadModel> findAll(int page, int size) {
+        org.springframework.data.domain.Pageable pageable = 
+            org.springframework.data.domain.PageRequest.of(page, size);
+        return patientRepository.findAll(pageable)
+            .stream()
+            .map(this::toReadModel)
+            .collect(java.util.stream.Collectors.toList());
     }
 }
 
