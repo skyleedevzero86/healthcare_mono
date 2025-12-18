@@ -1,0 +1,13 @@
+llm:
+  llama-cpp:
+    server-url: http://localhost:8080
+  cache:
+    enabled: true
+    ttl: 1800
+
+logging:
+  level:
+    com.sleekydz86.service.llm: DEBUG
+    org.springframework.web: INFO
+    org.springframework.cloud: INFO
+

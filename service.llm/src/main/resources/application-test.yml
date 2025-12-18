@@ -1,0 +1,13 @@
+# Test environment configuration
+llm:
+  enabled: true
+  llama-cpp:
+    server-url: http://localhost:8080
+  cache:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.sleekydz86.service.llm: DEBUG
+

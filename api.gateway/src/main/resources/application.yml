@@ -93,13 +93,24 @@ spring:
                 fallbackUri: forward:/fallback/management
             - StripPrefix=0
           order: 4
+        - id: llm-service
+          uri: lb://service.llm
+          predicates:
+            - Path=/api/llm/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: llmService
+                fallbackUri: forward:/fallback/llm
+            - StripPrefix=0
+          order: 5
         - id: web-healthcare-service
           uri: ${WEB_HEALTHCARE_URI:http://localhost:8981}
           predicates:
             - Path=/web/**
           filters:
             - StripPrefix=1
-          order: 5
+          order: 6
       default-filters:
         - name: GlobalLoggingFilter
           args:
@@ -200,6 +211,8 @@ resilience4j:
       healthcareService:
         baseConfig: default
       communityService:
+        baseConfig: default
+      llmService:
         baseConfig: default
 
 logging:

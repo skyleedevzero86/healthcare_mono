@@ -135,12 +135,6 @@ info:
     java:
       version: ${java.version}
 
-chatgpt:
-  enabled: ${CHATGPT_ENABLED:false}
-  api:
-    url: ${CHATGPT_API_URL:https://api.openai.com/v1/chat/completions}
-    key: ${CHATGPT_API_KEY:}
-
 sharding:
   datasource:
     ds0:

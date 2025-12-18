@@ -1,0 +1,31 @@
+server:
+  max-http-header-size: 16KB
+  max-http-post-size: 10MB
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 1024
+
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: basic
+      compression:
+        request:
+          enabled: true
+        response:
+          enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.sleekydz86.service.llm: INFO
+    org.springframework.web: INFO
+    org.springframework.cloud: INFO
+    org.springframework.cloud.openfeign: DEBUG
+    feign: DEBUG

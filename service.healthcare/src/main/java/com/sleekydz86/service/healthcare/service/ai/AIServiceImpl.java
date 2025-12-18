@@ -1,21 +1,16 @@
 package com.sleekydz86.service.healthcare.service.ai;
 
-import com.sleekydz86.service.healthcare.service.ChatgptService;
+import com.sleekydz86.service.healthcare.service.ChatService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
 @RequiredArgsConstructor
 public class AIServiceImpl implements AIService {
-    private final ChatgptService chatgptService;
+    private final ChatService chatService;
 
     @Override
     public String generateResponse(Map<String, Object> params) {
-        String query = (String) params.get("query");
-        if (query != null && !query.isEmpty()) {
-            return chatgptService.sendMessage(query);
-        }
-        return "";
+        return chatService.getChatResponse(params);
     }
 }
-

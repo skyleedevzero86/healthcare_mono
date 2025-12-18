@@ -595,10 +595,7 @@ public class HealthcareController {
             }
 
             if (aiResponse == null || aiResponse.isEmpty()) {
-                AIHandleDto aiHandleDto = new AIHandleDto();
-                String query = aiHandleDto.getQuery(bioInfoDto.getBioInfoDto(map));
-
-                aiResponse = chatService.getChatResponse(query);
+                aiResponse = chatService.getChatResponse(map);
 
                 paramMap.put("aiResponse", aiResponse);
                 ServiceResponse<Integer> saveResponse = aiResponseService.saveAIResponse(paramMap);
