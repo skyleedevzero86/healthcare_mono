@@ -6,8 +6,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "llm")
-public class LLMProperties {
+@ConfigurationProperties(prefix = "llm.cache")
+public class CacheProperties {
     private boolean enabled = true;
-    private String provider = "llama-cpp";
+    private int ttl = 3600;
 }
+

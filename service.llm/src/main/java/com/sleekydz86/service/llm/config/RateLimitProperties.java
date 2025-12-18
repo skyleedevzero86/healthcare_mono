@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "llm")
-public class LLMProperties {
+@ConfigurationProperties(prefix = "llm.rate-limit")
+public class RateLimitProperties {
     private boolean enabled = true;
-    private String provider = "llama-cpp";
+    private int requestsPerMinute = 30;
+    private int requestsPerHour = 500;
 }
+

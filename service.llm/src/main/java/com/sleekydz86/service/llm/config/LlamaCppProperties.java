@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "llm")
-public class LLMProperties {
-    private boolean enabled = true;
-    private String provider = "llama-cpp";
+@ConfigurationProperties(prefix = "llm.llama-cpp")
+public class LlamaCppProperties {
+    private String serverUrl = "http://localhost:8080";
+    private int timeout = 60000;
+    private int maxRetries = 3;
 }
+
