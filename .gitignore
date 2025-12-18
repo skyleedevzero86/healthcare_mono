@@ -29,3 +29,48 @@ healthcare_mobile - 복사본/
 *복사본*/
 *backup*/
 *copy*/
+
+# LLM Model files and directories
+# Model file formats
+*.gguf
+*.gguf.*
+*.gguf-split
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.h5
+*.onnx
+*.tflite
+*.pb
+*.mlmodel
+*.coreml
+
+# Model directories (various naming patterns)
+models/
+model/
+models_*/
+model_*/
+모델/
+모델들/
+llm_models/
+ai_models/
+checkpoints/
+weights/
+pretrained/
+
+# llama.cpp related
+llama.cpp/
+llama-cpp/
+*.so
+*.dylib
+*.dll
+
+# Model cache and temporary files
+.cache/
+*.cache
+model_cache/
+.huggingface/
+transformers_cache/
