@@ -18,7 +18,7 @@ public enum ApiResultCode {
 
     INVALID_REQUEST			("1002", "잘못된 요청"),
 
-    UNKOWN_ERR				("5001", "알 수 없는 오류");
+    UNKNOWN_ERR				("5001", "알 수 없는 오류");
 
     public String code;
     public String message;

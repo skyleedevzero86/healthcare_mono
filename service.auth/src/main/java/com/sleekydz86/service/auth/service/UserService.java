@@ -11,17 +11,17 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    public Map<Object, Object> signin(SigninDto user) throws Exception;
+    Map<Object, Object> signin(SigninDto user);
 
-    public int signup(SignupDto user) throws Exception;
+    int signup(SignupDto user);
 
-    public boolean duplicateId(UserDto dto);
+    boolean duplicateId(UserDto dto);
 
-    public boolean duplicateEmail(UserDto dto);
+    boolean duplicateEmail(UserDto dto);
 
-    public void logout(String token) throws Exception;
+    void logout(String token);
 
-    public JwtTokenDto refresh(String accessToken, String refreshToken) throws Exception;
+    JwtTokenDto refresh(String accessToken, String refreshToken);
 
     public List<Map<String, Object>> searchDoctor(UserDto dto);
 

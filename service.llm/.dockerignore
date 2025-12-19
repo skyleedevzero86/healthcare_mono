@@ -1,0 +1,17 @@
+.gradle
+build
+.idea
+*.iml
+*.log
+logs
+.git
+.gitignore
+README.md
+HELP.md
+.gradle
+bin
+out
+.DS_Store
+models
+*.gguf
+

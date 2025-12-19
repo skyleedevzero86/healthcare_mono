@@ -20,22 +20,32 @@ import java.util.Map;
 @EnableCaching
 public class CacheConfig {
 
+    public static final String CACHE_COMMUNITY = "community";
+    public static final String CACHE_COMMUNITY_LIST = "communityList";
+    public static final String CACHE_COMMUNITY_POST = "communityPost";
+    
+    public static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
+    public static final Duration COMMUNITY_TTL = Duration.ofHours(1);
+    public static final Duration COMMUNITY_LIST_TTL = Duration.ofMinutes(10);
+    public static final Duration COMMUNITY_POST_TTL = Duration.ofHours(1);
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30))
+                .entryTtl(DEFAULT_TTL)
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .disableCachingNullValues();
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-        cacheConfigurations.put("community", defaultConfig.entryTtl(Duration.ofHours(1)));
-        cacheConfigurations.put("communityList", defaultConfig.entryTtl(Duration.ofMinutes(10)));
-        cacheConfigurations.put("communityPost", defaultConfig.entryTtl(Duration.ofHours(1)));
+        cacheConfigurations.put(CACHE_COMMUNITY, defaultConfig.entryTtl(COMMUNITY_TTL));
+        cacheConfigurations.put(CACHE_COMMUNITY_LIST, defaultConfig.entryTtl(COMMUNITY_LIST_TTL));
+        cacheConfigurations.put(CACHE_COMMUNITY_POST, defaultConfig.entryTtl(COMMUNITY_POST_TTL));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigurations)
+                .transactionAware()
                 .build();
     }
 

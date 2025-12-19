@@ -7,10 +7,13 @@ import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModelReposito
 import com.sleekydz86.service.healthcare.dto.ApiResultCode;
 import com.sleekydz86.service.healthcare.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GetPatientQueryHandler implements QueryHandler<GetPatientQuery, PatientReadModel> {
@@ -20,8 +23,23 @@ public class GetPatientQueryHandler implements QueryHandler<GetPatientQuery, Pat
     @Override
     public CompletableFuture<PatientReadModel> handle(GetPatientQuery query) {
         return CompletableFuture.supplyAsync(() -> {
-            return patientReadModelRepository.findByPatientId(query.getPatientId())
-                .orElseThrow(() -> new BusinessException("환자를 찾을 수 없습니다", ApiResultCode.RESULT_IS_EMPTY));
+            try {
+                Optional<PatientReadModel> readModelOpt = 
+                    patientReadModelRepository.findByPatientId(query.getPatientId());
+                
+                if (readModelOpt.isEmpty()) {
+                    throw new BusinessException("환자를 찾을 수 없습니다: " + query.getPatientId(), 
+                        ApiResultCode.RESULT_IS_EMPTY);
+                }
+                
+                log.debug("환자 쿼리 실행: {}", query.getPatientId());
+                return readModelOpt.get();
+            } catch (BusinessException e) {
+                throw e;
+            } catch (Exception e) {
+                log.error("환자 조회 실패", e);
+                throw new BusinessException("환자 조회 실패", e, ApiResultCode.UNKNOWN_ERR);
+            }
         });
     }
 
@@ -30,4 +48,3 @@ public class GetPatientQueryHandler implements QueryHandler<GetPatientQuery, Pat
         return GetPatientQuery.class;
     }
 }
-

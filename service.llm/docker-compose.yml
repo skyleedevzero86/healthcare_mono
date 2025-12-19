@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+  llama-cpp-server:
+    image: ghcr.io/ggerganov/llama.cpp:server-latest
+    container_name: llama-cpp-server
+    ports:
+      - "8090:8090" # llama.cpp 서버 포트
+    volumes:
+      - ./models:/models
+    environment:
+      - MODEL=/models/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf
+      - CTX_SIZE=16384
+      - THREADS=8
+      - N_GPU_LAYERS=0 # CPU 모드 (GPU 사용 시 35로 변경)
+    command: >
+      --model ${MODEL}
+      --port 8090
+      --ctx-size ${CTX_SIZE}
+      --threads ${THREADS}
+      --n-gpu-layers ${N_GPU_LAYERS}
+      --host 0.0.0.0
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8090/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - llm-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: llm-redis
+    ports:
+      - "6379:6379" # Redis 포트
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - llm-network
+
+  service-llm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: service-llm
+    ports:
+      - "8086:8086" # service.llm 포트
+    environment:
+      - LLAMA_CPP_SERVER_URL=http://llama-cpp-server:8090
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      llama-cpp-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8086/actuator/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - llm-network
+
+volumes:
+  redis-data:
+
+networks:
+  llm-network:
+    driver: bridge

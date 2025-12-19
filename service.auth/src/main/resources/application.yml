@@ -25,10 +25,18 @@ spring:
       map-underscore-to-camel-case: true
       default-fetch-size: 100
       default-statement-timeout: 30
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+    clean-disabled: true
+    schemas: healthcare
 
   cloud:
     config:
-      uri: http://localhost:8888
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
       fail-fast: true
       retry:
         initial-interval: 1000
@@ -36,12 +44,12 @@ spring:
         max-interval: 2000
         multiplier: 1.1
   config:
-    import: configserver:http://localhost:8888
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -82,7 +90,7 @@ resilience4j:
 spring:
   sleuth:
     zipkin:
-      base-url: http://localhost:9411
+      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
     sampler:
       probability: 1.0
   rabbitmq:

@@ -11,7 +11,7 @@ public class BusinessException extends RuntimeException {
     public BusinessException(String message) {
         super(message);
         this.errorCode = "BUSINESS_ERROR";
-        this.apiResultCode = ApiResultCode.UNKOWN_ERR;
+        this.apiResultCode = ApiResultCode.UNKNOWN_ERR;
     }
 
     public BusinessException(String message, ApiResultCode apiResultCode) {
@@ -23,7 +23,7 @@ public class BusinessException extends RuntimeException {
     public BusinessException(String message, String errorCode) {
         super(message);
         this.errorCode = errorCode;
-        this.apiResultCode = ApiResultCode.UNKOWN_ERR;
+        this.apiResultCode = ApiResultCode.UNKNOWN_ERR;
     }
 
     public BusinessException(String message, Throwable cause, ApiResultCode apiResultCode) {

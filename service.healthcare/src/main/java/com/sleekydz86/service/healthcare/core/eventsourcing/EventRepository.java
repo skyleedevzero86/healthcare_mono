@@ -9,8 +9,17 @@ import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<EventEntity, Long> {
-    List<EventEntity> findByAggregateIdOrderByVersionAsc(String aggregateId);
+    @Query("SELECT e FROM EventEntity e WHERE e.aggregateId = :aggregateId ORDER BY e.version ASC")
+    List<EventEntity> findByAggregateIdOrderByVersionAsc(@Param("aggregateId") String aggregateId);
 
     @Query("SELECT COALESCE(MAX(e.version), 0) FROM EventEntity e WHERE e.aggregateId = :aggregateId")
     int getLatestVersion(@Param("aggregateId") String aggregateId);
+    
+    @Query("SELECT e FROM EventEntity e WHERE e.aggregateId = :aggregateId AND e.version > :fromVersion ORDER BY e.version ASC")
+    List<EventEntity> findByAggregateIdAndVersionGreaterThanOrderByVersionAsc(
+        @Param("aggregateId") String aggregateId, 
+        @Param("fromVersion") int fromVersion);
+    
+    @Query("SELECT DISTINCT e.aggregateId FROM EventEntity e")
+    List<String> findAllDistinctAggregateIds();
 }

@@ -50,10 +50,11 @@ class HealthcareServiceTest {
 
     @BeforeEach
     void setUp() {
+        String uniqueUserId = "testUser_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         minuteDataDto = new MinuteDataDto();
-        minuteDataDto.setUserId("testUser");
+        minuteDataDto.setUserId(uniqueUserId);
         minuteDataDto.setUserSeq(1);
-        minuteDataDto.setTid("T001");
+        minuteDataDto.setTid("T001_" + System.currentTimeMillis());
         minuteDataDto.setTime("202501011200");
         minuteDataDto.setHeartrate(72);
         minuteDataDto.setTemper(36.5f);
@@ -65,7 +66,7 @@ class HealthcareServiceTest {
         minuteDataDto.setRepiratory(16);
 
         monthDayDataDto = new MonthDayDataDto();
-        monthDayDataDto.setUserId("testUser");
+        monthDayDataDto.setUserId(uniqueUserId);
         monthDayDataDto.setUserSeq(1);
         monthDayDataDto.setTime("20250101");
         monthDayDataDto.setHeartrateMin(60);

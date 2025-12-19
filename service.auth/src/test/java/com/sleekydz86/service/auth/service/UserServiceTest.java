@@ -43,21 +43,22 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+        String uniqueId = "testUser_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         signinDto = SigninDto.builder()
-                .userId("testUser")
+                .userId(uniqueId)
                 .userPwEnc("encodedPassword")
                 .userRoleFk("1")
                 .source("web")
                 .build();
 
         signupDto = SignupDto.builder()
-                .userId("testUser")
+                .userId(uniqueId)
                 .userPwEnc("encodedPassword")
                 .userNm("테스트 사용자")
                 .userRoleFk("1")
                 .birthEnc("19900101")
                 .telNumEnc("01012345678")
-                .email("test@example.com")
+                .email("test_" + System.currentTimeMillis() + "@example.com")
                 .deptNm("IT")
                 .height(170.0f)
                 .weight(70.0f)
@@ -66,8 +67,16 @@ class UserServiceTest {
                 .build();
 
         userDto = new UserDto();
-        userDto.setUserId("testUser");
+        userDto.setUserId(uniqueId);
         userDto.setUserPwEnc("encodedPassword");
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        signinDto = null;
+        signupDto = null;
+        userDto = null;
+        reset(userMapper, jwtTokenProvider, passwordService);
     }
 
     @Test

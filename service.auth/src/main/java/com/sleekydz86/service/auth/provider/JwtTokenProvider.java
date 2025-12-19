@@ -82,38 +82,68 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token) throws Exception {
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("토큰이 비어있습니다.");
+        }
+        
+        if (token.length() > 2048) {
+            throw new IllegalArgumentException("토큰이 너무 깁니다.");
+        }
+        
         try {
             if (tokenBlacklistService.isBlacklisted(token)) {
                 log.warn("블랙리스트에 등록된 토큰 사용 시도");
                 throw new UnsupportedJwtException("로그아웃된 토큰입니다.");
             }
             
-            Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token);
-            Claims claims = parseClaims(token);
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            if (claims.get("id") == null || "".equals(claims.get("id"))) {
-                throw new UnsupportedJwtException("권한 정보가 없는 토큰입니다.");
-            } else if (claims.get("role") == null || "".equals(claims.get("role"))) {
-                throw new UnsupportedJwtException("권한 정보가 없는 토큰입니다.");
-            } else if (claims.get("source") == null || "".equals(claims.get("source"))) {
-                throw new UnsupportedJwtException("권한 정보가 없는 토큰입니다.");
+            if (claims.getExpiration() != null && claims.getExpiration().getTime() < System.currentTimeMillis()) {
+                log.warn("만료된 토큰 사용 시도");
+                throw new ExpiredJwtException(null, claims, "만료된 토큰입니다.");
+            }
+
+            String userId = claims.get("id", String.class);
+            String userRole = claims.get("role", String.class);
+            String source = claims.get("source", String.class);
+
+            if (userId == null || userId.trim().isEmpty()) {
+                throw new UnsupportedJwtException("사용자 ID가 없는 토큰입니다.");
+            }
+            
+            if (userRole == null || userRole.trim().isEmpty()) {
+                throw new UnsupportedJwtException("역할 정보가 없는 토큰입니다.");
+            }
+            
+            if (source == null || source.trim().isEmpty()) {
+                throw new UnsupportedJwtException("소스 정보가 없는 토큰입니다.");
+            }
+
+            if (tokenBlacklistService.checkTokenReuse(token, userId)) {
+                log.warn("토큰 재사용 시도 감지: userId={}", userId);
+                throw new UnsupportedJwtException("토큰 재사용이 감지되었습니다.");
             }
 
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("유효하지 않은 JWT 토큰", e);
+            log.warn("유효하지 않은 JWT 토큰", e);
             throw e;
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰", e);
+            log.warn("만료된 JWT 토큰", e);
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.info("지원하지 않는 JWT 토큰", e);
-            throw new UnsupportedJwtException("지원하지 않는 JWT 토큰입니다.");
+            log.warn("지원하지 않는 JWT 토큰", e);
+            throw e;
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims 문자열이 비어있습니다.", e);
+            log.warn("JWT claims 문자열이 비어있습니다.", e);
             throw new UnsupportedJwtException("JWT claims 문자열이 비어있습니다.");
         } catch (Exception e) {
-            throw new UnsupportedJwtException("JWT 알 수 없는 오류가 발생했습니다.");
+            log.error("JWT 토큰 검증 중 알 수 없는 오류", e);
+            throw new UnsupportedJwtException("JWT 토큰 검증 중 오류가 발생했습니다.");
         }
     }
 

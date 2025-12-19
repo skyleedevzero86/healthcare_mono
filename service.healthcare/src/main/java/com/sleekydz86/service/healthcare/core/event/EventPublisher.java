@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EventPublisher {
-    
+
     private final RabbitTemplate rabbitTemplate;
-    
+
     @Value("${spring.rabbitmq.exchange:healthcare.exchange}")
     private String exchange;
 
@@ -21,8 +21,7 @@ public class EventPublisher {
             String routingKey = "patient." + event.getClass().getSimpleName().toLowerCase();
             rabbitTemplate.convertAndSend(exchange, routingKey, event);
         } catch (Exception e) {
-            throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 }
-

@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.flywaydb.flyway") version "10.8.1"
 }
 
 group = "com.sleekydz86"
@@ -40,13 +41,9 @@ dependencies {
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.json:json:20231013")
-    implementation("com.googlecode.json-simple:json-simple:1.1.1")
-    // Circuit Breaker (Resilience4j)
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    // Distributed Tracing
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
-    // RabbitMQ for Event-Driven Architecture
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -59,12 +56,10 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.assertj:assertj-core")
-
     implementation("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16")
     implementation("org.codehaus.janino:janino:3.1.12")
-    testImplementation("junit:junit:4.13.2")
-
-
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
 }
 
 dependencyManagement {

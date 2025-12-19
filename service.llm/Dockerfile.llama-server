@@ -1,0 +1,31 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    wget \
+    libcurl4-openssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+RUN git clone https://github.com/ggerganov/llama.cpp.git && \
+    cd llama.cpp && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DLLAMA_SERVER=ON -DLLAMA_CURL=ON && \
+    cmake --build . --config Release && \
+    find . -name "llama-server" -type f -executable -exec cp {} /usr/local/bin/llama-server \; && \
+    find bin -name "*.so*" -type f -exec cp {} /usr/local/lib/ \; && \
+    ldconfig && \
+    cd / && \
+    rm -rf /tmp/llama.cpp
+
+WORKDIR /models
+
+EXPOSE 8090
+
+ENTRYPOINT ["llama-server"]
+

@@ -10,9 +10,9 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +32,7 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class LoginController {
 
     @Value("${gateway.version}")
@@ -40,11 +41,8 @@ public class LoginController {
     @Value("${gateway.auth.uri}")
     private String authUri;
 
-    @Autowired
-    JwtTokenUtils jwtTokenUtils;
-
-    @Autowired
-    PasswordService passwordService;
+    private final JwtTokenUtils jwtTokenUtils;
+    private final PasswordService passwordService;
 
     @GetMapping("/signin")
     public String singin(HttpServletRequest req, HttpServletResponse res, HttpSession session,

@@ -1,0 +1,19 @@
+llm:
+  llama-cpp:
+    server-url: ${LLAMA_CPP_SERVER_URL}
+    timeout: 120000
+    max-retries: 5
+  cache:
+    enabled: true
+    ttl: 7200
+  rate-limit:
+    enabled: true
+    requests-per-minute: 20
+    requests-per-hour: 300
+
+logging:
+  level:
+    com.sleekydz86.service.llm: INFO
+    org.springframework.web: WARN
+    org.springframework.cloud: WARN
+

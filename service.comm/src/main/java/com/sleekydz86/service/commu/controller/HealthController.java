@@ -1,7 +1,7 @@
 package com.sleekydz86.service.commu.controller;
 
 import jakarta.persistence.EntityManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +15,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/actuator")
+@RequiredArgsConstructor
 public class HealthController {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final EntityManager entityManager;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {

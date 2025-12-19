@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.flywaydb.flyway") version "10.8.1"
 }
 
 group = "com.sleekydz86"
@@ -30,26 +31,26 @@ dependencies {
     implementation ("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux")
     implementation ("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation ("org.springframework.cloud:spring-cloud-starter-config")
-    implementation ("org.springframework.boot:spring-boot-starter-actuator")
-    implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    implementation ("org.springframework.kafka:spring-kafka")
-    implementation ("com.fasterxml.jackson.core:jackson-databind")
-    implementation ("org.projectlombok:lombok")
-    annotationProcessor ("org.projectlombok:lombok")
-    implementation ("org.springframework.boot:spring-boot-starter-validation")
-    implementation ("org.springframework.boot:spring-boot-starter-log4j2")
-    implementation ("org.springframework.boot:spring-boot-starter-security")
-    implementation ("org.springframework.security:spring-security-oauth2-resource-server")
-    implementation ("org.springframework.security:spring-security-oauth2-jose")
-    // JWT
-    implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
-    implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")
-    implementation ("io.jsonwebtoken:jjwt-jackson:0.12.3")
-    // Circuit Breaker (Resilience4j)
-    implementation ("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
-    // Distributed Tracing
-    implementation ("io.micrometer:micrometer-tracing-bridge-brave")
-    implementation ("io.zipkin.reporter2:zipkin-reporter-brave")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    runtimeOnly("org.postgresql:postgresql")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
     testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 

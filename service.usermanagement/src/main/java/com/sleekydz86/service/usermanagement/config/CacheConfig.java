@@ -20,25 +20,41 @@ import java.util.Map;
 @EnableCaching
 public class CacheConfig {
 
+    public static final String CACHE_USER_INFO = "userInfo";
+    public static final String CACHE_USER_LIST = "userList";
+    public static final String CACHE_DOCTOR_LIST = "doctorList";
+    public static final String CACHE_PARENT_LIST = "parentList";
+    public static final String CACHE_HEALTH_DATA = "healthData";
+    public static final String CACHE_COMMUNITY = "community";
+    
+    public static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
+    public static final Duration USER_INFO_TTL = Duration.ofHours(2);
+    public static final Duration USER_LIST_TTL = Duration.ofMinutes(10);
+    public static final Duration DOCTOR_LIST_TTL = Duration.ofMinutes(15);
+    public static final Duration PARENT_LIST_TTL = Duration.ofMinutes(15);
+    public static final Duration HEALTH_DATA_TTL = Duration.ofMinutes(10);
+    public static final Duration COMMUNITY_TTL = Duration.ofHours(1);
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30))
+                .entryTtl(DEFAULT_TTL)
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .disableCachingNullValues();
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-        cacheConfigurations.put("userInfo", defaultConfig.entryTtl(Duration.ofHours(2)));
-        cacheConfigurations.put("userList", defaultConfig.entryTtl(Duration.ofMinutes(10)));
-        cacheConfigurations.put("doctorList", defaultConfig.entryTtl(Duration.ofMinutes(15)));
-        cacheConfigurations.put("parentList", defaultConfig.entryTtl(Duration.ofMinutes(15)));
-        cacheConfigurations.put("healthData", defaultConfig.entryTtl(Duration.ofMinutes(10)));
-        cacheConfigurations.put("community", defaultConfig.entryTtl(Duration.ofHours(1)));
+        cacheConfigurations.put(CACHE_USER_INFO, defaultConfig.entryTtl(USER_INFO_TTL));
+        cacheConfigurations.put(CACHE_USER_LIST, defaultConfig.entryTtl(USER_LIST_TTL));
+        cacheConfigurations.put(CACHE_DOCTOR_LIST, defaultConfig.entryTtl(DOCTOR_LIST_TTL));
+        cacheConfigurations.put(CACHE_PARENT_LIST, defaultConfig.entryTtl(PARENT_LIST_TTL));
+        cacheConfigurations.put(CACHE_HEALTH_DATA, defaultConfig.entryTtl(HEALTH_DATA_TTL));
+        cacheConfigurations.put(CACHE_COMMUNITY, defaultConfig.entryTtl(COMMUNITY_TTL));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigurations)
+                .transactionAware()
                 .build();
     }
 

@@ -30,7 +30,7 @@ class UserIntegrationTest {
             .withDatabaseName("usermanagement_test")
             .withUsername("test")
             .withPassword("test")
-            .withReuse(true);
+            .withReuse(false);
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -43,9 +43,11 @@ class UserIntegrationTest {
     private UserService userService;
 
     private UserDto userDto;
+    private String uniqueSearchName;
 
     @BeforeEach
     void setUp() {
+        uniqueSearchName = "검색_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         userDto = new UserDto();
         userDto.setUserRoleFk("1");
         userDto.setPageIdx(1);
@@ -79,12 +81,12 @@ class UserIntegrationTest {
     @DisplayName("의사 및 보호자 검색 통합 테스트")
     void testSearchDoctorAndParent() {
         UserDto searchDto = new UserDto();
-        searchDto.setUserNm("의사");
+        searchDto.setUserNm(uniqueSearchName + "_의사");
 
         List<Map<String, Object>> doctorList = userService.searchDoctor(searchDto);
         assertThat(doctorList).isNotNull();
 
-        searchDto.setUserNm("보호자");
+        searchDto.setUserNm(uniqueSearchName + "_보호자");
         List<Map<String, Object>> parentList = userService.searchParent(searchDto);
         assertThat(parentList).isNotNull();
     }

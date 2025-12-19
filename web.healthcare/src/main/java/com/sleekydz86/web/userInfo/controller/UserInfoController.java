@@ -6,10 +6,10 @@ import com.sleekydz86.web.global.util.GatewayUtils;
 import com.sleekydz86.web.global.util.PagingUtil;
 import com.sleekydz86.web.global.service.PasswordService;
 import com.sleekydz86.web.user.dto.UserDTO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,6 +31,7 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequestMapping("/userInfo")
+@RequiredArgsConstructor
 public class UserInfoController {
 
     @Value("${gateway.version}")
@@ -39,11 +40,8 @@ public class UserInfoController {
     @Value("${gateway.usermanagement.uri}")
     private String uri;
 
-    @Autowired
-    private PagingUtil pagingUtil;
-
-    @Autowired
-    private PasswordService passwordService;
+    private final PagingUtil pagingUtil;
+    private final PasswordService passwordService;
 
     @SuppressWarnings("unchecked")
     @GetMapping(value = {

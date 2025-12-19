@@ -19,7 +19,7 @@ spring:
     include: common
 
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
   mybatis:
     mapper-locations: classpath:mapper/*.xml
@@ -28,10 +28,18 @@ spring:
       map-underscore-to-camel-case: true
       default-fetch-size: 100
       default-statement-timeout: 30
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+    clean-disabled: true
+    schemas: healthcare
 
   cloud:
     config:
-      uri: http://localhost:8888
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
       fail-fast: true
       retry:
         initial-interval: 1000
@@ -42,7 +50,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -85,11 +93,11 @@ resilience4j:
 spring:
   sleuth:
     zipkin:
-      base-url: http://localhost:9411
+      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
     sampler:
       probability: 1.0
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -126,12 +134,6 @@ info:
     encoding: UTF-8
     java:
       version: ${java.version}
-
-chatgpt:
-  enabled: ${CHATGPT_ENABLED:false}
-  api:
-    url: ${CHATGPT_API_URL:https://api.openai.com/v1/chat/completions}
-    key: ${CHATGPT_API_KEY:}
 
 sharding:
   datasource:

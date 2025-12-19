@@ -1,0 +1,38 @@
+services:
+  llama-cpp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.llama-server
+    container_name: llama-cpp-server-standalone
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./models:/models
+    command:
+      - --model
+      - /models/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf
+      - --port
+      - "8090"
+      - --ctx-size
+      - "16384"
+      - --threads
+      - "8"
+      - --n-gpu-layers
+      - "0" # CPU 모드 (GPU 사용 시 35로 변경)
+      - --host
+      - "0.0.0.0"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8090/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped

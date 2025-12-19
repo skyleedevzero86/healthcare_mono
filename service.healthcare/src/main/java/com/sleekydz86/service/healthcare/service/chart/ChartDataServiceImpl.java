@@ -18,6 +18,14 @@ public class ChartDataServiceImpl implements ChartDataService {
     @Cacheable(value = "healthChart", key = "#params['userId'] + '_' + #params['date'] + '_' + #params['query']")
     public ServiceResponse<Map<String, Object>> getHealthInfoChart(Map<String, Object> params) {
         try {
+            if (params.containsKey("searchWrd") && params.get("searchWrd") != null) {
+                String searchWrd = params.get("searchWrd").toString();
+                params.put("searchWrd", com.sleekydz86.service.healthcare.util.SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (params.containsKey("condition") && params.get("condition") != null) {
+                String condition = params.get("condition").toString();
+                params.put("condition", com.sleekydz86.service.healthcare.util.SqlInjectionValidator.sanitizeCondition(condition));
+            }
             Map<String, Object> result = chartDataRepository.findHealthInfoChart(params);
             return ServiceResponse.success(result);
         } catch (Exception e) {

@@ -26,7 +26,7 @@ public class EventPublisher {
                 event.getEventId(), event.getEventType(), event.getUserId());
         } catch (Exception e) {
             log.error("사용자 이벤트 발행 실패", e);
-            throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.UNKOWN_ERR);
+            throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.UNKNOWN_ERR);
         }
     }
 }

@@ -1,10 +1,9 @@
 package com.sleekydz86.service.usermanagement.service.relationship;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.usermanagement.common.ServiceResponse;
 import com.sleekydz86.service.usermanagement.dto.UserDto;
 import com.sleekydz86.service.usermanagement.repository.UserRelationshipRepository;
+import com.sleekydz86.service.usermanagement.util.DtoConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import java.util.Map;
 public class UserRelationshipServiceImpl implements UserRelationshipService {
     private final UserRelationshipRepository relationshipRepository;
     private final RelationshipValidator relationshipValidator;
+    private final DtoConverter dtoConverter;
 
     @Override
     public ServiceResponse<Integer> updateGuardianMapping(UserDto dto) {
@@ -25,12 +25,11 @@ public class UserRelationshipServiceImpl implements UserRelationshipService {
             relationshipValidator.validate(dto);
             ArrayList<Map<String, Object>> result = new ArrayList<>();
             String str = dto.getGuardian();
-            ObjectMapper obj = new ObjectMapper();
             try {
                 int cnt = relationshipRepository.countSearchParent(dto);
                 ArrayList<Integer> arr = new ArrayList<Integer>();
                 if (str != null) {
-                    result = obj.readValue(str, ArrayList.class);
+                    result = dtoConverter.fromJson(str, ArrayList.class);
                     for (Map<String, Object> dt : result) {
                         arr.add((int) dt.get("guardianSeq"));
                         dto.setGuardianSeq((int) dt.get("guardianSeq"));
@@ -43,7 +42,7 @@ public class UserRelationshipServiceImpl implements UserRelationshipService {
                 }
                 int delCnt = relationshipRepository.deleteParentMapping(dto);
                 return ServiceResponse.success(delCnt);
-            } catch (JsonProcessingException e) {
+            } catch (IllegalArgumentException e) {
                 log.error("JSON 처리 중 오류 발생: 사용자 {}", dto.getUserId(), e);
                 return ServiceResponse.error("JSON 처리 실패: " + e.getMessage());
             }

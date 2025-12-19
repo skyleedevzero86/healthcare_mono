@@ -1,6 +1,5 @@
 package com.sleekydz86.service.healthcare.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.healthcare.common.ServiceResponse;
 import com.sleekydz86.service.healthcare.dto.*;
 import com.sleekydz86.service.healthcare.entity.MedicalRecord;
@@ -14,6 +13,8 @@ import com.sleekydz86.service.healthcare.service.chart.ChartDataService;
 import com.sleekydz86.service.healthcare.service.community.CommunityService;
 import com.sleekydz86.service.healthcare.service.healthdata.HealthDataService;
 import com.sleekydz86.service.healthcare.service.score.HealthScoreService;
+import com.sleekydz86.service.healthcare.util.DtoConverter;
+import com.sleekydz86.service.healthcare.util.SqlInjectionValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/healthcare/v1/")
+@RequiredArgsConstructor
 @Validated
 public class HealthcareController {
 
@@ -47,19 +49,20 @@ public class HealthcareController {
     private final PatientService patientService;
     private final MedicalRecordService medicalRecordService;
     private final CacheService cacheService;
+    private final DtoConverter dtoConverter;
 
     public HealthcareController(HealthDataService healthDataService,
-                               ChartDataService chartDataService,
-                               HealthScoreService healthScoreService,
-                               AIResponseService aiResponseService,
-                               CommunityService communityService,
-                               Environment env,
-                               ChatService chatService,
-                               BioInfoDto bioInfoDto,
-                               com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer,
-                               PatientService patientService,
-                               MedicalRecordService medicalRecordService,
-                               CacheService cacheService) {
+            ChartDataService chartDataService,
+            HealthScoreService healthScoreService,
+            AIResponseService aiResponseService,
+            CommunityService communityService,
+            Environment env,
+            ChatService chatService,
+            BioInfoDto bioInfoDto,
+            com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer,
+            PatientService patientService,
+            MedicalRecordService medicalRecordService,
+            CacheService cacheService) {
         this.healthDataService = healthDataService;
         this.chartDataService = chartDataService;
         this.healthScoreService = healthScoreService;
@@ -91,7 +94,8 @@ public class HealthcareController {
     }
 
     @GetMapping("/chart/healthinfo")
-    public ResponseEntity<ServiceResponse<Map<String, Object>>> getHealthInfoChart(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<ServiceResponse<Map<String, Object>>> getHealthInfoChart(
+            @RequestParam Map<String, Object> params) {
         ServiceResponse<Map<String, Object>> response = chartDataService.getHealthInfoChart(params);
         return ResponseEntity.ok(response);
     }
@@ -103,7 +107,8 @@ public class HealthcareController {
     }
 
     @GetMapping("/ai/response")
-    public ResponseEntity<ServiceResponse<Map<String, Object>>> getAIResponse(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<ServiceResponse<Map<String, Object>>> getAIResponse(
+            @RequestParam Map<String, Object> params) {
         ServiceResponse<Map<String, Object>> response = aiResponseService.getAIResponse(params);
         return ResponseEntity.ok(response);
     }
@@ -123,15 +128,14 @@ public class HealthcareController {
             if (sanitizedUserId == null || !sanitizedUserId.equals(requestDto.getUserId())) {
                 return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
             }
-            
-            ObjectMapper mapper = new ObjectMapper();
+
             Map<String, Object> map = new HashMap<>();
             map.put("userId", sanitizedUserId);
             map.put("type", requestDto.getType());
-            
+
             if ("m".equals(requestDto.getType())) {
                 for (HealthDataItemDto item : requestDto.getData()) {
-                    MinuteDataDto dto = mapper.convertValue(item, MinuteDataDto.class);
+                    MinuteDataDto dto = dtoConverter.convertToEntity(item, MinuteDataDto.class);
                     dto.setUserId(requestDto.getUserId());
                     ServiceResponse<Integer> response = healthDataService.insertMinuteData(dto);
                     if (!response.isSuccess()) {
@@ -140,7 +144,7 @@ public class HealthcareController {
                 }
             } else {
                 for (HealthDataItemDto item : requestDto.getData()) {
-                    MonthDayDataDto dto = mapper.convertValue(item, MonthDayDataDto.class);
+                    MonthDayDataDto dto = dtoConverter.convertToEntity(item, MonthDayDataDto.class);
                     dto.setUserId(requestDto.getUserId());
                     ServiceResponse<Integer> response = healthDataService.insertMonthDayData(dto);
                     if (!response.isSuccess()) {
@@ -160,7 +164,7 @@ public class HealthcareController {
             return ApiResponse.ok();
         } catch (Exception e) {
             log.error("건강 데이터 저장 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -178,6 +182,11 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                SqlInjectionValidator.sanitizeColumnName(searchWrd);
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
             ServiceResponse response = healthDataService.getMinMaxHealthInfo(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -185,7 +194,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -195,6 +204,10 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
             ServiceResponse response = healthDataService.getHealthInfo(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -202,7 +215,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -212,6 +225,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (map.containsKey("condition") && map.get("condition") != null) {
+                String condition = map.get("condition").toString();
+                map.put("condition", SqlInjectionValidator.sanitizeCondition(condition));
+            }
             ServiceResponse<Map<String, Object>> response = chartDataService.getHealthInfoChart(map);
             if (!response.isSuccess()) {
                 return convertToApiResponse(response);
@@ -221,11 +242,11 @@ public class HealthcareController {
             if (strArr == null || strArr.length == 0) {
                 return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
             }
-            
+
             java.util.ArrayList<String[]> lv = new java.util.ArrayList<>();
             String query = (String) map.get("query");
             String[] arr = "Y".equals(query) ? (String[]) result.get("year") : (String[]) result.get("month");
-            
+
             for (int i = 0; i < strArr.length; i++) {
                 String year = "";
                 if ("Y".equals(query)) {
@@ -239,7 +260,7 @@ public class HealthcareController {
                     }
                     strArr[i] = "01".equals(strArr[i]) ? arr[i] + "/" + strArr[i] : strArr[i];
                 }
-                String[] res = {strArr[i], year};
+                String[] res = { strArr[i], year };
                 lv.add(res);
             }
             result.put("lv", lv);
@@ -249,7 +270,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 차트 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -259,6 +280,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (map.containsKey("condition") && map.get("condition") != null) {
+                String condition = map.get("condition").toString();
+                map.put("condition", SqlInjectionValidator.sanitizeCondition(condition));
+            }
             ServiceResponse response = chartDataService.getCustomMinuteChartData(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -266,7 +295,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("분 단위 차트 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -276,6 +305,14 @@ public class HealthcareController {
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
+            if (map.containsKey("searchWrd") && map.get("searchWrd") != null) {
+                String searchWrd = map.get("searchWrd").toString();
+                map.put("searchWrd", SqlInjectionValidator.sanitizeColumnName(searchWrd));
+            }
+            if (map.containsKey("condition") && map.get("condition") != null) {
+                String condition = map.get("condition").toString();
+                map.put("condition", SqlInjectionValidator.sanitizeCondition(condition));
+            }
             ServiceResponse response = chartDataService.getCustomMinuteDashBRDChart(map);
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
@@ -283,7 +320,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("대시보드 차트 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -299,7 +336,7 @@ public class HealthcareController {
                 return convertToApiResponse(responseDataResponse);
             }
             Map<String, Object> responseData = responseDataResponse.getData();
-            
+
             ServiceResponse<Map<String, Object>> sleepDataResponse = chartDataService.getTodaySleepdata(map);
             if (!sleepDataResponse.isSuccess()) {
                 return convertToApiResponse(sleepDataResponse);
@@ -340,7 +377,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 데이터 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -393,7 +430,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("실시간 생체 데이터 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -410,7 +447,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("생체 데이터 그래프 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -426,7 +463,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 수면 정보 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -453,7 +490,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 걸음수 저장 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -467,7 +504,7 @@ public class HealthcareController {
             if (!response.isSuccess()) {
                 return convertToApiResponse(response);
             }
-            
+
             ServiceResponse<Integer> sleepScoreResponse = healthScoreService.calculateSleepScore(map);
             if (!sleepScoreResponse.isSuccess()) {
                 return convertToApiResponse(sleepScoreResponse);
@@ -486,7 +523,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 수면 정보 저장 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -502,7 +539,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 점수 목록 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -518,7 +555,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("커뮤니티 데이터 저장 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -534,7 +571,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("커뮤니티 목록 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -556,12 +593,9 @@ public class HealthcareController {
                 Map<String, Object> responseMap = aiResponseResponse.getData();
                 aiResponse = (String) responseMap.get("airesponse");
             }
-            
-            if (aiResponse == null || aiResponse.isEmpty()) {
-                AIHandleDto aiHandleDto = new AIHandleDto();
-                String query = aiHandleDto.getQuery(bioInfoDto.getBioInfoDto(map));
 
-                aiResponse = chatService.getChatResponse(query);
+            if (aiResponse == null || aiResponse.isEmpty()) {
+                aiResponse = chatService.getChatResponse(map);
 
                 paramMap.put("aiResponse", aiResponse);
                 ServiceResponse<Integer> saveResponse = aiResponseService.saveAIResponse(paramMap);
@@ -578,7 +612,7 @@ public class HealthcareController {
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("AI 챗봇 응답 생성 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -640,7 +674,7 @@ public class HealthcareController {
 
     @PostMapping("/api/healthcare/patients/{patientId}/medical-records")
     public ResponseEntity<MedicalRecord> createMedicalRecord(@PathVariable Long patientId,
-                                                           @RequestBody MedicalRecord record) {
+            @RequestBody MedicalRecord record) {
         record.setPatientId(patientId);
         MedicalRecord createdRecord = medicalRecordService.createMedicalRecord(record);
         return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdRecord);
@@ -650,11 +684,11 @@ public class HealthcareController {
         if (serviceResponse.isSuccess()) {
             return ApiResponse.ok(serviceResponse.getData());
         } else {
-            ApiResultCode errorCode = ApiResultCode.UNKOWN_ERR;
+            ApiResultCode errorCode = ApiResultCode.UNKNOWN_ERR;
             if ("400".equals(serviceResponse.getResultCode())) {
                 errorCode = ApiResultCode.PARAM_VALID_ERR;
             } else if ("500".equals(serviceResponse.getResultCode())) {
-                errorCode = ApiResultCode.UNKOWN_ERR;
+                errorCode = ApiResultCode.UNKNOWN_ERR;
             }
             return ApiResponse.error(errorCode, serviceResponse.getMessage());
         }
