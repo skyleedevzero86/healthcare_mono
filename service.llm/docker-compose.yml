@@ -1,28 +1,27 @@
 version: '3.8'
 
 services:
-  # llama.cpp 서버 (LLM 모델 실행)
   llama-cpp-server:
     image: ghcr.io/ggerganov/llama.cpp:server-latest
     container_name: llama-cpp-server
     ports:
-      - "8080:8080"
+      - "8090:8090" # llama.cpp 서버 포트
     volumes:
       - ./models:/models
     environment:
       - MODEL=/models/qwen2.5-7b-instruct-q4_k_m.gguf
       - CTX_SIZE=16384
       - THREADS=8
-      - N_GPU_LAYERS=0  # CPU 모드 (GPU 사용 시 35로 변경)
+      - N_GPU_LAYERS=0 # CPU 모드 (GPU 사용 시 35로 변경)
     command: >
       --model ${MODEL}
-      --port 8080
+      --port 8090
       --ctx-size ${CTX_SIZE}
       --threads ${THREADS}
       --n-gpu-layers ${N_GPU_LAYERS}
       --host 0.0.0.0
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8090/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -31,12 +30,11 @@ services:
     networks:
       - llm-network
 
-  # Redis (캐시 및 대화 히스토리)
   redis:
     image: redis:7-alpine
     container_name: llm-redis
     ports:
-      - "6379:6379"
+      - "6379:6379" # Redis 포트
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
@@ -49,16 +47,15 @@ services:
     networks:
       - llm-network
 
-  # service.llm (Spring Boot 애플리케이션)
   service-llm:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: service-llm
     ports:
-      - "8086:8086"
+      - "8086:8086" # service.llm 포트
     environment:
-      - LLAMA_CPP_SERVER_URL=http://llama-cpp-server:8080
+      - LLAMA_CPP_SERVER_URL=http://llama-cpp-server:8090
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - SPRING_PROFILES_ACTIVE=docker
