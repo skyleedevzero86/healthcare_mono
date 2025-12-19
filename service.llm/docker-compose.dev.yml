@@ -14,7 +14,7 @@ services:
     volumes:
       - ./models:/models
     environment:
-      - MODEL=/models/qwen2.5-7b-instruct-q4_k_m.gguf
+      - MODEL=/models/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf
       - CTX_SIZE=16384
       - THREADS=8
       - N_GPU_LAYERS=0 # CPU 모드 (GPU 사용 시 35로 변경)

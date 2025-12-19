@@ -10,7 +10,7 @@ services:
       - ./models:/models
     command:
       - --model
-      - /models/qwen2.5-7b-instruct-q4_k_m.gguf
+      - /models/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf
       - --port
       - "8090"
       - --ctx-size

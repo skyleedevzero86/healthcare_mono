@@ -18,6 +18,8 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     cmake .. -DLLAMA_SERVER=ON -DLLAMA_CURL=ON && \
     cmake --build . --config Release && \
     find . -name "llama-server" -type f -executable -exec cp {} /usr/local/bin/llama-server \; && \
+    find bin -name "*.so*" -type f -exec cp {} /usr/local/lib/ \; && \
+    ldconfig && \
     cd / && \
     rm -rf /tmp/llama.cpp
 
