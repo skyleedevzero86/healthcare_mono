@@ -119,3 +119,5 @@ llama-cpp/
 model_cache/ 
 .huggingface/ 
 transformers_cache/
+
+*.text
