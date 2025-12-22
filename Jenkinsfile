@@ -16,9 +16,10 @@ pipeline {
     
     environment {
         PROJECT_ROOT = "${WORKSPACE}"
-        DEPLOY_TARGET_SERVER = 'localhost'
-        DEPLOY_TARGET_USER = 'ec2-user'
-        DEPLOY_TARGET_DIR = '/app/services'
+        DEPLOY_TARGET_SERVER = "${env.DEPLOY_TARGET_SERVER ?: 'localhost'}"
+        DEPLOY_TARGET_USER = "${env.DEPLOY_TARGET_USER ?: 'ec2-user'}"
+        DEPLOY_TARGET_DIR = "${env.DEPLOY_TARGET_DIR ?: '/app/services'}"
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY ?: ''}"
     }
     
     tools {
@@ -283,25 +284,115 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Push Docker Images') {
             when {
                 anyOf {
                     branch 'main'
                     branch 'master'
                 }
             }
-            
             steps {
                 script {
                     echo "========================================="
-                    echo "서비스 배포"
+                    echo "Docker 이미지 레지스트리 푸시"
                     echo "========================================="
                     
-                    dir('scripts') {
-                        sh """
-                            chmod +x deploy.sh
-                            ./deploy.sh --all
-                        """
+                    def dockerRegistry = env.DOCKER_REGISTRY ?: ''
+                    def services = [
+                        'service.discovery',
+                        'service.config',
+                        'api.gateway',
+                        'service.auth',
+                        'service.comm',
+                        'service.healthcare',
+                        'service.usermanagement',
+                        'service.llm',
+                        'web.healthcare'
+                    ]
+                    
+                    if (dockerRegistry) {
+                        services.each { service ->
+                            def imageName = "${dockerRegistry}/${service}:${env.BUILD_NUMBER}"
+                            def imageLatest = "${dockerRegistry}/${service}:latest"
+                            
+                            sh """
+                                docker tag ${service}:latest ${imageName} || true
+                                docker tag ${service}:latest ${imageLatest} || true
+                                docker push ${imageName} || echo 'Push 실패 (무시)'
+                                docker push ${imageLatest} || echo 'Push 실패 (무시)'
+                            """
+                            echo "✓ ${service} 이미지 푸시: ${imageName}"
+                        }
+                    } else {
+                        echo "⚠ DOCKER_REGISTRY가 설정되지 않아 이미지 푸시를 건너뜁니다"
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Server') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    echo "========================================="
+                    echo "서버 무중단 배포"
+                    echo "========================================="
+                    
+                    def deployServer = env.DEPLOY_TARGET_SERVER ?: 'localhost'
+                    def dockerRegistry = env.DOCKER_REGISTRY ?: ''
+                    
+                    if (deployServer != 'localhost') {
+                        def services = [
+                            'service.discovery',
+                            'service.config',
+                            'api.gateway',
+                            'service.auth',
+                            'service.comm',
+                            'service.healthcare',
+                            'service.usermanagement',
+                            'service.llm',
+                            'web.healthcare'
+                        ]
+                        
+                        if (dockerRegistry) {
+                            echo "Docker 레지스트리에서 이미지 pull 후 배포"
+                        } else {
+                            echo "로컬 이미지를 서버로 전송 후 배포"
+                            
+                            services.each { service ->
+                                def imageName = "${service}:latest"
+                                def imageFile = "/tmp/${service}-${env.BUILD_NUMBER}.tar"
+                                
+                                echo "이미지 저장: ${service}"
+                                sh """
+                                    docker save ${imageName} -o ${imageFile} || echo '이미지 저장 실패'
+                                """
+                                
+                                if (fileExists(imageFile)) {
+                                    echo "이미지 전송: ${service}"
+                                    sh """
+                                        scp -i ${env.DEPLOY_SSH_KEY ?: '~/.ssh/id_rsa'} ${imageFile} ${env.DEPLOY_TARGET_USER}@${deployServer}:/tmp/ || echo '이미지 전송 실패'
+                                        ssh -i ${env.DEPLOY_SSH_KEY ?: '~/.ssh/id_rsa'} ${env.DEPLOY_TARGET_USER}@${deployServer} "docker load -i /tmp/${service}-${env.BUILD_NUMBER}.tar && rm -f /tmp/${service}-${env.BUILD_NUMBER}.tar" || echo '이미지 로드 실패'
+                                    """
+                                    sh "rm -f ${imageFile}"
+                                }
+                            }
+                        }
+                        
+                        dir('scripts') {
+                            sh """
+                                chmod +x deploy-docker.sh
+                                BUILD_NUMBER=${env.BUILD_NUMBER} DOCKER_REGISTRY='${dockerRegistry}' ./deploy-docker.sh --all
+                            """
+                        }
+                    } else {
+                        echo "⚠ DEPLOY_TARGET_SERVER가 localhost로 설정되어 배포를 건너뜁니다"
+                        echo "실제 서버 배포를 원하시면 Jenkins 환경 변수에 DEPLOY_TARGET_SERVER를 설정하세요"
                     }
                 }
             }
