@@ -75,4 +75,18 @@ public class CommunityMetrics {
     public Timer getBoardQueryTime() {
         return boardQueryTime;
     }
+
+    public void incrementBoardPostsUpdated() {
+        Counter.builder("community.board.posts.updated")
+                .description("Number of board posts updated")
+                .register(meterRegistry)
+                .increment();
+    }
+
+    public void incrementBoardPostsDeleted() {
+        Counter.builder("community.board.posts.deleted")
+                .description("Number of board posts deleted")
+                .register(meterRegistry)
+                .increment();
+    }
 }

@@ -1,6 +1,6 @@
 package com.sleekydz86.service.healthcare.core.event;
 
-import com.sleekydz86.api.gateway.eventsourcing.DomainEvent;
+import com.sleekydz86.service.healthcare.core.eventsourcing.DomainEvent;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

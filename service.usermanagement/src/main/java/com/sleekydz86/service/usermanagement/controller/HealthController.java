@@ -1,6 +1,5 @@
 package com.sleekydz86.service.usermanagement.controller;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ public class HealthController {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final DataSource dataSource;
-    private final EntityManager entityManager;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
@@ -45,11 +43,7 @@ public class HealthController {
     private boolean checkDatabaseHealth() {
         try {
             try (Connection connection = dataSource.getConnection()) {
-                boolean isValid = connection.isValid(1);
-                if (isValid) {
-                    entityManager.createNativeQuery("SELECT 1").getSingleResult();
-                }
-                return isValid;
+                return connection.isValid(1);
             }
         } catch (Exception e) {
             return false;

@@ -1,7 +1,7 @@
 package com.sleekydz86.service.healthcare.core.eventsourcing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sleekydz86.api.gateway.eventsourcing.DomainEvent;
+import com.sleekydz86.service.healthcare.core.eventsourcing.DomainEvent;
 import com.sleekydz86.service.healthcare.core.event.EventPublisher;
 import com.sleekydz86.service.healthcare.dto.ApiResultCode;
 import com.sleekydz86.service.healthcare.exception.BusinessException;

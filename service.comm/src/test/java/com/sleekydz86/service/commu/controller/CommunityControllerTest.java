@@ -52,10 +52,8 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 작성 성공 테스트")
     void writeBoard_Success() throws Exception {
-        // given
         when(communityService.writeBoard(any(Community.class))).thenReturn(1);
 
-        // when & then
         mockMvc.perform(post("/community/v1/writeBoard")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testCommunity)))
@@ -71,10 +69,8 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 작성 실패 테스트")
     void writeBoard_Failure() throws Exception {
-        // given
         when(communityService.writeBoard(any(Community.class))).thenReturn(0);
 
-        // when & then
         mockMvc.perform(post("/community/v1/writeBoard")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testCommunity)))
@@ -90,11 +86,9 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 작성 중 예외 발생 테스트")
     void writeBoard_Exception() throws Exception {
-        // given
         when(communityService.writeBoard(any(Community.class)))
                 .thenThrow(new RuntimeException("데이터베이스 연결 오류"));
 
-        // when & then
         mockMvc.perform(post("/community/v1/writeBoard")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testCommunity)))
@@ -110,10 +104,8 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 상세 조회 성공 테스트")
     void findBoard_Success() throws Exception {
-        // given
         when(communityService.findBoard(anyInt())).thenReturn(testCommunity);
 
-        // when & then
         mockMvc.perform(post("/community/v1/findBoard")
                 .param("commuSeq", "1"))
                 .andDo(print())
@@ -129,10 +121,8 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 상세 조회 - 존재하지 않는 게시글 테스트")
     void findBoard_NotFound() throws Exception {
-        // given
         when(communityService.findBoard(anyInt())).thenReturn(null);
 
-        // when & then
         mockMvc.perform(post("/community/v1/findBoard")
                 .param("commuSeq", "999"))
                 .andDo(print())
@@ -147,7 +137,6 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 목록 조회 성공 테스트")
     void findBoardList_Success() throws Exception {
-        // given
         Community community1 = new Community();
         community1.setUserNm("user1");
         community1.setContent("첫 번째 게시글");
@@ -159,7 +148,6 @@ class CommunityControllerTest {
         List<Community> communityList = Arrays.asList(community1, community2);
         when(communityService.findBoardList()).thenReturn(communityList);
 
-        // when & then
         mockMvc.perform(post("/community/v1/findBoardList"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -178,10 +166,8 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 목록 조회 - 빈 목록 테스트")
     void findBoardList_Empty() throws Exception {
-        // given
         when(communityService.findBoardList()).thenReturn(Arrays.asList());
 
-        // when & then
         mockMvc.perform(post("/community/v1/findBoardList"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -196,7 +182,6 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 수정 성공 테스트")
     void updateBoard_Success() throws Exception {
-        // given
         Community existingCommunity = new Community();
         existingCommunity.setUserNm("testUser");
         existingCommunity.setContent("원본 내용");
@@ -204,7 +189,6 @@ class CommunityControllerTest {
         when(communityService.findBoard(1)).thenReturn(existingCommunity);
         when(communityService.writeBoard(any(Community.class))).thenReturn(1);
 
-        // when & then
         mockMvc.perform(post("/community/v1/updateBoard")
                 .param("commuSeq", "1")
                 .param("content", "수정된 내용"))
@@ -221,10 +205,8 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 수정 - 존재하지 않는 게시글 테스트")
     void updateBoard_NotFound() throws Exception {
-        // given
         when(communityService.findBoard(anyInt())).thenReturn(null);
 
-        // when & then
         mockMvc.perform(post("/community/v1/updateBoard")
                 .param("commuSeq", "999")
                 .param("content", "수정된 내용"))
@@ -241,11 +223,9 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 수정 중 예외 발생 테스트")
     void updateBoard_Exception() throws Exception {
-        // given
         when(communityService.findBoard(anyInt()))
                 .thenThrow(new RuntimeException("데이터베이스 연결 오류"));
 
-        // when & then
         mockMvc.perform(post("/community/v1/updateBoard")
                 .param("commuSeq", "1")
                 .param("content", "수정된 내용"))
@@ -262,11 +242,9 @@ class CommunityControllerTest {
     @Test
     @DisplayName("게시글 작성 - 필수 필드 누락 테스트")
     void writeBoard_MissingFields() throws Exception {
-        // given
         Community incompleteCommunity = new Community();
         incompleteCommunity.setUserNm("testUser");
 
-        // when & then
         mockMvc.perform(post("/community/v1/writeBoard")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(incompleteCommunity)))

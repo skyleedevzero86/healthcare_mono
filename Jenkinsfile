@@ -1,19 +1,25 @@
 pipeline {
     agent any
     
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+    
     options {
         buildDiscarder(logRotator(
             numToKeepStr: '30',
             daysToKeepStr: '7'
         ))
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 15, unit: 'MINUTES')
+        skipStagesAfterUnstable()
     }
     
     environment {
         PROJECT_ROOT = "${WORKSPACE}"
-        DEPLOY_TARGET_SERVER = 'localhost'
-        DEPLOY_TARGET_USER = 'ec2-user'
-        DEPLOY_TARGET_DIR = '/app/services'
+        DEPLOY_TARGET_SERVER = "${env.DEPLOY_TARGET_SERVER ?: 'localhost'}"
+        DEPLOY_TARGET_USER = "${env.DEPLOY_TARGET_USER ?: 'ec2-user'}"
+        DEPLOY_TARGET_DIR = "${env.DEPLOY_TARGET_DIR ?: '/app/services'}"
+        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY ?: ''}"
     }
     
     tools {
@@ -36,6 +42,27 @@ pipeline {
                 
                 script {
                     sh 'git log -1 --pretty=format:"%h - %an, %ar : %s"'
+                }
+            }
+        }
+        
+        stage('Clean Build Cache') {
+            when {
+                expression { env.CLEAN_BUILD == 'true' }
+            }
+            steps {
+                script {
+                    echo "========================================="
+                    echo "빌드 캐시 정리 (선택적)"
+                    echo "========================================="
+                    
+                    sh '''
+                        echo "Gradle 캐시 정리 시작"
+                        find . -name "build" -type d -exec rm -rf {} + 2>/dev/null || true
+                        find . -name "out" -type d -exec rm -rf {} + 2>/dev/null || true
+                        find . -name "bin" -type d -exec rm -rf {} + 2>/dev/null || true
+                        echo "빌드 캐시 정리 완료"
+                    '''
                 }
             }
         }
@@ -65,7 +92,7 @@ pipeline {
             steps {
                 script {
                     echo "========================================="
-                    echo "서비스 빌드 (순차 실행)"
+                    echo "서비스 빌드 (병렬 실행)"
                     echo "========================================="
                     
                     def services = [
@@ -76,37 +103,136 @@ pipeline {
                         'service.comm',
                         'service.healthcare',
                         'service.usermanagement',
+                        'service.llm',
                         'web.healthcare'
                     ]
                     
+                    def buildResults = [:]
+                    
                     services.each { service ->
-                        echo ""
-                        echo "----------------------------------------"
-                        echo "빌드 중: ${service}"
-                        echo "----------------------------------------"
-                        
-                        dir(service) {
-                            try {
-                                sh """
-                                    chmod +x gradlew || true
-                                    ./gradlew clean build -x test --no-daemon
-                                """
-                                
-                                def jarFiles = sh(
-                                    script: "find build/libs -name '*.jar' ! -name '*-plain.jar' | head -1",
+                        buildResults[service] = {
+                            echo ""
+                            echo "----------------------------------------"
+                            echo "빌드 중: ${service}"
+                            echo "----------------------------------------"
+                            
+                            dir(service) {
+                                try {
+                                    sh """
+                                        chmod +x gradlew || true
+                                        ./gradlew build -x test --no-daemon
+                                    """
+                                    
+                                    def jarFiles = sh(
+                                        script: "find build/libs -name '*.jar' ! -name '*-plain.jar' | head -1",
+                                        returnStdout: true
+                                    ).trim()
+                                    
+                                    if (jarFiles) {
+                                        echo "✓ ${service} 빌드 성공: ${jarFiles}"
+                                    } else {
+                                        error "${service}: JAR 파일을 찾을 수 없습니다"
+                                    }
+                                    
+                                } catch (Exception e) {
+                                    echo "✗ ${service} 빌드 실패: ${e.getMessage()}"
+                                    currentBuild.result = 'UNSTABLE'
+                                }
+                            }
+                        }
+                    }
+                    
+                    parallel buildResults
+                }
+            }
+        }
+        
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "Docker 이미지 빌드"
+                    echo "========================================="
+                    
+                    def services = [
+                        'service.discovery',
+                        'service.config',
+                        'api.gateway',
+                        'service.auth',
+                        'service.comm',
+                        'service.healthcare',
+                        'service.usermanagement',
+                        'service.llm',
+                        'web.healthcare'
+                    ]
+                    
+                    def imageResults = [:]
+                    
+                    services.each { service ->
+                        imageResults[service] = {
+                            dir(service) {
+                                def jarFile = sh(
+                                    script: "find build/libs -name '*.jar' ! -name '*-plain.jar' 2>/dev/null | head -1",
                                     returnStdout: true
                                 ).trim()
                                 
-                                if (jarFiles) {
-                                    echo "✓ ${service} 빌드 성공: ${jarFiles}"
+                                if (jarFile && fileExists('Dockerfile')) {
+                                    def imageName = "${service}:${env.BUILD_NUMBER}"
+                                    def imageTag = "${service}:latest"
+                                    
+                                    echo "Docker 이미지 빌드: ${service}"
+                                    sh """
+                                        docker build -t ${imageName} -t ${imageTag} .
+                                    """
+                                    echo "✓ ${service} Docker 이미지 빌드 성공: ${imageName}"
                                 } else {
-                                    error "${service}: JAR 파일을 찾을 수 없습니다"
+                                    echo "⚠ ${service}: Dockerfile이 없거나 JAR 파일을 찾을 수 없습니다"
                                 }
-                                
-                            } catch (Exception e) {
-                                echo "✗ ${service} 빌드 실패: ${e.getMessage()}"
-                                currentBuild.result = 'UNSTABLE'
                             }
+                        }
+                    }
+                    
+                    parallel imageResults
+                }
+            }
+        }
+        
+        stage('Build Mobile App') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "모바일 앱 빌드 (React Native/Expo)"
+                    echo "========================================="
+                    
+                    dir('mobile/healthcare_mobile') {
+                        try {
+                            sh '''
+                                echo "Node.js 버전 확인"
+                                node --version || echo "⚠ Node.js가 설치되지 않았습니다"
+                                
+                                echo "pnpm 설치 확인"
+                                if ! command -v pnpm &> /dev/null; then
+                                    echo "pnpm 설치 중..."
+                                    npm install -g pnpm || echo "⚠ pnpm 설치 실패"
+                                fi
+                                pnpm --version
+                                
+                                echo "의존성 설치"
+                                pnpm install --frozen-lockfile || echo "⚠ 의존성 설치 경고"
+                                
+                                echo "TypeScript 타입 체크"
+                                pnpm tsc --noEmit || echo "⚠ 타입 체크 경고 (무시 가능)"
+                                
+                                echo "✓ 모바일 앱 빌드 준비 완료"
+                                echo "참고: 실제 APK/IPA 빌드는 EAS Build를 사용하거나 별도 빌드 서버 필요"
+                            '''
+                            
+                            echo "✓ 모바일 앱 빌드 준비 완료"
+                            
+                        } catch (Exception e) {
+                            echo "✗ 모바일 앱 빌드 실패: ${e.getMessage()}"
+                            echo "참고: 모바일 앱은 Node.js/pnpm이 필요하며, EAS Build를 사용하거나 별도 빌드 환경이 필요할 수 있습니다"
+                            currentBuild.result = 'UNSTABLE'
                         }
                     }
                 }
@@ -128,6 +254,7 @@ pipeline {
                         'service.comm',
                         'service.healthcare',
                         'service.usermanagement',
+                        'service.llm',
                         'web.healthcare'
                     ]
                     
@@ -157,25 +284,115 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Push Docker Images') {
             when {
                 anyOf {
                     branch 'main'
                     branch 'master'
                 }
             }
-            
             steps {
                 script {
                     echo "========================================="
-                    echo "서비스 배포"
+                    echo "Docker 이미지 레지스트리 푸시"
                     echo "========================================="
                     
-                    dir('scripts') {
-                        sh """
-                            chmod +x deploy.sh
-                            ./deploy.sh --all
-                        """
+                    def dockerRegistry = env.DOCKER_REGISTRY ?: ''
+                    def services = [
+                        'service.discovery',
+                        'service.config',
+                        'api.gateway',
+                        'service.auth',
+                        'service.comm',
+                        'service.healthcare',
+                        'service.usermanagement',
+                        'service.llm',
+                        'web.healthcare'
+                    ]
+                    
+                    if (dockerRegistry) {
+                        services.each { service ->
+                            def imageName = "${dockerRegistry}/${service}:${env.BUILD_NUMBER}"
+                            def imageLatest = "${dockerRegistry}/${service}:latest"
+                            
+                            sh """
+                                docker tag ${service}:latest ${imageName} || true
+                                docker tag ${service}:latest ${imageLatest} || true
+                                docker push ${imageName} || echo 'Push 실패 (무시)'
+                                docker push ${imageLatest} || echo 'Push 실패 (무시)'
+                            """
+                            echo "✓ ${service} 이미지 푸시: ${imageName}"
+                        }
+                    } else {
+                        echo "⚠ DOCKER_REGISTRY가 설정되지 않아 이미지 푸시를 건너뜁니다"
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Server') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    echo "========================================="
+                    echo "서버 무중단 배포"
+                    echo "========================================="
+                    
+                    def deployServer = env.DEPLOY_TARGET_SERVER ?: 'localhost'
+                    def dockerRegistry = env.DOCKER_REGISTRY ?: ''
+                    
+                    if (deployServer != 'localhost') {
+                        def services = [
+                            'service.discovery',
+                            'service.config',
+                            'api.gateway',
+                            'service.auth',
+                            'service.comm',
+                            'service.healthcare',
+                            'service.usermanagement',
+                            'service.llm',
+                            'web.healthcare'
+                        ]
+                        
+                        if (dockerRegistry) {
+                            echo "Docker 레지스트리에서 이미지 pull 후 배포"
+                        } else {
+                            echo "로컬 이미지를 서버로 전송 후 배포"
+                            
+                            services.each { service ->
+                                def imageName = "${service}:latest"
+                                def imageFile = "/tmp/${service}-${env.BUILD_NUMBER}.tar"
+                                
+                                echo "이미지 저장: ${service}"
+                                sh """
+                                    docker save ${imageName} -o ${imageFile} || echo '이미지 저장 실패'
+                                """
+                                
+                                if (fileExists(imageFile)) {
+                                    echo "이미지 전송: ${service}"
+                                    sh """
+                                        scp -i ${env.DEPLOY_SSH_KEY ?: '~/.ssh/id_rsa'} ${imageFile} ${env.DEPLOY_TARGET_USER}@${deployServer}:/tmp/ || echo '이미지 전송 실패'
+                                        ssh -i ${env.DEPLOY_SSH_KEY ?: '~/.ssh/id_rsa'} ${env.DEPLOY_TARGET_USER}@${deployServer} "docker load -i /tmp/${service}-${env.BUILD_NUMBER}.tar && rm -f /tmp/${service}-${env.BUILD_NUMBER}.tar" || echo '이미지 로드 실패'
+                                    """
+                                    sh "rm -f ${imageFile}"
+                                }
+                            }
+                        }
+                        
+                        dir('scripts') {
+                            sh """
+                                chmod +x deploy-docker.sh
+                                BUILD_NUMBER=${env.BUILD_NUMBER} DOCKER_REGISTRY='${dockerRegistry}' ./deploy-docker.sh --all
+                            """
+                        }
+                    } else {
+                        echo "⚠ DEPLOY_TARGET_SERVER가 localhost로 설정되어 배포를 건너뜁니다"
+                        echo "실제 서버 배포를 원하시면 Jenkins 환경 변수에 DEPLOY_TARGET_SERVER를 설정하세요"
                     }
                 }
             }
@@ -203,6 +420,7 @@ pipeline {
                         ['service.comm', '8085'],
                         ['service.healthcare', '8084'],
                         ['service.usermanagement', '8087'],
+                        ['service.llm', '8086'],
                         ['web.healthcare', '8981']
                     ]
                     

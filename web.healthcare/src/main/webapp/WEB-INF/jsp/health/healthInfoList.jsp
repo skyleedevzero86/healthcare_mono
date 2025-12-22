@@ -141,7 +141,6 @@
 				}
 			}
 			
-			//datasetting by chart Type
 			if (chartType == "floating") {
 				chartData["dataMin"] = data[condition][id+'Min'];
 				chartData["dataMax"] = data[condition][id+'Max'];

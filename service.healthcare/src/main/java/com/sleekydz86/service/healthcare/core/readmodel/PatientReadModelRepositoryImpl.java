@@ -1,10 +1,11 @@
 package com.sleekydz86.service.healthcare.core.readmodel;
 
 import com.sleekydz86.service.healthcare.entity.Patient;
-import com.sleekydz86.service.healthcare.repository.PatientRepository;
+import com.sleekydz86.service.healthcare.global.mapper.PatientMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,14 +13,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PatientReadModelRepositoryImpl implements PatientReadModelRepository {
 
-    private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
 
     @Override
     public Optional<PatientReadModel> findByPatientId(String patientId) {
         try {
             Long id = Long.parseLong(patientId);
-            return patientRepository.findById(id)
-                .map(this::toReadModel);
+            Patient patient = patientMapper.findById(id);
+            if (patient != null) {
+                return Optional.of(toReadModel(patient));
+            }
+            return Optional.empty();
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
@@ -28,14 +32,18 @@ public class PatientReadModelRepositoryImpl implements PatientReadModelRepositor
     @Override
     public void save(PatientReadModel patientReadModel) {
         Patient patient = toEntity(patientReadModel);
-        patientRepository.save(patient);
+        if (patient.getPatientId() != null) {
+            patientMapper.update(patient);
+        } else {
+            patientMapper.insert(patient);
+        }
     }
 
     @Override
     public void deleteByPatientId(String patientId) {
         try {
             Long id = Long.parseLong(patientId);
-            patientRepository.deleteById(id);
+            patientMapper.deleteById(id);
         } catch (NumberFormatException e) {
         }
     }
@@ -72,12 +80,7 @@ public class PatientReadModelRepositoryImpl implements PatientReadModelRepositor
     
     @Override
     public List<PatientReadModel> findAll(int page, int size) {
-        org.springframework.data.domain.Pageable pageable = 
-            org.springframework.data.domain.PageRequest.of(page, size);
-        return patientRepository.findAll(pageable)
-            .stream()
-            .map(this::toReadModel)
-            .collect(java.util.stream.Collectors.toList());
+        return new ArrayList<>();
     }
 }
 

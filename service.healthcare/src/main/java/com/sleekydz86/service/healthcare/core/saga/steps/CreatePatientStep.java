@@ -1,8 +1,8 @@
 package com.sleekydz86.service.healthcare.core.saga.steps;
 
-import com.sleekydz86.api.gateway.saga.Saga;
-import com.sleekydz86.api.gateway.saga.SagaStep;
-import com.sleekydz86.api.gateway.saga.SagaStepResult;
+import com.sleekydz86.service.healthcare.core.saga.Saga;
+import com.sleekydz86.service.healthcare.core.saga.SagaStep;
+import com.sleekydz86.service.healthcare.core.saga.SagaStepResult;
 import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
 import com.sleekydz86.service.healthcare.entity.Patient;
 import com.sleekydz86.service.healthcare.service.PatientService;

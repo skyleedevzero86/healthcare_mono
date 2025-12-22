@@ -10,7 +10,6 @@ class ApplicationTests {
 
     @Test
     void contextLoads() {
-        // Spring 컨텍스트 로드 테스트
     }
 }
 

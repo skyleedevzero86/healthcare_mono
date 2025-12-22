@@ -3,8 +3,8 @@ package com.sleekydz86.service.healthcare.service.cache;
 import com.sleekydz86.service.healthcare.config.PerformanceConfig;
 import com.sleekydz86.service.healthcare.entity.MedicalRecord;
 import com.sleekydz86.service.healthcare.entity.Patient;
-import com.sleekydz86.service.healthcare.repository.MedicalRecordRepository;
-import com.sleekydz86.service.healthcare.repository.PatientRepository;
+import com.sleekydz86.service.healthcare.global.mapper.MedicalRecordMapper;
+import com.sleekydz86.service.healthcare.global.mapper.PatientMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,19 +22,19 @@ public class CacheService {
     private static final Duration PATIENT_DIRECT_TTL = PerformanceConfig.PATIENTS_TTL;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final PatientRepository patientRepository;
-    private final MedicalRecordRepository medicalRecordRepository;
+    private final PatientMapper patientMapper;
+    private final MedicalRecordMapper medicalRecordMapper;
 
     @Cacheable(value = PerformanceConfig.CACHE_PATIENTS, key = "#patientId", unless = "#result == null")
     public Patient getPatient(Long patientId) {
-        return patientRepository.findById(patientId).orElse(null);
+        return patientMapper.findById(patientId);
     }
 
     @CacheEvict(value = PerformanceConfig.CACHE_PATIENTS, key = "#patient.patientId")
     public Patient updatePatient(Patient patient) {
-        Patient updated = patientRepository.save(patient);
+        patientMapper.update(patient);
         evictPatientDirectCache(patient.getPatientId());
-        return updated;
+        return patient;
     }
 
     @CacheEvict(value = PerformanceConfig.CACHE_PATIENTS, allEntries = true)
@@ -43,7 +43,7 @@ public class CacheService {
 
     @Cacheable(value = PerformanceConfig.CACHE_MEDICAL_RECORDS, key = "#patientId", unless = "#result.isEmpty()")
     public List<MedicalRecord> getMedicalRecords(Long patientId) {
-        return medicalRecordRepository.findByPatientId(patientId);
+        return medicalRecordMapper.findByPatientId(patientId);
     }
 
     @CacheEvict(value = PerformanceConfig.CACHE_MEDICAL_RECORDS, key = "#patientId")

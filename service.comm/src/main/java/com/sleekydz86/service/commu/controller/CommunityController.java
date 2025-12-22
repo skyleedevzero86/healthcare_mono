@@ -29,16 +29,18 @@ public class CommunityController {
     private final DtoConverter dtoConverter;
 
     @PostMapping("writeBoard")
-    public ResponseEntity<ApiResponse> writeBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<?>> writeBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
         try {
             if (inputSanitizer.containsSqlInjection(requestDto.getContent()) || 
                 inputSanitizer.containsXss(requestDto.getContent())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             
             String sanitizedUserId = inputSanitizer.sanitizeUserId(requestDto.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(requestDto.getUserId())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             requestDto.setUserId(sanitizedUserId);
             
@@ -46,114 +48,137 @@ public class CommunityController {
             int result = communityService.writeBoard(community);
 
             if (result > 0) {
-                return ApiResponse.ok();
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
+                return ResponseEntity.ok(responseEntity.getBody());
             } else {
-                return ApiResponse.error(ApiResultCode.INSERT_FAIL);
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.INSERT_FAIL);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (Exception e) {
             log.error("게시글 작성 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         }
     }
 
     @PostMapping("findBoard")
-    public ResponseEntity<ApiResponse> findBoard(@Valid @RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> findBoard(@Valid @RequestBody Map<String, Object> map) {
         try {
             Object commuSeqObj = map.get("commuSeq");
             if (commuSeqObj == null) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             int commuSeq;
             try {
                 commuSeq = Integer.parseInt(commuSeqObj.toString());
             } catch (NumberFormatException e) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
-            return ApiResponse.ok(communityService.findBoard(commuSeq));
+            Community result = communityService.findBoard(commuSeq);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.ok(result);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (Exception e) {
             log.error("게시글 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.UNKNOWN_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         }
     }
 
     @PostMapping("findBoardList")
-    public ResponseEntity<ApiResponse> findBoardList(@RequestBody(required = false) Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> findBoardList(@RequestBody(required = false) Map<String, Object> map) {
         try {
             if (map == null) {
                 map = new java.util.HashMap<>();
             }
 
             List<Community> items = communityService.findBoardList(map);
-            return ApiResponse.ok(items);
+            ResponseEntity<ApiResponse<List<Community>>> responseEntity = ApiResponse.ok(items);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (Exception e) {
             log.error("게시글 목록 조회 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            ResponseEntity<ApiResponse<List<Community>>> responseEntity = ApiResponse.<List<Community>>error(ApiResultCode.UNKNOWN_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         }
     }
 
     @PostMapping("updateBoard")
-    public ResponseEntity<ApiResponse> updateBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<?>> updateBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
         try {
             if (requestDto.getCommuSeq() == null || requestDto.getCommuSeq() < 1) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             
             if (inputSanitizer.containsSqlInjection(requestDto.getContent()) || 
                 inputSanitizer.containsXss(requestDto.getContent())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             
             String sanitizedUserId = inputSanitizer.sanitizeUserId(requestDto.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(requestDto.getUserId())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             requestDto.setUserId(sanitizedUserId);
             
             Community community = dtoConverter.convertToEntity(requestDto, Community.class);
             Community updatedCommu = communityService.findBoard(community.getCommuSeq());
             if (updatedCommu == null) {
-                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.RESULT_IS_EMPTY);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             updatedCommu.setContent(community.getContent());
             communityService.writeBoard(updatedCommu);
 
-            return ApiResponse.ok(community);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.ok(community);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (Exception e) {
             log.error("게시글 수정 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.UNKNOWN_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         }
     }
 
     @PostMapping("deleteBoard")
-    public ResponseEntity<ApiResponse> deleteBoard(@Valid @RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> deleteBoard(@Valid @RequestBody Map<String, Object> map) {
         try {
             Object commuSeqObj = map.get("commuSeq");
             if (commuSeqObj == null) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             int commuSeq;
             try {
                 commuSeq = Integer.parseInt(commuSeqObj.toString());
             } catch (NumberFormatException e) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
             
             int result = communityService.deleteBoard(commuSeq);
             
             if (result == 1) {
-                return ApiResponse.ok();
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
+                return ResponseEntity.ok(responseEntity.getBody());
             } else {
-                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.RESULT_IS_EMPTY);
+                return ResponseEntity.ok(responseEntity.getBody());
             }
         } catch (Exception e) {
             log.error("게시글 삭제 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ResponseEntity.ok(responseEntity.getBody());
         }
     }
 }

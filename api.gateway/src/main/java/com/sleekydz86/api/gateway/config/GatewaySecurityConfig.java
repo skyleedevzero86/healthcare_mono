@@ -24,17 +24,16 @@ public class GatewaySecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-            .csrf().disable()
-            .cors().configurationSource(corsConfigurationSource())
-            .and()
-            .authorizeExchange()
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeExchange(exchanges -> exchanges
                 .pathMatchers("/auth/v1/signin", "/auth/v1/signup").permitAll()
                 .pathMatchers("/healthcare/**", "/management/**", "/community/**").authenticated()
                 .anyExchange().authenticated()
-            .and()
-            .oauth2ResourceServer()
-                .jwt()
-            .and()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> {})
+            )
             .build();
     }
 

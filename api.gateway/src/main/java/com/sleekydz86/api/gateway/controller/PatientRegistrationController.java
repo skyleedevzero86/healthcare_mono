@@ -6,7 +6,8 @@ import com.sleekydz86.api.gateway.dto.PatientRegistrationRequest;
 import com.sleekydz86.api.gateway.saga.SagaOrchestrator;
 import com.sleekydz86.api.gateway.saga.SagaResult;
 import com.sleekydz86.api.gateway.saga.SagaStatus;
-import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
+import com.sleekydz86.api.gateway.saga.PatientRegistrationSaga;
+import com.sleekydz86.api.gateway.saga.PatientRegistrationData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,22 +31,26 @@ public class PatientRegistrationController {
         
         return CompletableFuture.supplyAsync(() -> {
             try {
-                PatientRegistrationSaga.PatientRegistrationData data = 
-                    new PatientRegistrationSaga.PatientRegistrationData(
-                        request.getPatientId(),
-                        request.getPatientName(),
-                        request.getPhoneNumber(),
-                        request.getEmail(),
-                        request.getAddress(),
-                        request.getMedicalHistory()
-                    );
+                log.info("환자 등록 요청 수신: patientName={}, email={}", 
+                    request.getPatientName(), request.getEmail());
                 
-                PatientRegistrationSaga saga = new PatientRegistrationSaga(data);
+                PatientRegistrationData sagaData = new PatientRegistrationData(
+                    null,
+                    request.getPatientName(),
+                    request.getPhoneNumber(),
+                    request.getEmail(),
+                    request.getAddress(),
+                    request.getMedicalHistory()
+                );
                 
+                PatientRegistrationSaga saga = new PatientRegistrationSaga(sagaData);
+                
+                // Saga 실행
                 CompletableFuture<SagaResult> sagaFuture = sagaOrchestrator.executeSaga(saga);
                 SagaResult result = sagaFuture.join();
                 
                 if (result.isSuccess()) {
+                    log.info("환자 등록 성공: sagaId={}", saga.getSagaId());
                     ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
                         .resultCode(ApiResultCode.SUCCESS.getCode())
                         .resultMessage("환자 등록이 완료되었습니다")
@@ -54,10 +59,12 @@ public class PatientRegistrationController {
                         .build();
                     return ResponseEntity.ok(response);
                 } else {
+                    log.warn("환자 등록 실패: sagaId={}, message={}", 
+                        saga.getSagaId(), result.getMessage());
                     ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
                         .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                         .resultMessage(result.getMessage())
-                        .resultData(null)
+                        .resultData(result)
                         .timestamp(java.time.LocalDateTime.now())
                         .build();
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

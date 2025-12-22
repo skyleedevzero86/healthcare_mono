@@ -197,7 +197,6 @@ pageEncoding="UTF-8"%> <%@ include file="/WEB-INF/jsp/include/_dtd.jsp" %>
       searchType = "minmax";
       condition = "30";
     } else {
-      // 호흡수
       searchType = "all";
       condition = "30";
     }

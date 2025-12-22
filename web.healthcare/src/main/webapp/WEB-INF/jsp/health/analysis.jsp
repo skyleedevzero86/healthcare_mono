@@ -180,7 +180,6 @@
 
     $(document).ready(function(){
         var result = "";
-        //오늘날짜
         curDate = new Date();
         curDay = curDate.getDate();
         curMon = (curDate.getMonth() + 1) ;
@@ -224,8 +223,6 @@
        language: 'ko',
        autoClose: true,
        onSelect: function (formattedDate, date, inst) {
-         // 사용자가 날짜를 선택할 때마다 호출되는 이벤트 핸들러
-         // 선택한 날짜를 내부 변수에 저장
         curTime = formattedDate;
             if(searchWrd=='sleep') {
                 graphSleepdata();

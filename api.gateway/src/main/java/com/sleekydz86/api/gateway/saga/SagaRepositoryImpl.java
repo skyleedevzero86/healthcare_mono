@@ -132,11 +132,41 @@ public class SagaRepositoryImpl implements SagaRepository {
     
     private Saga createSagaInstance(String sagaType, UUID sagaId) {
         if ("PatientRegistration".equals(sagaType)) {
-            return new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga(
-                new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData(
-                    null, null, null, null, null, null));
+            return new SagaImpl(sagaId, sagaType, SagaStatus.STARTED, null);
         }
         throw new IllegalArgumentException("알 수 없는 Saga 타입: " + sagaType);
+    }
+    
+    private static class SagaImpl implements Saga {
+        private final UUID sagaId;
+        private final String sagaType;
+        private SagaStatus status;
+        private Object data;
+        
+        public SagaImpl(UUID sagaId, String sagaType, SagaStatus status, Object data) {
+            this.sagaId = sagaId;
+            this.sagaType = sagaType;
+            this.status = status;
+            this.data = data;
+        }
+        
+        @Override
+        public UUID getSagaId() { return sagaId; }
+        
+        @Override
+        public String getSagaType() { return sagaType; }
+        
+        @Override
+        public SagaStatus getStatus() { return status; }
+        
+        @Override
+        public void setStatus(SagaStatus status) { this.status = status; }
+        
+        @Override
+        public Object getData() { return data; }
+        
+        @Override
+        public void setData(Object data) { this.data = data; }
     }
     
     private String serializeData(Object data) {
@@ -150,10 +180,6 @@ public class SagaRepositoryImpl implements SagaRepository {
     
     private Object deserializeData(String sagaType, String dataJson) {
         try {
-            if ("PatientRegistration".equals(sagaType)) {
-                return objectMapper.readValue(dataJson, 
-                    com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData.class);
-            }
             return objectMapper.readValue(dataJson, Object.class);
         } catch (Exception e) {
             log.error("Saga 데이터 역직렬화 실패", e);

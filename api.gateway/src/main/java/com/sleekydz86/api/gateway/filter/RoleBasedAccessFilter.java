@@ -23,10 +23,7 @@ import java.util.Set;
 @Component
 public class RoleBasedAccessFilter implements GlobalFilter, Ordered {
 
-    private final com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac;
-
-    public RoleBasedAccessFilter(com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac) {
-        this.rbac = rbac;
+    public RoleBasedAccessFilter() {
     }
 
     private static final Set<String> PUBLIC_PATHS = new HashSet<>(Arrays.asList(
