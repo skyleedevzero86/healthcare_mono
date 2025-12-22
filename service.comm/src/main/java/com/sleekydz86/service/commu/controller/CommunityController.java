@@ -81,7 +81,8 @@ public class CommunityController {
                 return ResponseEntity.ok(responseEntity.getBody());
             }
             Community result = communityService.findBoard(commuSeq);
-            return ApiResponse.ok(result);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.ok(result);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (Exception e) {
             log.error("게시글 조회 중 오류 발생", e);
             ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.UNKNOWN_ERR);
@@ -97,7 +98,8 @@ public class CommunityController {
             }
 
             List<Community> items = communityService.findBoardList(map);
-            return ApiResponse.ok(items);
+            ResponseEntity<ApiResponse<List<Community>>> responseEntity = ApiResponse.ok(items);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (Exception e) {
             log.error("게시글 목록 조회 중 오류 발생", e);
             ResponseEntity<ApiResponse<List<Community>>> responseEntity = ApiResponse.<List<Community>>error(ApiResultCode.UNKNOWN_ERR);
@@ -135,7 +137,8 @@ public class CommunityController {
             updatedCommu.setContent(community.getContent());
             communityService.writeBoard(updatedCommu);
 
-            return ApiResponse.ok(community);
+            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.ok(community);
+            return ResponseEntity.ok(responseEntity.getBody());
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);

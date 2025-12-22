@@ -131,17 +131,12 @@ public class SagaRepositoryImpl implements SagaRepository {
     }
     
     private Saga createSagaInstance(String sagaType, UUID sagaId) {
-        // TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
-        // MSA에서는 서비스 간 직접 클래스 참조를 피해야 합니다.
-        // 대신 JSON 직렬화/역직렬화를 통해 데이터만 전달해야 합니다.
         if ("PatientRegistration".equals(sagaType)) {
-            // 임시로 기본 Saga 인스턴스 생성
-            return new SagaImpl(sagaId, sagaType, SagaStatus.PENDING, null);
+            return new SagaImpl(sagaId, sagaType, SagaStatus.STARTED, null);
         }
         throw new IllegalArgumentException("알 수 없는 Saga 타입: " + sagaType);
     }
     
-    // 임시 Saga 구현 클래스
     private static class SagaImpl implements Saga {
         private final UUID sagaId;
         private final String sagaType;
@@ -185,9 +180,6 @@ public class SagaRepositoryImpl implements SagaRepository {
     
     private Object deserializeData(String sagaType, String dataJson) {
         try {
-            // TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
-            // MSA에서는 서비스 간 직접 클래스 참조를 피해야 합니다.
-            // 대신 Map이나 JSON으로 데이터를 전달해야 합니다.
             return objectMapper.readValue(dataJson, Object.class);
         } catch (Exception e) {
             log.error("Saga 데이터 역직렬화 실패", e);

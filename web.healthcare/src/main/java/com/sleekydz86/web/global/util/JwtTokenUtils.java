@@ -23,11 +23,11 @@ public class JwtTokenUtils {
 
     public Claims parseClaims(String accessToken) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(KEY)
+            return Jwts.parser()
+                    .verifyWith(KEY)
                     .build()
-                    .parseClaimsJws(accessToken)
-                    .getBody();
+                    .parseSignedClaims(accessToken)
+                    .getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }

@@ -6,8 +6,6 @@ import com.sleekydz86.api.gateway.dto.PatientRegistrationRequest;
 import com.sleekydz86.api.gateway.saga.SagaOrchestrator;
 import com.sleekydz86.api.gateway.saga.SagaResult;
 import com.sleekydz86.api.gateway.saga.SagaStatus;
-// TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
-// import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,23 +29,6 @@ public class PatientRegistrationController {
         
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
-                // PatientRegistrationSaga.PatientRegistrationData data = 
-                //     new PatientRegistrationSaga.PatientRegistrationData(
-                //         request.getPatientId(),
-                //         request.getPatientName(),
-                //         request.getPhoneNumber(),
-                //         request.getEmail(),
-                //         request.getAddress(),
-                //         request.getMedicalHistory()
-                //     );
-                
-                // PatientRegistrationSaga saga = new PatientRegistrationSaga(data);
-                
-                // CompletableFuture<SagaResult> sagaFuture = sagaOrchestrator.executeSaga(saga);
-                // SagaResult result = sagaFuture.join();
-                
-                // 임시로 실패 응답 반환
                 SagaResult result = new SagaResult(false, "서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 구현 필요", null);
                 
                 if (result.isSuccess()) {
