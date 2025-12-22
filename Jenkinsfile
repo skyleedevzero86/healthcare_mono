@@ -14,8 +14,11 @@ pipeline {
         DEPLOY_TARGET_SERVER = 'localhost'
         DEPLOY_TARGET_USER = 'ec2-user'
         DEPLOY_TARGET_DIR = '/app/services'
-        JAVA_HOME = tool 'JDK-21'
-        GRADLE_HOME = tool 'Gradle'
+    }
+    
+    tools {
+        jdk 'JDK-21'
+        gradle 'Gradle'
     }
     
     stages {
@@ -214,9 +217,17 @@ pipeline {
                 echo "빌드 정리"
                 echo "========================================="
                 
-                sh 'docker system prune -f || true'
+                try {
+                    sh 'docker system prune -f || true'
+                } catch (Exception e) {
+                    echo "Docker 정리 실패 (무시): ${e.getMessage()}"
+                }
                 
-                archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true, allowEmptyArchive: true
+                try {
+                    archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true, allowEmptyArchive: true
+                } catch (Exception e) {
+                    echo "아티팩트 아카이브 실패 (무시): ${e.getMessage()}"
+                }
             }
         }
         
