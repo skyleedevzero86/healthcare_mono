@@ -1,5 +1,6 @@
 package com.sleekydz86.service.discovery.config;
 
+import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.server.EurekaServerConfigBean;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class EurekaClusterConfig {
 
     @Bean
-    public EurekaInstanceConfigBean eurekaInstanceConfig() {
-        EurekaInstanceConfigBean config = new EurekaInstanceConfigBean();
+    public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
+        EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
         String hostname = System.getenv("HOSTNAME");
         if (hostname == null || hostname.isEmpty()) {
             hostname = System.getProperty("eureka.instance.hostname", "localhost");

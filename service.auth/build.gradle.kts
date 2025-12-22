@@ -75,6 +75,11 @@ dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
     }
+    dependencies {
+        dependency("io.jsonwebtoken:jjwt-api:0.12.3")
+        dependency("io.jsonwebtoken:jjwt-impl:0.12.3")
+        dependency("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    }
 }
 
 tasks.withType<JavaCompile> {
