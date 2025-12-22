@@ -26,12 +26,6 @@ public class UserController {
     private final UserService userService;
     private final com.sleekydz86.service.auth.util.InputSanitizer inputSanitizer;
 
-    public UserController(UserService userService, 
-                         com.sleekydz86.service.auth.util.InputSanitizer inputSanitizer) {
-        this.userService = userService;
-        this.inputSanitizer = inputSanitizer;
-    }
-
     @PostMapping("/v1/signup")
     @Transactional
     public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupDto user) {

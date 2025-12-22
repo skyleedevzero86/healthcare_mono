@@ -14,13 +14,18 @@ services:
       - --port
       - "8090"
       - --ctx-size
-      - "16384"
+      - "8192"
       - --threads
-      - "8"
+      - "6"
+      - --threads-batch
+      - "6"
       - --n-gpu-layers
-      - "0" # CPU 모드 (GPU 사용 시 35로 변경)
+      - "0"
       - --host
       - "0.0.0.0"
+      - --parallel
+      - "2"
+      - --cont-batching
     healthcheck:
       test:
         [
