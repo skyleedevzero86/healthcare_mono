@@ -1,11 +1,12 @@
 package com.sleekydz86.service.healthcare.service.sharding;
 
 import com.sleekydz86.service.healthcare.entity.Patient;
-import com.sleekydz86.service.healthcare.repository.PatientRepository;
+import com.sleekydz86.service.healthcare.global.mapper.PatientMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,25 +15,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PatientShardingService {
 
-    private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
     private final ShardingKeyGenerator shardingKeyGenerator;
 
     public Patient createPatient(Patient patient) {
         String regionId = patient.getRegionId();
         int shardKey = shardingKeyGenerator.generateShardKey(regionId);
         patient.setShardKey(shardKey);
-        return patientRepository.save(patient);
+        patient.setCreatedAt(LocalDateTime.now());
+        patient.setUpdatedAt(LocalDateTime.now());
+        patientMapper.insert(patient);
+        return patient;
     }
 
     public Patient findPatientById(Long patientId) {
         int shardKey = shardingKeyGenerator.generateShardKey(patientId);
-        return patientRepository.findByPatientIdAndShardKey(patientId, shardKey);
+        return patientMapper.findByPatientIdAndShardKey(patientId, shardKey);
     }
 
     public List<Patient> findPatientsByRegion(String regionId) {
         List<Patient> patients = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            patients.addAll(patientRepository.findByRegionIdAndShardKey(regionId, i));
+            patients.addAll(patientMapper.findByRegionIdAndShardKey(regionId, i));
         }
         return patients;
     }
@@ -46,17 +50,16 @@ public class PatientShardingService {
                 if (patient.getPhone() != null) existing.setPhone(patient.getPhone());
                 if (patient.getAddress() != null) existing.setAddress(patient.getAddress());
                 if (patient.getDateOfBirth() != null) existing.setDateOfBirth(patient.getDateOfBirth());
-                return patientRepository.save(existing);
+                existing.setUpdatedAt(LocalDateTime.now());
+                patientMapper.update(existing);
+                return existing;
             }
         }
         return createPatient(patient);
     }
 
     public void deletePatient(Long patientId) {
-        Patient patient = findPatientById(patientId);
-        if (patient != null) {
-            patientRepository.delete(patient);
-        }
+        patientMapper.deleteById(patientId);
     }
 }
 

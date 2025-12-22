@@ -1,7 +1,7 @@
 package com.sleekydz86.service.healthcare.core.saga;
 
-import com.sleekydz86.api.gateway.saga.Saga;
-import com.sleekydz86.api.gateway.saga.SagaStatus;
+import com.sleekydz86.service.healthcare.core.saga.Saga;
+import com.sleekydz86.service.healthcare.core.saga.SagaStatus;
 import java.util.UUID;
 
 public class PatientRegistrationSaga implements Saga {

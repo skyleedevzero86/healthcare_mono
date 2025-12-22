@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sleekydz86.service.healthcare.global.mapper.AppointmentMapper">
+    <select id="findById" parameterType="Long" resultType="com.sleekydz86.service.healthcare.entity.Appointment">
+        SELECT appointment_id, patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at
+        FROM appointments
+        WHERE appointment_id = #{appointmentId}
+    </select>
+
+    <select id="findByPatientId" parameterType="Long" resultType="com.sleekydz86.service.healthcare.entity.Appointment">
+        SELECT appointment_id, patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at
+        FROM appointments
+        WHERE patient_id = #{patientId}
+        ORDER BY appointment_date DESC
+    </select>
+
+    <select id="findByDoctorId" parameterType="Long" resultType="com.sleekydz86.service.healthcare.entity.Appointment">
+        SELECT appointment_id, patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at
+        FROM appointments
+        WHERE doctor_id = #{doctorId}
+        ORDER BY appointment_date DESC
+    </select>
+
+    <select id="findByAppointmentDateBetween" resultType="com.sleekydz86.service.healthcare.entity.Appointment">
+        SELECT appointment_id, patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at
+        FROM appointments
+        WHERE appointment_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY appointment_date DESC
+    </select>
+
+    <select id="findByStatus" parameterType="String" resultType="com.sleekydz86.service.healthcare.entity.Appointment">
+        SELECT appointment_id, patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at
+        FROM appointments
+        WHERE status = #{status}
+        ORDER BY appointment_date DESC
+    </select>
+
+    <select id="findUpcomingByPatientId" resultType="com.sleekydz86.service.healthcare.entity.Appointment">
+        SELECT appointment_id, patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at
+        FROM appointments
+        WHERE patient_id = #{patientId} AND appointment_date > #{now}
+        ORDER BY appointment_date ASC
+    </select>
+
+    <insert id="insert" parameterType="com.sleekydz86.service.healthcare.entity.Appointment" useGeneratedKeys="true" keyProperty="appointmentId">
+        INSERT INTO appointments (patient_id, doctor_id, appointment_date, date_hash, status, reason, notes, created_at, updated_at)
+        VALUES (#{patientId}, #{doctorId}, #{appointmentDate}, #{dateHash}, #{status}, #{reason}, #{notes}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.sleekydz86.service.healthcare.entity.Appointment">
+        UPDATE appointments
+        SET patient_id = #{patientId},
+            doctor_id = #{doctorId},
+            appointment_date = #{appointmentDate},
+            date_hash = #{dateHash},
+            status = #{status},
+            reason = #{reason},
+            notes = #{notes},
+            updated_at = #{updatedAt}
+        WHERE appointment_id = #{appointmentId}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        DELETE FROM appointments WHERE appointment_id = #{appointmentId}
+    </delete>
+</mapper>
+

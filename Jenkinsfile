@@ -10,7 +10,8 @@ pipeline {
             numToKeepStr: '30',
             daysToKeepStr: '7'
         ))
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 15, unit: 'MINUTES')
+        skipStagesAfterUnstable()
     }
     
     environment {
@@ -45,15 +46,17 @@ pipeline {
         }
         
         stage('Clean Build Cache') {
+            when {
+                expression { env.CLEAN_BUILD == 'true' }
+            }
             steps {
                 script {
                     echo "========================================="
-                    echo "빌드 캐시 정리"
+                    echo "빌드 캐시 정리 (선택적)"
                     echo "========================================="
                     
                     sh '''
                         echo "Gradle 캐시 정리 시작"
-                        find . -name ".gradle" -type d -exec rm -rf {} + 2>/dev/null || true
                         find . -name "build" -type d -exec rm -rf {} + 2>/dev/null || true
                         find . -name "out" -type d -exec rm -rf {} + 2>/dev/null || true
                         find . -name "bin" -type d -exec rm -rf {} + 2>/dev/null || true
@@ -88,7 +91,7 @@ pipeline {
             steps {
                 script {
                     echo "========================================="
-                    echo "서비스 빌드 (순차 실행)"
+                    echo "서비스 빌드 (병렬 실행)"
                     echo "========================================="
                     
                     def services = [
@@ -103,38 +106,92 @@ pipeline {
                         'web.healthcare'
                     ]
                     
+                    def buildResults = [:]
+                    
                     services.each { service ->
-                        echo ""
-                        echo "----------------------------------------"
-                        echo "빌드 중: ${service}"
-                        echo "----------------------------------------"
-                        
-                        dir(service) {
-                            try {
-                                sh """
-                                    chmod +x gradlew || true
-                                    ./gradlew clean --no-daemon || true
-                                    rm -rf .gradle build out bin 2>/dev/null || true
-                                    ./gradlew build -x test --no-daemon --refresh-dependencies
-                                """
-                                
-                                def jarFiles = sh(
-                                    script: "find build/libs -name '*.jar' ! -name '*-plain.jar' | head -1",
-                                    returnStdout: true
-                                ).trim()
-                                
-                                if (jarFiles) {
-                                    echo "✓ ${service} 빌드 성공: ${jarFiles}"
-                                } else {
-                                    error "${service}: JAR 파일을 찾을 수 없습니다"
+                        buildResults[service] = {
+                            echo ""
+                            echo "----------------------------------------"
+                            echo "빌드 중: ${service}"
+                            echo "----------------------------------------"
+                            
+                            dir(service) {
+                                try {
+                                    sh """
+                                        chmod +x gradlew || true
+                                        ./gradlew build -x test --no-daemon
+                                    """
+                                    
+                                    def jarFiles = sh(
+                                        script: "find build/libs -name '*.jar' ! -name '*-plain.jar' | head -1",
+                                        returnStdout: true
+                                    ).trim()
+                                    
+                                    if (jarFiles) {
+                                        echo "✓ ${service} 빌드 성공: ${jarFiles}"
+                                    } else {
+                                        error "${service}: JAR 파일을 찾을 수 없습니다"
+                                    }
+                                    
+                                } catch (Exception e) {
+                                    echo "✗ ${service} 빌드 실패: ${e.getMessage()}"
+                                    currentBuild.result = 'UNSTABLE'
                                 }
-                                
-                            } catch (Exception e) {
-                                echo "✗ ${service} 빌드 실패: ${e.getMessage()}"
-                                currentBuild.result = 'UNSTABLE'
                             }
                         }
                     }
+                    
+                    parallel buildResults
+                }
+            }
+        }
+        
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "Docker 이미지 빌드"
+                    echo "========================================="
+                    
+                    def services = [
+                        'service.discovery',
+                        'service.config',
+                        'api.gateway',
+                        'service.auth',
+                        'service.comm',
+                        'service.healthcare',
+                        'service.usermanagement',
+                        'service.llm',
+                        'web.healthcare'
+                    ]
+                    
+                    def imageResults = [:]
+                    
+                    services.each { service ->
+                        imageResults[service] = {
+                            dir(service) {
+                                def jarFile = sh(
+                                    script: "find build/libs -name '*.jar' ! -name '*-plain.jar' 2>/dev/null | head -1",
+                                    returnStdout: true
+                                ).trim()
+                                
+                                if (jarFile && fileExists('Dockerfile')) {
+                                    def imageName = "${service}:${env.BUILD_NUMBER}"
+                                    def imageTag = "${service}:latest"
+                                    
+                                    echo "Docker 이미지 빌드: ${service}"
+                                    sh """
+                                        docker build -t ${imageName} -t ${imageTag} .
+                                    """
+                                    echo "✓ ${service} Docker 이미지 빌드 성공: ${imageName}"
+                                } else {
+                                    echo "⚠ ${service}: Dockerfile이 없거나 JAR 파일을 찾을 수 없습니다"
+                                }
+                            }
+                        }
+                    }
+                    
+                    parallel imageResults
                 }
             }
         }

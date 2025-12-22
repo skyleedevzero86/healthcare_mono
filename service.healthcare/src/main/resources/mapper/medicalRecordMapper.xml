@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sleekydz86.service.healthcare.global.mapper.MedicalRecordMapper">
+    <select id="findById" parameterType="Long" resultType="com.sleekydz86.service.healthcare.entity.MedicalRecord">
+        SELECT record_id, patient_id, visit_date, doctor_name, diagnosis, treatment, notes, created_at, updated_at
+        FROM medical_records
+        WHERE record_id = #{recordId}
+    </select>
+
+    <select id="findByPatientId" parameterType="Long" resultType="com.sleekydz86.service.healthcare.entity.MedicalRecord">
+        SELECT record_id, patient_id, visit_date, doctor_name, diagnosis, treatment, notes, created_at, updated_at
+        FROM medical_records
+        WHERE patient_id = #{patientId}
+        ORDER BY visit_date DESC
+    </select>
+
+    <select id="findByPatientIdAndVisitDateBetween" resultType="com.sleekydz86.service.healthcare.entity.MedicalRecord">
+        SELECT record_id, patient_id, visit_date, doctor_name, diagnosis, treatment, notes, created_at, updated_at
+        FROM medical_records
+        WHERE patient_id = #{patientId} AND visit_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY visit_date DESC
+    </select>
+
+    <select id="findByDoctorName" parameterType="String" resultType="com.sleekydz86.service.healthcare.entity.MedicalRecord">
+        SELECT record_id, patient_id, visit_date, doctor_name, diagnosis, treatment, notes, created_at, updated_at
+        FROM medical_records
+        WHERE doctor_name = #{doctorName}
+        ORDER BY visit_date DESC
+    </select>
+
+    <insert id="insert" parameterType="com.sleekydz86.service.healthcare.entity.MedicalRecord" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO medical_records (patient_id, visit_date, doctor_name, diagnosis, treatment, notes, created_at, updated_at)
+        VALUES (#{patientId}, #{visitDate}, #{doctorName}, #{diagnosis}, #{treatment}, #{notes}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.sleekydz86.service.healthcare.entity.MedicalRecord">
+        UPDATE medical_records
+        SET patient_id = #{patientId},
+            visit_date = #{visitDate},
+            doctor_name = #{doctorName},
+            diagnosis = #{diagnosis},
+            treatment = #{treatment},
+            notes = #{notes},
+            updated_at = #{updatedAt}
+        WHERE record_id = #{recordId}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        DELETE FROM medical_records WHERE record_id = #{recordId}
+    </delete>
+</mapper>
+

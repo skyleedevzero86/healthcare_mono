@@ -1,8 +1,8 @@
 package com.sleekydz86.service.usermanagement.saga.steps;
 
-import com.sleekydz86.api.gateway.saga.Saga;
-import com.sleekydz86.api.gateway.saga.SagaStep;
-import com.sleekydz86.api.gateway.saga.SagaStepResult;
+import com.sleekydz86.service.usermanagement.saga.Saga;
+import com.sleekydz86.service.usermanagement.saga.SagaStep;
+import com.sleekydz86.service.usermanagement.saga.SagaStepResult;
 import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
 import com.sleekydz86.service.usermanagement.entity.User;
 import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;

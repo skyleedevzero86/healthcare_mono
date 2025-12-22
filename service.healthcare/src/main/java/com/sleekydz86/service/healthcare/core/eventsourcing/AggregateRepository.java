@@ -1,6 +1,6 @@
 package com.sleekydz86.service.healthcare.core.eventsourcing;
 
-import com.sleekydz86.api.gateway.eventsourcing.DomainEvent;
+import com.sleekydz86.service.healthcare.core.eventsourcing.DomainEvent;
 import com.sleekydz86.service.healthcare.core.domain.PatientAggregate;
 import com.sleekydz86.service.healthcare.core.event.MedicalRecordAddedEvent;
 import com.sleekydz86.service.healthcare.core.event.PatientCreatedEvent;

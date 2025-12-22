@@ -7,13 +7,13 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 
 @Component
 public class JwtTokenUtils {
 
-    private final Key KEY;
+    private final SecretKey KEY;
     private final String SECRET;
 
     public JwtTokenUtils(@Value("${token.secret}") String secret) {

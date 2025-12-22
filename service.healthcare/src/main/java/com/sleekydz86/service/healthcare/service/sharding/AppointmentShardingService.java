@@ -1,7 +1,7 @@
 package com.sleekydz86.service.healthcare.service.sharding;
 
 import com.sleekydz86.service.healthcare.entity.Appointment;
-import com.sleekydz86.service.healthcare.repository.AppointmentRepository;
+import com.sleekydz86.service.healthcare.global.mapper.AppointmentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AppointmentShardingService {
 
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentMapper appointmentMapper;
     private final ShardingKeyGenerator shardingKeyGenerator;
 
     public Appointment createAppointment(Appointment appointment) {
@@ -22,35 +22,40 @@ public class AppointmentShardingService {
             int dateHash = Math.abs(appointment.getAppointmentDate().hashCode());
             appointment.setDateHash(dateHash);
         }
-        return appointmentRepository.save(appointment);
+        appointment.setCreatedAt(LocalDateTime.now());
+        appointment.setUpdatedAt(LocalDateTime.now());
+        appointmentMapper.insert(appointment);
+        return appointment;
     }
 
     public List<Appointment> findAppointmentsByPatientId(Long patientId) {
-        return appointmentRepository.findByPatientId(patientId);
+        return appointmentMapper.findByPatientId(patientId);
     }
 
     public List<Appointment> findAppointmentsByDoctorId(Long doctorId) {
-        return appointmentRepository.findByDoctorId(doctorId);
+        return appointmentMapper.findByDoctorId(doctorId);
     }
 
     public List<Appointment> findAppointmentsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
+        return appointmentMapper.findByAppointmentDateBetween(startDate, endDate);
     }
 
     public List<Appointment> findUpcomingAppointmentsByPatientId(Long patientId) {
-        return appointmentRepository.findUpcomingByPatientId(patientId, LocalDateTime.now());
+        return appointmentMapper.findUpcomingByPatientId(patientId, LocalDateTime.now());
     }
 
     public List<Appointment> findAppointmentsByStatus(String status) {
-        return appointmentRepository.findByStatus(status);
+        return appointmentMapper.findByStatus(status);
     }
 
     public Appointment updateAppointment(Appointment appointment) {
-        return appointmentRepository.save(appointment);
+        appointment.setUpdatedAt(LocalDateTime.now());
+        appointmentMapper.update(appointment);
+        return appointment;
     }
 
     public void deleteAppointment(Long appointmentId) {
-        appointmentRepository.deleteById(appointmentId);
+        appointmentMapper.deleteById(appointmentId);
     }
 }
 

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
-public class HikariConfig {
+public class HikariDataSourceConfig {
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
