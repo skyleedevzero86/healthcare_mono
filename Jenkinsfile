@@ -49,16 +49,14 @@ pipeline {
                     
                     sh '''
                         count=0
-                        while IFS= read -r file; do
-                            if [[ -f "$file" ]]; then
-                                if head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
-                                    perl -i -pe "s/^\\x{FEFF}//" "$file"
-                                    echo "BOM 제거: $file"
-                                    count=$((count + 1))
-                                fi
+                        find . -name "*.java" -type f | while read -r file; do
+                            if head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
+                                perl -i -pe "s/^\\x{FEFF}//" "$file"
+                                echo "BOM 제거: $file"
+                                count=$((count + 1))
                             fi
-                        done < <(find . -name "*.java" -type f)
-                        echo "완료: $count 개 파일에서 BOM 제거됨"
+                        done
+                        echo "BOM 제거 완료"
                     '''
                 }
             }
