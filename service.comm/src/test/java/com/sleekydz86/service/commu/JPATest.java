@@ -30,7 +30,6 @@ public class JPATest {
     public void 게시판쓰기() throws Exception {
         System.out.println("===== JPA 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("1. 테스트 데이터 준비 중...");
 
@@ -44,12 +43,10 @@ public class JPATest {
         commu.setUserNm("ash");
         System.out.println("커뮤니티 게시글 생성 완료: " + commu.getContent());
 
-        // when
         em.persist(commu);
         em.flush();
         System.out.println("데이터베이스에 저장 완료!");
 
-        // then
         System.out.println("2. 검증 시작...");
 
         Community savedCommunity = em.find(Community.class, commu.getCommuId());
@@ -75,7 +72,6 @@ public class JPATest {
     public void 게시판목록조회() throws Exception {
         System.out.println("===== 게시판 목록 조회 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("테스트 데이터 생성 중...");
 
@@ -92,12 +88,10 @@ public class JPATest {
         em.flush();
         System.out.println("3개의 테스트 게시글 생성 완료!");
 
-        // when
         TypedQuery<Community> query = em.createQuery("select c from Community c", Community.class);
         List<Community> communities = query.getResultList();
         System.out.println("데이터베이스에서 게시글 목록 조회 완료!");
 
-        // then
         System.out.println("검증 시작...");
         assertNotNull(communities, "조회된 게시글 목록이 null입니다!");
         assertEquals(3, communities.size(), "조회된 게시글 개수가 예상과 다릅니다!");
@@ -119,7 +113,6 @@ public class JPATest {
     public void 특정게시글조회() throws Exception {
         System.out.println("===== 특정 게시글 조회 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("테스트 데이터 생성 중...");
 
@@ -136,11 +129,9 @@ public class JPATest {
         Long savedId = commu.getCommuId();
         System.out.println("테스트 게시글 생성 완료! ID: " + savedId);
 
-        // when
         Community foundCommunity = em.find(Community.class, savedId);
         System.out.println("ID로 게시글 조회 완료!");
 
-        // then
         System.out.println("검증 시작...");
         assertNotNull(foundCommunity, "조회된 게시글이 null입니다!");
         assertEquals(savedId, foundCommunity.getCommuId(), "조회된 게시글 ID가 일치하지 않습니다!");
@@ -162,7 +153,6 @@ public class JPATest {
     public void 게시글수정() throws Exception {
         System.out.println("===== 게시글 수정 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("테스트 데이터 생성 중...");
 
@@ -182,7 +172,6 @@ public class JPATest {
         System.out.println("원본 내용: " + commu.getContent());
         System.out.println("원본 카테고리: " + commu.getCategory());
 
-        // when
         Community foundCommunity = em.find(Community.class, savedId);
         foundCommunity.setContent("Modified content");
         foundCommunity.setCategory(DiseaseCategory.DIABETES);
@@ -190,7 +179,6 @@ public class JPATest {
         em.flush();
         System.out.println("게시글 수정 완료!");
 
-        // then
         System.out.println("검증 시작...");
         Community updatedCommunity = em.find(Community.class, savedId);
         assertNotNull(updatedCommunity, "수정된 게시글이 null입니다!");
@@ -213,7 +201,6 @@ public class JPATest {
     public void 게시글부분수정() throws Exception {
         System.out.println("===== 게시글 부분 수정 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("테스트 데이터 생성 중...");
 
@@ -231,14 +218,12 @@ public class JPATest {
         Long savedId = commu.getCommuId();
         System.out.println("원본 게시글 생성 완료! ID: " + savedId);
 
-        // when
         Community foundCommunity = em.find(Community.class, savedId);
         foundCommunity.setContent("Only content updated");
         em.persist(foundCommunity);
         em.flush();
         System.out.println("게시글 내용만 수정 완료!");
 
-        // then
         System.out.println("검증 시작...");
         Community updatedCommunity = em.find(Community.class, savedId);
         assertNotNull(updatedCommunity, "수정된 게시글이 null입니다!");
@@ -261,7 +246,6 @@ public class JPATest {
     public void 블러오기() throws Exception {
         System.out.println("===== 블러오기(삭제) 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("테스트 데이터 생성 중...");
 
@@ -280,12 +264,10 @@ public class JPATest {
         System.out.println("삭제할 게시글 생성 완료! ID: " + savedId);
         System.out.println("게시글 내용: " + commu.getContent());
 
-        // 삭제 전 목록 확인
         TypedQuery<Community> beforeQuery = em.createQuery("select c from Community c", Community.class);
         List<Community> beforeList = beforeQuery.getResultList();
         System.out.println("삭제 전 게시글 개수: " + beforeList.size());
 
-        // when
         Community foundCommunity = em.find(Community.class, savedId);
         if (foundCommunity != null) {
             em.remove(foundCommunity);
@@ -293,10 +275,8 @@ public class JPATest {
             System.out.println("게시글 삭제 완료!");
         }
 
-        // then
         System.out.println("검증 시작...");
 
-        // 목록 확인
         TypedQuery<Community> afterQuery = em.createQuery("select c from Community c", Community.class);
         List<Community> afterList = afterQuery.getResultList();
         System.out.println("삭제 후 게시글 개수: " + afterList.size());
@@ -319,13 +299,11 @@ public class JPATest {
     public void 존재하지않는게시글삭제() throws Exception {
         System.out.println("===== 존재하지 않는 게시글 삭제 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("존재하지 않는 게시글 ID로 삭제 시도...");
 
         Long nonExistentId = 99999L;
 
-        // when
         Community foundCommunity = em.find(Community.class, nonExistentId);
         boolean deleteResult = false;
         if (foundCommunity != null) {
@@ -335,7 +313,6 @@ public class JPATest {
         }
         System.out.println("삭제 결과: " + deleteResult);
 
-        // then
         System.out.println("검증 시작...");
         assertFalse(deleteResult, "존재하지 않는 게시글 삭제 시 false를 반환해야 합니다!");
 
@@ -350,7 +327,6 @@ public class JPATest {
     public void 게시글목록조회테스트() throws Exception {
         System.out.println("===== 게시글 목록 조회 테스트 시작 =====");
 
-        // given
         em.clear();
         System.out.println("테스트 데이터 생성 중...");
 
@@ -366,11 +342,9 @@ public class JPATest {
         em.persist(commu);
         em.flush();
 
-        // when
         TypedQuery<Community> query = em.createQuery("select c from Community c", Community.class);
         List<Community> list = query.getResultList();
 
-        // then
         System.out.println("List = " + list);
         assertNotNull(list, "조회된 게시글 목록이 null입니다!");
         assertTrue(list.size() > 0, "조회된 게시글 목록이 비어있습니다!");

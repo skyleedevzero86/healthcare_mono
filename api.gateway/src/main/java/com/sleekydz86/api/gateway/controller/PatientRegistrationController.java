@@ -6,6 +6,8 @@ import com.sleekydz86.api.gateway.dto.PatientRegistrationRequest;
 import com.sleekydz86.api.gateway.saga.SagaOrchestrator;
 import com.sleekydz86.api.gateway.saga.SagaResult;
 import com.sleekydz86.api.gateway.saga.SagaStatus;
+import com.sleekydz86.api.gateway.saga.PatientRegistrationSaga;
+import com.sleekydz86.api.gateway.saga.PatientRegistrationData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,20 +34,16 @@ public class PatientRegistrationController {
                 log.info("환자 등록 요청 수신: patientName={}, email={}", 
                     request.getPatientName(), request.getEmail());
                 
-                // PatientRegistrationData 생성
-                com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData sagaData =
-                    new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData(
-                        null, // patientId는 CreatePatientStep에서 생성됨
-                        request.getPatientName(),
-                        request.getPhoneNumber(),
-                        request.getEmail(),
-                        request.getAddress(),
-                        request.getMedicalHistory()
-                    );
+                PatientRegistrationData sagaData = new PatientRegistrationData(
+                    null,
+                    request.getPatientName(),
+                    request.getPhoneNumber(),
+                    request.getEmail(),
+                    request.getAddress(),
+                    request.getMedicalHistory()
+                );
                 
-                // Saga 생성
-                com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga saga =
-                    new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga(sagaData);
+                PatientRegistrationSaga saga = new PatientRegistrationSaga(sagaData);
                 
                 // Saga 실행
                 CompletableFuture<SagaResult> sagaFuture = sagaOrchestrator.executeSaga(saga);

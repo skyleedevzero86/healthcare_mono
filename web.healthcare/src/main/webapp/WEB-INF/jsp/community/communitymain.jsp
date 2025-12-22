@@ -581,7 +581,6 @@
           commuBiodata(searchUserId);
         }
         else {
-            //로그인 안한 유저가 들어온경우
             location.href = 'redirect:/user/signin';
         }
     });
@@ -672,8 +671,6 @@ function commuBiodata(searchUserId){
                   }
               },
                complete : function(data) {
-                     // 통신이 실패했어도 완료가 되었을 때 이 함수를 타게 된다.
-                     // TODO
                     $('textarea[name="content"]').val("");
                     $('input[type="checkbox"]').prop('checked', false);
 

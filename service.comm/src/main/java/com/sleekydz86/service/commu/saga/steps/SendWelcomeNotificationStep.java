@@ -1,11 +1,11 @@
 package com.sleekydz86.service.commu.saga.steps;
 
-import com.sleekydz86.api.gateway.saga.Saga;
-import com.sleekydz86.api.gateway.saga.SagaStep;
-import com.sleekydz86.api.gateway.saga.SagaStepResult;
+import com.sleekydz86.service.commu.saga.Saga;
+import com.sleekydz86.service.commu.saga.SagaStep;
+import com.sleekydz86.service.commu.saga.SagaStepResult;
+import com.sleekydz86.service.commu.saga.PatientRegistrationData;
 import com.sleekydz86.service.commu.dto.NotificationRequest;
 import com.sleekydz86.service.commu.service.MessageService;
-import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,8 +23,8 @@ public class SendWelcomeNotificationStep implements SagaStep {
     public CompletableFuture<SagaStepResult> execute(Saga saga) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                PatientRegistrationSaga.PatientRegistrationData data =
-                    (PatientRegistrationSaga.PatientRegistrationData) saga.getData();
+                PatientRegistrationData data =
+                    (PatientRegistrationData) saga.getData();
 
                 if (data.getUserId() == null || data.getUserId().isEmpty()) {
                     log.warn("사용자 ID가 없어 환영 알림을 보낼 수 없습니다. Saga: {}", saga.getSagaId());
@@ -65,8 +65,8 @@ public class SendWelcomeNotificationStep implements SagaStep {
     public CompletableFuture<SagaStepResult> compensate(Saga saga) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                PatientRegistrationSaga.PatientRegistrationData data =
-                    (PatientRegistrationSaga.PatientRegistrationData) saga.getData();
+                PatientRegistrationData data =
+                    (PatientRegistrationData) saga.getData();
 
                 // 알림은 이미 전송되었으므로, 보상 트랜잭션에서는 취소 알림을 보낼 수 있습니다
                 if (data.getUserId() != null && "true".equals(data.getNotificationSent())) {

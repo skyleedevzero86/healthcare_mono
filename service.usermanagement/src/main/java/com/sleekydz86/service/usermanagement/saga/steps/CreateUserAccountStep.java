@@ -3,9 +3,9 @@ package com.sleekydz86.service.usermanagement.saga.steps;
 import com.sleekydz86.service.usermanagement.saga.Saga;
 import com.sleekydz86.service.usermanagement.saga.SagaStep;
 import com.sleekydz86.service.usermanagement.saga.SagaStepResult;
-import com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga;
+import com.sleekydz86.service.usermanagement.saga.PatientRegistrationData;
 import com.sleekydz86.service.usermanagement.entity.User;
-import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
+import com.sleekydz86.service.usermanagement.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +15,13 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class CreateUserAccountStep implements SagaStep {
 
-    private final UserJpaRepository userJpaRepository;
+    private final UserMapper userMapper;
 
     @Override
     public CompletableFuture<SagaStepResult> execute(Saga saga) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                PatientRegistrationSaga.PatientRegistrationData data =
-                    (PatientRegistrationSaga.PatientRegistrationData) saga.getData();
+                PatientRegistrationData data = (PatientRegistrationData) saga.getData();
 
                 User user = new User();
                 user.setName(data.getPatientName());
@@ -31,8 +30,8 @@ public class CreateUserAccountStep implements SagaStep {
                 user.setPassword("default");
                 user.setRole("PATIENT");
 
-                User createdUser = userJpaRepository.save(user);
-                String userId = String.valueOf(createdUser.getId());
+                userMapper.insert(user);
+                String userId = String.valueOf(user.getId());
 
                 data.setUserId(userId);
                 data.setUserAccountCreated("true");
@@ -49,13 +48,12 @@ public class CreateUserAccountStep implements SagaStep {
     public CompletableFuture<SagaStepResult> compensate(Saga saga) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                PatientRegistrationSaga.PatientRegistrationData data =
-                    (PatientRegistrationSaga.PatientRegistrationData) saga.getData();
+                PatientRegistrationData data = (PatientRegistrationData) saga.getData();
 
                 if (data.getUserId() != null) {
                     try {
                         Long userId = Long.parseLong(data.getUserId());
-                        userJpaRepository.deleteById(userId);
+                        userMapper.deleteById(userId);
                     } catch (NumberFormatException e) {
                     }
                 }
@@ -72,4 +70,3 @@ public class CreateUserAccountStep implements SagaStep {
         return "CreateUserAccount";
     }
 }
-

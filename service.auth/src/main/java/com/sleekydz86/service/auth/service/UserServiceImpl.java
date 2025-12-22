@@ -106,7 +106,6 @@ public class UserServiceImpl implements UserService {
             eventPublisher.publishUserEvent(loginEvent);
             
             log.info("로그인 처리 완료: {}", userId);
-            // Map<String, Object>를 Map<Object, Object>로 변환
             Map<Object, Object> map = new java.util.HashMap<>();
             stringMap.forEach((k, v) -> map.put(k, v));
             return map;

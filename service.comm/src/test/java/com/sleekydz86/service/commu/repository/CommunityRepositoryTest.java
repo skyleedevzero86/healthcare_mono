@@ -51,10 +51,8 @@ class CommunityRepositoryTest {
         // given
         doNothing().when(entityManager).persist(any(Community.class));
 
-        // when
         int result = communityRepository.writeBoard(testCommunity);
 
-        // then
         assertThat(result).isEqualTo(1);
         verify(entityManager, times(1)).persist(testCommunity);
     }
@@ -65,10 +63,8 @@ class CommunityRepositoryTest {
         // given
         doThrow(new RuntimeException("데이터베이스 오류")).when(entityManager).persist(any(Community.class));
 
-        // when
         int result = communityRepository.writeBoard(testCommunity);
 
-        // then
         assertThat(result).isEqualTo(0);
         verify(entityManager, times(1)).persist(testCommunity);
     }
@@ -79,10 +75,8 @@ class CommunityRepositoryTest {
         // given
         doThrow(new IllegalArgumentException("Entity cannot be null")).when(entityManager).persist(null);
 
-        // when
         int result = communityRepository.writeBoard(null);
 
-        // then
         assertThat(result).isEqualTo(0);
         verify(entityManager, times(1)).persist(null);
     }
@@ -93,10 +87,8 @@ class CommunityRepositoryTest {
         // given
         when(entityManager.find(Community.class, 1)).thenReturn(testCommunity);
 
-        // when
         Community result = communityRepository.findBoard(1);
 
-        // then
         assertThat(result).isNotNull();
         assertThat(result.getUserNm()).isEqualTo("testUser");
         assertThat(result.getContent()).isEqualTo("테스트 게시글 내용입니다.");
@@ -109,10 +101,8 @@ class CommunityRepositoryTest {
         // given
         when(entityManager.find(Community.class, 999)).thenReturn(null);
 
-        // when
         Community result = communityRepository.findBoard(999);
 
-        // then
         assertThat(result).isNull();
         verify(entityManager, times(1)).find(Community.class, 999);
     }
@@ -123,7 +113,7 @@ class CommunityRepositoryTest {
         // given
         when(entityManager.find(Community.class, 1)).thenThrow(new RuntimeException("데이터베이스 연결 오류"));
 
-        // when & then
+ & then
         try {
             communityRepository.findBoard(1);
         } catch (RuntimeException e) {
@@ -150,10 +140,8 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(communityList);
 
-        // when
         List<Community> result = communityRepository.findBoardList();
 
-        // then
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getUserNm()).isEqualTo("user1");
@@ -172,10 +160,8 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(Arrays.asList());
 
-        // when
         List<Community> result = communityRepository.findBoardList();
 
-        // then
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
 
@@ -190,7 +176,7 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenThrow(new RuntimeException("쿼리 실행 오류"));
 
-        // when & then
+ & then
         try {
             communityRepository.findBoardList();
         } catch (RuntimeException e) {
@@ -211,10 +197,8 @@ class CommunityRepositoryTest {
 
         doNothing().when(entityManager).persist(any(Community.class));
 
-        // when
         communityRepository.writeBoard(newCommunity);
 
-        // then
         verify(entityManager, times(1)).persist(newCommunity);
         verify(entityManager, never()).merge(any(Community.class));
         verify(entityManager, never()).remove(any(Community.class));
@@ -226,10 +210,8 @@ class CommunityRepositoryTest {
         // given
         when(entityManager.find(Community.class, 123)).thenReturn(testCommunity);
 
-        // when
         communityRepository.findBoard(123);
 
-        // then
         verify(entityManager, times(1)).find(Community.class, 123);
         verify(entityManager, never()).persist(any(Community.class));
         verify(entityManager, never()).merge(any(Community.class));
@@ -242,10 +224,8 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(Arrays.asList(testCommunity));
 
-        // when
         communityRepository.findBoardList();
 
-        // then
         verify(entityManager, times(1)).createQuery("select h from health_community h", Community.class);
         verify(typedQuery, times(1)).getResultList();
         verify(typedQuery, never()).setParameter(anyString(), any());

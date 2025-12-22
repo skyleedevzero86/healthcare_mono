@@ -68,5 +68,3 @@ public class LLMMapper {
                 .collect(Collectors.toList());
     }
 }
-
-// 테스트
