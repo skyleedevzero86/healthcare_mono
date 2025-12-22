@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 @Slf4j
 @Data
 @Builder
-public class ApiResponse {
+public class ApiResponse<T> {
 
     private String resultCode;
     private String resultMessage;
-    private Object resultData;
+    private T resultData;
     private LocalDateTime timestamp;
 
     public static <T> ApiResponse<T> success(T data) {
@@ -39,7 +39,7 @@ public class ApiResponse {
     }
 
     private static String response(String code, String message, Object data) {
-        ApiResponse apiResponse = ApiResponse.builder()
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
                 .resultCode(code)
                 .resultMessage(message)
                 .resultData(data)
