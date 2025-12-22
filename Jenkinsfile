@@ -52,7 +52,7 @@ pipeline {
                         while IFS= read -r file; do
                             if [[ -f "$file" ]]; then
                                 if head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
-                                    sed -i '1s/^\xEF\xBB\xBF//' "$file"
+                                    perl -i -pe "s/^\\x{FEFF}//" "$file"
                                     echo "BOM 제거: $file"
                                     count=$((count + 1))
                                 fi
