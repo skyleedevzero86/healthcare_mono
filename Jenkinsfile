@@ -17,7 +17,7 @@ pipeline {
     }
     
     tools {
-        jdk 'JDK-21'
+        jdk 'jdk21'
         gradle 'Gradle'
     }
     
