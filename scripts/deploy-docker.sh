@@ -109,6 +109,17 @@ deploy_service_blue_green() {
     else
         deploy_remote_docker "$service" "$image_name" "$port"
     fi
+    
+    if [ "$service" = "api.gateway" ] && [ "$TARGET_SERVER" != "localhost" ]; then
+        log_info "${service}: Nginx 설정 확인 중..."
+        ssh -i "$SSH_KEY" "$TARGET_USER@$TARGET_SERVER" "
+            if command -v nginx &> /dev/null; then
+                sudo nginx -t && sudo systemctl reload nginx || echo 'Nginx 재시작 실패'
+            else
+                echo 'Nginx가 설치되지 않았습니다'
+            fi
+        " || log_warning "${service}: Nginx 설정 확인 실패 (무시)"
+    fi
 }
 
 deploy_local_docker() {

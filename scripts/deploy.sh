@@ -77,13 +77,8 @@ Healthcare Monorepo 배포 스크립트
     DEPLOY_SSH_KEY         SSH 개인 키 경로 (기본값: ~/.ssh/id_rsa)
 
 예제:
-    # 모든 서비스 배포 (시뮬레이션)
     ./deploy.sh --dry-run
-
-    # 특정 서비스만 배포
     ./deploy.sh --service api.gateway
-
-    # 모든 서비스 배포
     ./deploy.sh --all
 
 EOF
@@ -142,7 +137,6 @@ deploy_remote() {
         return 0
     fi
     
-    # 원격 디렉토리 생성
     ssh -i "$SSH_KEY" "$TARGET_USER@$TARGET_SERVER" \
         "mkdir -p $TARGET_DIR/$service" || {
         log_error "$service: 원격 디렉토리 생성 실패"
