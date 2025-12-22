@@ -29,9 +29,30 @@ public class PatientRegistrationController {
         
         return CompletableFuture.supplyAsync(() -> {
             try {
-                SagaResult result = new SagaResult(false, "서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 구현 필요", null);
+                log.info("환자 등록 요청 수신: patientName={}, email={}", 
+                    request.getPatientName(), request.getEmail());
+                
+                // PatientRegistrationData 생성
+                com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData sagaData =
+                    new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData(
+                        null, // patientId는 CreatePatientStep에서 생성됨
+                        request.getPatientName(),
+                        request.getPhoneNumber(),
+                        request.getEmail(),
+                        request.getAddress(),
+                        request.getMedicalHistory()
+                    );
+                
+                // Saga 생성
+                com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga saga =
+                    new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga(sagaData);
+                
+                // Saga 실행
+                CompletableFuture<SagaResult> sagaFuture = sagaOrchestrator.executeSaga(saga);
+                SagaResult result = sagaFuture.join();
                 
                 if (result.isSuccess()) {
+                    log.info("환자 등록 성공: sagaId={}", saga.getSagaId());
                     ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
                         .resultCode(ApiResultCode.SUCCESS.getCode())
                         .resultMessage("환자 등록이 완료되었습니다")
@@ -40,10 +61,12 @@ public class PatientRegistrationController {
                         .build();
                     return ResponseEntity.ok(response);
                 } else {
+                    log.warn("환자 등록 실패: sagaId={}, message={}", 
+                        saga.getSagaId(), result.getMessage());
                     ApiResponse<SagaResult> response = ApiResponse.<SagaResult>builder()
                         .resultCode(ApiResultCode.UNKNOWN_ERR.getCode())
                         .resultMessage(result.getMessage())
-                        .resultData(null)
+                        .resultData(result)
                         .timestamp(java.time.LocalDateTime.now())
                         .build();
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

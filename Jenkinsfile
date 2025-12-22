@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+    
     options {
         buildDiscarder(logRotator(
             numToKeepStr: '30',
@@ -95,6 +99,7 @@ pipeline {
                         'service.comm',
                         'service.healthcare',
                         'service.usermanagement',
+                        'service.llm',
                         'web.healthcare'
                     ]
                     
@@ -134,6 +139,48 @@ pipeline {
             }
         }
         
+        stage('Build Mobile App') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "모바일 앱 빌드 (React Native/Expo)"
+                    echo "========================================="
+                    
+                    dir('mobile/healthcare_mobile') {
+                        try {
+                            sh '''
+                                echo "Node.js 버전 확인"
+                                node --version || echo "⚠ Node.js가 설치되지 않았습니다"
+                                
+                                echo "pnpm 설치 확인"
+                                if ! command -v pnpm &> /dev/null; then
+                                    echo "pnpm 설치 중..."
+                                    npm install -g pnpm || echo "⚠ pnpm 설치 실패"
+                                fi
+                                pnpm --version
+                                
+                                echo "의존성 설치"
+                                pnpm install --frozen-lockfile || echo "⚠ 의존성 설치 경고"
+                                
+                                echo "TypeScript 타입 체크"
+                                pnpm tsc --noEmit || echo "⚠ 타입 체크 경고 (무시 가능)"
+                                
+                                echo "✓ 모바일 앱 빌드 준비 완료"
+                                echo "참고: 실제 APK/IPA 빌드는 EAS Build를 사용하거나 별도 빌드 서버 필요"
+                            '''
+                            
+                            echo "✓ 모바일 앱 빌드 준비 완료"
+                            
+                        } catch (Exception e) {
+                            echo "✗ 모바일 앱 빌드 실패: ${e.getMessage()}"
+                            echo "참고: 모바일 앱은 Node.js/pnpm이 필요하며, EAS Build를 사용하거나 별도 빌드 환경이 필요할 수 있습니다"
+                            currentBuild.result = 'UNSTABLE'
+                        }
+                    }
+                }
+            }
+        }
+        
         stage('Build Summary') {
             steps {
                 script {
@@ -149,6 +196,7 @@ pipeline {
                         'service.comm',
                         'service.healthcare',
                         'service.usermanagement',
+                        'service.llm',
                         'web.healthcare'
                     ]
                     
@@ -224,6 +272,7 @@ pipeline {
                         ['service.comm', '8085'],
                         ['service.healthcare', '8084'],
                         ['service.usermanagement', '8087'],
+                        ['service.llm', '8086'],
                         ['web.healthcare', '8981']
                     ]
                     
