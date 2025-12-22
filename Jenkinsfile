@@ -218,12 +218,6 @@ pipeline {
                 echo "========================================="
                 
                 try {
-                    sh 'docker system prune -f || true'
-                } catch (Exception e) {
-                    echo "Docker 정리 실패 (무시): ${e.getMessage()}"
-                }
-                
-                try {
                     archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true, allowEmptyArchive: true
                 } catch (Exception e) {
                     echo "아티팩트 아카이브 실패 (무시): ${e.getMessage()}"

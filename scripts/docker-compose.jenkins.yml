@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   jenkins:
@@ -6,14 +6,15 @@ services:
     container_name: jenkins
     user: root
     ports:
-      - "8080:8080"
+      - "7080:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - ../:/workspace
     environment:
-      - JENKINS_OPTS=--httpPort=8080 --prefix=/jenkins -Xmx2048m -Xms1024m -XX:MaxPermSize=512m
+      - JENKINS_OPTS=--httpPort=8080
+      - JAVA_OPTS=-Xmx2048m -Xms1024m
       - TZ=Asia/Seoul
       - DOCKER_HOST=unix:///var/run/docker.sock
     restart: unless-stopped
@@ -35,4 +36,3 @@ networks:
   jenkins-network:
     driver: bridge
     name: jenkins-network
-
