@@ -55,7 +55,6 @@ pipeline {
                         'web.healthcare'
                     ]
                     
-                    // 순차 빌드 (메모리 절약)
                     services.each { service ->
                         echo ""
                         echo "----------------------------------------"
