@@ -48,12 +48,11 @@ pipeline {
                     echo "========================================="
                     
                     sh '''
-                        count=0
+                        echo "BOM 제거 시작"
                         find . -name "*.java" -type f | while read -r file; do
-                            if head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
-                                perl -i -pe "s/^\\x{FEFF}//" "$file"
+                            if [ -f "$file" ] && head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
+                                perl -0777 -i -pe "s/^\\xEF\\xBB\\xBF//" "$file"
                                 echo "BOM 제거: $file"
-                                count=$((count + 1))
                             fi
                         done
                         echo "BOM 제거 완료"
