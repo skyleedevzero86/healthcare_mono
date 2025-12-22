@@ -28,21 +28,21 @@ public class UserController {
 
     @PostMapping("/v1/signup")
     @Transactional
-    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupDto user) {
+    public ResponseEntity<ApiResponse<?>> signup(@Valid @RequestBody SignupDto user) {
         try {
             String sanitizedUserId = inputSanitizer.sanitizeUserId(user.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(user.getUserId())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
             user.setUserId(sanitizedUserId);
             
             if (!inputSanitizer.isValidEmail(user.getEmail())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             if (inputSanitizer.containsSqlInjection(user.getUserNm()) || 
                 inputSanitizer.containsXss(user.getUserNm())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
         int result = userService.signup(user);
         if (result == 1) {
@@ -63,75 +63,75 @@ public class UserController {
                     }
                 }
             }
-            return ApiResponse.ok();
+            return ApiResponse.<Void>ok();
         } else {
-            return ApiResponse.error(ApiResultCode.INSERT_FAIL);
+            return ApiResponse.<Void>error(ApiResultCode.INSERT_FAIL);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("회원가입 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/duplicateId")
-    public ResponseEntity<ApiResponse> duplicateId(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> duplicateId(@RequestBody UserDto dto) {
         try {
             if (dto.getUserId() == null || dto.getUserId().trim().isEmpty()) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
             String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
             dto.setUserId(sanitizedUserId);
             
             if (userService.duplicateId(dto)) {
-            return ApiResponse.ok();
+            return ApiResponse.<Void>ok();
         } else {
-            return ApiResponse.error(ApiResultCode.DUPLICATE_CODE);
+            return ApiResponse.<Void>error(ApiResultCode.DUPLICATE_CODE);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("ID 중복 확인 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/duplicateEmail")
-    public ResponseEntity<ApiResponse> duplicateEmail(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> duplicateEmail(@RequestBody UserDto dto) {
         try {
             if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
             if (!inputSanitizer.isValidEmail(dto.getEmail())) {
-                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             if (userService.duplicateEmail(dto)) {
-            return ApiResponse.ok();
+            return ApiResponse.<Void>ok();
         } else {
-            return ApiResponse.error(ApiResultCode.DUPLICATE_CODE);
+            return ApiResponse.<Void>error(ApiResultCode.DUPLICATE_CODE);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("이메일 중복 확인 중 오류 발생", e);
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/searchDoctor")
-    public ResponseEntity<ApiResponse> serchDoctor(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> serchDoctor(@RequestBody UserDto dto) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> list = userService.searchDoctor(dto);
         if (list.size() == 0) {
-            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+            return ApiResponse.<Map<String, Object>>error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
             return ApiResponse.ok(result);
@@ -139,11 +139,11 @@ public class UserController {
     }
 
     @PostMapping("/v1/searchParent")
-    public ResponseEntity<ApiResponse> serchParent(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> serchParent(@RequestBody UserDto dto) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> list = userService.searchParent(dto);
         if (list.size() == 0) {
-            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+            return ApiResponse.<Map<String, Object>>error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
             return ApiResponse.ok(result);
@@ -151,49 +151,49 @@ public class UserController {
     }
 
     @PostMapping("/v1/signin")
-    public ResponseEntity<ApiResponse> signin(@Valid @RequestBody SigninDto user) {
+    public ResponseEntity<ApiResponse<?>> signin(@Valid @RequestBody SigninDto user) {
         return ApiResponse.ok(userService.signin(user));
     }
 
     @PostMapping("/v1/findUserId")
-    public ResponseEntity<ApiResponse> findUserId(@RequestBody FindDto dto) {
+    public ResponseEntity<ApiResponse<?>> findUserId(@RequestBody FindDto dto) {
         Map<String, Object> map = userService.findUserId(dto);
         return ApiResponse.ok(map);
     }
 
     @PostMapping("/v1/findUserPw")
-    public ResponseEntity<ApiResponse> findUserPw(@RequestBody FindDto dto) {
+    public ResponseEntity<ApiResponse<?>> findUserPw(@RequestBody FindDto dto) {
         Map<String, Object> map = userService.findUserPw(dto);
         if (!map.isEmpty()) {
             if ((Long) map.get("count") != 0) {
-                return ApiResponse.ok();
+                return ApiResponse.<Void>ok();
             } else {
-                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+                return ApiResponse.<Void>error(ApiResultCode.RESULT_IS_EMPTY);
             }
         } else {
-            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/updateUserPw")
-    public ResponseEntity<ApiResponse> updateUserPw(@RequestBody FindDto dto) {
+    public ResponseEntity<ApiResponse<?>> updateUserPw(@RequestBody FindDto dto) {
         int result = userService.updateUserPw(dto);
         if (result > 0) {
-            return ApiResponse.ok();
+            return ApiResponse.<Void>ok();
         } else {
-            return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
+            return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
         }
     }
 
     @PostMapping("/v1/getUserSeq")
-    public ResponseEntity<ApiResponse> getUserSeq(@RequestBody Map<String, String> request) {
+    public ResponseEntity<ApiResponse<?>> getUserSeq(@RequestBody Map<String, String> request) {
         String userId = request.get("userId");
         if (userId == null || userId.isEmpty()) {
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         }
         Integer userSeq = userService.getUserSeq(userId);
         if (userSeq == null) {
-            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+            return ApiResponse.<Map<String, Object>>error(ApiResultCode.RESULT_IS_EMPTY);
         }
         Map<String, Object> result = new HashMap<>();
         result.put("userSeq", userSeq);
@@ -201,7 +201,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/refresh")
-    public ResponseEntity<ApiResponse> refresh(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<?>> refresh(HttpServletRequest req) {
         String accessToken = "";
         String bearerToken = req.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
@@ -218,7 +218,7 @@ public class UserController {
     }
 
     @PostMapping("/v1/logout")
-    public ResponseEntity<ApiResponse> logout(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse<?>> logout(HttpServletRequest req) {
         String token = "";
         String bearerToken = req.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
@@ -226,7 +226,7 @@ public class UserController {
         }
 
         userService.logout(token);
-        return ApiResponse.ok();
+        return ApiResponse.<Void>ok();
     }
 
 }

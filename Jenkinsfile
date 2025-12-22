@@ -40,6 +40,25 @@ pipeline {
             }
         }
         
+        stage('Clean Build Cache') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "빌드 캐시 정리"
+                    echo "========================================="
+                    
+                    sh '''
+                        echo "Gradle 캐시 정리 시작"
+                        find . -name ".gradle" -type d -exec rm -rf {} + 2>/dev/null || true
+                        find . -name "build" -type d -exec rm -rf {} + 2>/dev/null || true
+                        find . -name "out" -type d -exec rm -rf {} + 2>/dev/null || true
+                        find . -name "bin" -type d -exec rm -rf {} + 2>/dev/null || true
+                        echo "빌드 캐시 정리 완료"
+                    '''
+                }
+            }
+        }
+        
         stage('Remove BOM') {
             steps {
                 script {
@@ -89,7 +108,9 @@ pipeline {
                             try {
                                 sh """
                                     chmod +x gradlew || true
-                                    ./gradlew clean build -x test --no-daemon
+                                    ./gradlew clean --no-daemon || true
+                                    rm -rf .gradle build out bin 2>/dev/null || true
+                                    ./gradlew build -x test --no-daemon --refresh-dependencies
                                 """
                                 
                                 def jarFiles = sh(

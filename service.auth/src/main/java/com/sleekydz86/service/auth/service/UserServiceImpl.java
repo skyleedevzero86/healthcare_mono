@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
             String userRole = dto.getUserRoleFk();
             String source = user.getSource();
             JwtTokenDto tokenInfo = jwtTokenProvider.generateToken(userId, userRole, source);
-            Map<Object, Object> map = dtoConverter.convertToMap(tokenInfo);
+            Map<String, Object> map = dtoConverter.convertToMap(tokenInfo);
             map.put("userId", dto.getUserId());
             map.put("userNm", dto.getUserNm());
 

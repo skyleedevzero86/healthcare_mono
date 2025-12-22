@@ -6,7 +6,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultReactiveRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -71,10 +71,6 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
 
         int limit = isAuthenticated ? DEFAULT_USER_LIMIT : DEFAULT_IP_LIMIT;
 
-        DefaultReactiveRedisScript<Long> script = new DefaultReactiveRedisScript<>();
-        script.setScriptText(RATE_LIMIT_SCRIPT);
-        script.setResultType(Long.class);
-
         return checkRateLimit(userKey, limit)
                 .flatMap(userAllowed -> {
                     if (Boolean.FALSE.equals(userAllowed)) {
@@ -102,9 +98,7 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
     }
 
     private Mono<Boolean> checkRateLimit(String key, int limit) {
-        DefaultReactiveRedisScript<Long> script = new DefaultReactiveRedisScript<>();
-        script.setScriptText(RATE_LIMIT_SCRIPT);
-        script.setResultType(Long.class);
+        RedisScript<Long> script = RedisScript.of(RATE_LIMIT_SCRIPT, Long.class);
 
         List<String> keys = Collections.singletonList(key);
         List<String> args = Arrays.asList(String.valueOf(limit), String.valueOf(WINDOW_SECONDS));

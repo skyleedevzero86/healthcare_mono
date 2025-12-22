@@ -23,10 +23,15 @@ import java.util.Set;
 @Component
 public class RoleBasedAccessFilter implements GlobalFilter, Ordered {
 
-    private final com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac;
+    // TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
+    // private final com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac;
 
-    public RoleBasedAccessFilter(com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac) {
-        this.rbac = rbac;
+    // public RoleBasedAccessFilter(com.sleekydz86.service.auth.security.RoleBasedAccessControl rbac) {
+    //     this.rbac = rbac;
+    // }
+    
+    public RoleBasedAccessFilter() {
+        // 서비스 간 직접 의존성 제거됨
     }
 
     private static final Set<String> PUBLIC_PATHS = new HashSet<>(Arrays.asList(

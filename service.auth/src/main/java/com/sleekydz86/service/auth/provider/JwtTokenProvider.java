@@ -96,11 +96,11 @@ public class JwtTokenProvider {
                 throw new UnsupportedJwtException("로그아웃된 토큰입니다.");
             }
             
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(KEY)
+            Claims claims = Jwts.parser()
+                    .verifyWith(KEY)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
 
             if (claims.getExpiration() != null && claims.getExpiration().getTime() < System.currentTimeMillis()) {
                 log.warn("만료된 토큰 사용 시도");
@@ -149,7 +149,7 @@ public class JwtTokenProvider {
 
     public boolean validateRefreshToken(String token) throws Exception {
         try {
-            Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith(KEY).build().parseSignedClaims(token);
             Claims claims = parseClaims(token);
 
             if (claims.get("key") == null || "".equals(claims.get("key"))) {
@@ -175,7 +175,7 @@ public class JwtTokenProvider {
 
     public Claims parseClaims(String accessToken) {
         try {
-            return Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(accessToken).getBody();
+            return Jwts.parser().verifyWith(KEY).build().parseSignedClaims(accessToken).getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
