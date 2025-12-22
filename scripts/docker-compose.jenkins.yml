@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/workspace
+    environment:
+      - JENKINS_OPTS=--httpPort=8080 --prefix=/jenkins -Xmx2048m -Xms1024m -XX:MaxPermSize=512m
+      - TZ=Asia/Seoul
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - jenkins-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  jenkins_home:
+    driver: local
+    name: jenkins_home
+
+networks:
+  jenkins-network:
+    driver: bridge
+    name: jenkins-network
+
