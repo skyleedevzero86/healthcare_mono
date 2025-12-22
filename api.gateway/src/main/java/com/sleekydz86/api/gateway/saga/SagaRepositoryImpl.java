@@ -131,12 +131,47 @@ public class SagaRepositoryImpl implements SagaRepository {
     }
     
     private Saga createSagaInstance(String sagaType, UUID sagaId) {
+        // TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
+        // MSA에서는 서비스 간 직접 클래스 참조를 피해야 합니다.
+        // 대신 JSON 직렬화/역직렬화를 통해 데이터만 전달해야 합니다.
         if ("PatientRegistration".equals(sagaType)) {
-            return new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga(
-                new com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData(
-                    null, null, null, null, null, null));
+            // 임시로 기본 Saga 인스턴스 생성
+            return new SagaImpl(sagaId, sagaType, SagaStatus.PENDING, null);
         }
         throw new IllegalArgumentException("알 수 없는 Saga 타입: " + sagaType);
+    }
+    
+    // 임시 Saga 구현 클래스
+    private static class SagaImpl implements Saga {
+        private final UUID sagaId;
+        private final String sagaType;
+        private SagaStatus status;
+        private Object data;
+        
+        public SagaImpl(UUID sagaId, String sagaType, SagaStatus status, Object data) {
+            this.sagaId = sagaId;
+            this.sagaType = sagaType;
+            this.status = status;
+            this.data = data;
+        }
+        
+        @Override
+        public UUID getSagaId() { return sagaId; }
+        
+        @Override
+        public String getSagaType() { return sagaType; }
+        
+        @Override
+        public SagaStatus getStatus() { return status; }
+        
+        @Override
+        public void setStatus(SagaStatus status) { this.status = status; }
+        
+        @Override
+        public Object getData() { return data; }
+        
+        @Override
+        public void setData(Object data) { this.data = data; }
     }
     
     private String serializeData(Object data) {
@@ -150,10 +185,9 @@ public class SagaRepositoryImpl implements SagaRepository {
     
     private Object deserializeData(String sagaType, String dataJson) {
         try {
-            if ("PatientRegistration".equals(sagaType)) {
-                return objectMapper.readValue(dataJson, 
-                    com.sleekydz86.service.healthcare.core.saga.PatientRegistrationSaga.PatientRegistrationData.class);
-            }
+            // TODO: 서비스 간 직접 의존성 제거 필요 - HTTP 통신으로 변경
+            // MSA에서는 서비스 간 직접 클래스 참조를 피해야 합니다.
+            // 대신 Map이나 JSON으로 데이터를 전달해야 합니다.
             return objectMapper.readValue(dataJson, Object.class);
         } catch (Exception e) {
             log.error("Saga 데이터 역직렬화 실패", e);

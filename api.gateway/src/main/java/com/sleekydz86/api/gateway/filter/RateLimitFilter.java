@@ -104,6 +104,7 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
         List<String> args = Arrays.asList(String.valueOf(limit), String.valueOf(WINDOW_SECONDS));
 
         return redisTemplate.execute(script, keys, args.toArray())
+                .next()
                 .map(result -> result != null && result == 1)
                 .defaultIfEmpty(true)
                 .onErrorReturn(true);

@@ -83,9 +83,9 @@ public class UserServiceImpl implements UserService {
             String userRole = dto.getUserRoleFk();
             String source = user.getSource();
             JwtTokenDto tokenInfo = jwtTokenProvider.generateToken(userId, userRole, source);
-            Map<String, Object> map = dtoConverter.convertToMap(tokenInfo);
-            map.put("userId", dto.getUserId());
-            map.put("userNm", dto.getUserNm());
+            Map<String, Object> stringMap = dtoConverter.convertToMap(tokenInfo);
+            stringMap.put("userId", dto.getUserId());
+            stringMap.put("userNm", dto.getUserNm());
 
             String encryptedRefreshToken = HealthcareEncryptionUtil.encrypt(
                 tokenInfo.getRefreshToken(),
@@ -106,6 +106,9 @@ public class UserServiceImpl implements UserService {
             eventPublisher.publishUserEvent(loginEvent);
             
             log.info("로그인 처리 완료: {}", userId);
+            // Map<String, Object>를 Map<Object, Object>로 변환
+            Map<Object, Object> map = new java.util.HashMap<>();
+            stringMap.forEach((k, v) -> map.put(k, v));
             return map;
         } catch (BusinessException e) {
             authMetrics.incrementSigninFailure();
