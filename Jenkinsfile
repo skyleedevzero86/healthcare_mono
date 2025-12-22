@@ -11,8 +11,8 @@ pipeline {
     
     environment {
         PROJECT_ROOT = "${WORKSPACE}"
-        DEPLOY_TARGET_SERVER = credentials('deploy-target-server') ?: 'localhost'
-        DEPLOY_TARGET_USER = credentials('deploy-target-user') ?: 'ec2-user'
+        DEPLOY_TARGET_SERVER = 'localhost'
+        DEPLOY_TARGET_USER = 'ec2-user'
         DEPLOY_TARGET_DIR = '/app/services'
         JAVA_HOME = tool 'JDK-21'
         GRADLE_HOME = tool 'Gradle'
