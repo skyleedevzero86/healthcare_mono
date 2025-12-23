@@ -15,18 +15,31 @@ import java.time.Duration;
 public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder, LLMProperties llmProperties) {
+    public RestTemplate restTemplate(RestTemplateBuilder builder, 
+                                     LlamaCppProperties llamaCppProperties,
+                                     Glm47Properties glm47Properties,
+                                     KmBertProperties kmBertProperties) {
+        int maxTimeout = Math.max(
+            Math.max(llamaCppProperties.getTimeout(), glm47Properties.getTimeout()),
+            kmBertProperties.getTimeout()
+        );
         return builder
-                .setConnectTimeout(Duration.ofMillis(llmProperties.getLlamaCpp().getTimeout()))
-                .setReadTimeout(Duration.ofMillis(llmProperties.getLlamaCpp().getTimeout()))
+                .setConnectTimeout(Duration.ofMillis(maxTimeout))
+                .setReadTimeout(Duration.ofMillis(maxTimeout))
                 .build();
     }
 
     @Bean
-    public ClientHttpRequestFactory clientHttpRequestFactory(LLMProperties llmProperties) {
+    public ClientHttpRequestFactory clientHttpRequestFactory(LlamaCppProperties llamaCppProperties,
+                                                              Glm47Properties glm47Properties,
+                                                              KmBertProperties kmBertProperties) {
+        int maxTimeout = Math.max(
+            Math.max(llamaCppProperties.getTimeout(), glm47Properties.getTimeout()),
+            kmBertProperties.getTimeout()
+        );
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout((int) llmProperties.getLlamaCpp().getTimeout());
-        factory.setReadTimeout((int) llmProperties.getLlamaCpp().getTimeout());
+        factory.setConnectTimeout(maxTimeout);
+        factory.setReadTimeout(maxTimeout);
         return factory;
     }
 }

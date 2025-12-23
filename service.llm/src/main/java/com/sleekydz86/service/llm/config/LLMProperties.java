@@ -9,5 +9,12 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "llm")
 public class LLMProperties {
     private boolean enabled = true;
-    private String provider = "llama-cpp";
+    private String provider = "router";
+    
+    private RoutingProperties routing;
+    private LlamaCppProperties llamaCpp;
+    private Glm47Properties glm47;
+    private KmBertProperties kmBert;
+    private CacheProperties cache;
+    private RateLimitProperties rateLimit;
 }
