@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.config;
+package com.sleekydz86.service.auth.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

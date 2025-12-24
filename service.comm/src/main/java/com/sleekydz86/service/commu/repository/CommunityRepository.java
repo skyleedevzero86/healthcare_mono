@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.commu.repository;
+package com.sleekydz86.service.commu.repository;
 
 import com.sleekydz86.service.commu.entity.Community;
 import com.sleekydz86.service.commu.exception.BusinessException;

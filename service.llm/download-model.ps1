@@ -1,14 +1,9 @@
-# Qwen2.5-7B-Instruct-GGUF 모델 다운로드 스크립트 (Windows PowerShell)
-
 Write-Host "Qwen2.5-7B-Instruct-GGUF 모델 다운로드를 시작합니다..." -ForegroundColor Green
-
-# models 디렉토리 생성
 if (-not (Test-Path "models")) {
     New-Item -ItemType Directory -Path "models" | Out-Null
     Write-Host "models 디렉토리를 생성했습니다." -ForegroundColor Yellow
 }
 
-# huggingface_hub 설치 확인 및 설치
 Write-Host "`nhuggingface_hub 설치 확인 중..." -ForegroundColor Cyan
 try {
     $null = python -c "import huggingface_hub" 2>$null
@@ -18,7 +13,6 @@ try {
     pip install -U huggingface_hub
 }
 
-# 모델 다운로드
 Write-Host "`n모델 다운로드 중... (약 4.7GB, 시간이 걸릴 수 있습니다)" -ForegroundColor Cyan
 python -c @"
 from huggingface_hub import hf_hub_download, list_repo_files
@@ -29,10 +23,7 @@ os.makedirs(model_dir, exist_ok=True)
 
 print('저장소 파일 목록 확인 중...')
 try:
-    # 저장소의 파일 목록 확인
     files = list_repo_files('Qwen/Qwen2.5-7B-Instruct-GGUF', repo_type='model')
-    
-    # q4_k_m 파일 찾기
     model_file = None
     for f in files:
         if 'q4_k_m' in f.lower() and f.endswith('.gguf'):
@@ -54,7 +45,6 @@ try:
         local_dir=model_dir
     )
     
-    # 파일 이름을 표준 이름으로 변경
     target_file = os.path.join(model_dir, 'qwen2.5-7b-instruct-q4_k_m.gguf')
     if file_path != target_file and os.path.exists(file_path):
         if os.path.exists(target_file):
@@ -66,7 +56,6 @@ try:
 except Exception as e:
     print(f'에러 발생: {e}')
     print('대안: 다른 저장소에서 시도합니다...')
-    # 대안: 다른 저장소 시도
     try:
         file_path = hf_hub_download(
             repo_id='Qwen/Qwen2.5-7B-Instruct-GGUF',

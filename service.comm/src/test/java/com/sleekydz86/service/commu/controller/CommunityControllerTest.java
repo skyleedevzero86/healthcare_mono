@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.commu.controller;
+package com.sleekydz86.service.commu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.commu.entity.Community;

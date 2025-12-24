@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.validation;
+package com.sleekydz86.service.healthcare.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

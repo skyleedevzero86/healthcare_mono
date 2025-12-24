@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.security;
+package com.sleekydz86.service.auth.security;
 
 public enum Role {
     PATIENT("ROLE_PATIENT", "환자"),

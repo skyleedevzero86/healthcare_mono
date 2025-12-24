@@ -121,3 +121,4 @@ model_cache/
 transformers_cache/
 
 *.text
+out/

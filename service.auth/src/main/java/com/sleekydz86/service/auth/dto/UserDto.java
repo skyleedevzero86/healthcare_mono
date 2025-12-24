@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.dto;
+package com.sleekydz86.service.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

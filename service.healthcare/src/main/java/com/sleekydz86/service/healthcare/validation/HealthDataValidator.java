@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.validation;
+package com.sleekydz86.service.healthcare.validation;
 
 import com.sleekydz86.service.healthcare.common.ValidationException;
 import com.sleekydz86.service.healthcare.dto.HealthDataItemDto;

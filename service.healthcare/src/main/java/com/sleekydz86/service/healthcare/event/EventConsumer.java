@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.event;
+package com.sleekydz86.service.healthcare.event;
 
 import com.sleekydz86.service.healthcare.eventsourcing.EventHandler;
 import com.sleekydz86.service.healthcare.eventsourcing.EventStore;

@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.event;
+package com.sleekydz86.service.auth.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
