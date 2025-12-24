@@ -233,10 +233,11 @@ pipeline {
                     echo "  건너뜀: ${totalSkipped}개"
                     
                     if (totalTests > 0) {
-                        def failRate = (totalFailed * 100.0 / totalTests).setScale(2, 1)
+                        def failRateValue = totalFailed * 100.0 / totalTests
+                        def failRate = String.format("%.2f", failRateValue)
                         echo "  실패율: ${failRate}%"
                         
-                        if (failRate > 20) {
+                        if (failRateValue > 20) {
                             echo ""
                             echo "경고: 실패율이 20%를 초과합니다!"
                         }
