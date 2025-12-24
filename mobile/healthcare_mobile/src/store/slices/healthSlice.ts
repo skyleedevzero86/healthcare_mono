@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { HealthData, HealthScore } from '../../types/health';
+import { healthService } from '../../services/healthService';
+import { ErrorHandler } from '../../utils/errorHandler';
 
 interface HealthState {
   healthData: HealthData[];
@@ -19,9 +21,11 @@ export const fetchHealthData = createAsyncThunk(
   'health/fetchHealthData',
   async (userId: string, { rejectWithValue }) => {
     try {
-      return [];
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+      const data = await healthService.fetchHealthData(userId);
+      return data;
+    } catch (error) {
+      const appError = ErrorHandler.normalizeError(error);
+      return rejectWithValue(appError.message);
     }
   }
 );
@@ -30,9 +34,11 @@ export const insertHealthData = createAsyncThunk(
   'health/insertHealthData',
   async (data: HealthData, { rejectWithValue }) => {
     try {
-      return data;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+      const result = await healthService.insertHealthData(data);
+      return result;
+    } catch (error) {
+      const appError = ErrorHandler.normalizeError(error);
+      return rejectWithValue(appError.message);
     }
   }
 );
@@ -41,20 +47,27 @@ export const fetchHealthScoreList = createAsyncThunk(
   'health/fetchHealthScoreList',
   async (userId: string, { rejectWithValue }) => {
     try {
-      return null;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+      const score = await healthService.fetchHealthScoreList(userId);
+      return score;
+    } catch (error) {
+      const appError = ErrorHandler.normalizeError(error);
+      return rejectWithValue(appError.message);
     }
   }
 );
 
 export const fetchHealthChart = createAsyncThunk(
   'health/fetchHealthChart',
-  async (userId: string, { rejectWithValue }) => {
+  async (
+    { userId, startDate, endDate }: { userId: string; startDate: string; endDate: string },
+    { rejectWithValue }
+  ) => {
     try {
-      return [];
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+      const data = await healthService.fetchHealthChart(userId, startDate, endDate);
+      return data;
+    } catch (error) {
+      const appError = ErrorHandler.normalizeError(error);
+      return rejectWithValue(appError.message);
     }
   }
 );

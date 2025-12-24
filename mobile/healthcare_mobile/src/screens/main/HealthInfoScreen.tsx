@@ -16,6 +16,8 @@ import { fetchHealthData, insertHealthData, fetchHealthChart } from '../../store
 import { takePicture, selectImageFromLibrary } from '../../store/slices/permissionSlice';
 import { HealthData } from '../../types/health';
 import { healthAnalysisService } from '../../services/healthAnalysisService';
+import { InputValidator } from '../../utils/inputValidator';
+import { ErrorHandler } from '../../utils/errorHandler';
 
 const HealthInfoScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -86,10 +88,10 @@ const HealthInfoScreen: React.FC = () => {
       const imageUri = await dispatch(takePicture()).unwrap();
       if (imageUri) {
         setSelectedImage(imageUri);
-        Alert.alert('사진 촬영 완료', '건강 상태 사진이 촬영되었습니다.');
+        ErrorHandler.showSuccessAlert('건강 상태 사진이 촬영되었습니다.');
       }
     } catch (error) {
-      Alert.alert('사진 촬영 실패', error as string);
+      ErrorHandler.handle(error, true);
     }
   };
 
@@ -98,10 +100,10 @@ const HealthInfoScreen: React.FC = () => {
       const imageUri = await dispatch(selectImageFromLibrary()).unwrap();
       if (imageUri) {
         setSelectedImage(imageUri);
-        Alert.alert('이미지 선택 완료', '건강 상태 이미지가 선택되었습니다.');
+        ErrorHandler.showSuccessAlert('건강 상태 이미지가 선택되었습니다.');
       }
     } catch (error) {
-      Alert.alert('이미지 선택 실패', error as string);
+      ErrorHandler.handle(error, true);
     }
   };
 
@@ -220,11 +222,16 @@ const HealthInfoScreen: React.FC = () => {
 
         <View style={styles.dataList}>
           <Text style={styles.sectionTitle}>최근 건강 데이터</Text>
-          {healthData.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>건강 데이터가 없습니다.</Text>
-              <Text style={styles.emptySubtext}>데이터를 입력해보세요!</Text>
-            </View>
+          {loading ? (
+            <LoadingSpinner />
+          ) : healthData.length === 0 ? (
+            <EmptyState
+              icon="heart-outline"
+              title="건강 데이터가 없습니다"
+              message="데이터를 입력해보세요!"
+              actionLabel="데이터 입력하기"
+              onAction={() => setShowInputForm(true)}
+            />
           ) : (
             healthData.slice(0, 10).map((data, index) => (
               <View key={index} style={styles.dataCard}>
@@ -241,11 +248,11 @@ const HealthInfoScreen: React.FC = () => {
                       return (
                         <>
                           <Text style={[styles.dataValue, { color: status.color }]}>
-                            {data.heartrate} bpm
-                          </Text>
+                      {data.heartrate} bpm
+                    </Text>
                           <Text style={[styles.dataStatus, { color: status.color }]}>
                             {status.status}
-                          </Text>
+                    </Text>
                         </>
                       );
                     })()}
@@ -257,11 +264,11 @@ const HealthInfoScreen: React.FC = () => {
                       return (
                         <>
                           <Text style={[styles.dataValue, { color: status.color }]}>
-                            {data.temperature}°C
-                          </Text>
+                      {data.temperature}°C
+                    </Text>
                           <Text style={[styles.dataStatus, { color: status.color }]}>
                             {status.status}
-                          </Text>
+                    </Text>
                         </>
                       );
                     })()}
@@ -273,11 +280,11 @@ const HealthInfoScreen: React.FC = () => {
                       return (
                         <>
                           <Text style={[styles.dataValue, { color: status.color }]}>
-                            {data.spo2}%
-                          </Text>
+                      {data.spo2}%
+                    </Text>
                           <Text style={[styles.dataStatus, { color: status.color }]}>
                             {status.status}
-                          </Text>
+                    </Text>
                         </>
                       );
                     })()}

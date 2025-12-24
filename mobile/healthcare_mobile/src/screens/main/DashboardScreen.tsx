@@ -19,6 +19,9 @@ import { useHealthAnalysis } from '../../hooks/useHealthAnalysis';
 import { HealthDataCard } from '../../components/HealthDataCard';
 import { AIAdviceCard } from '../../components/AIAdviceCard';
 import { HealthScoreCard } from '../../components/HealthScoreCard';
+import { EmptyState } from '../../components/EmptyState';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import { ErrorHandler } from '../../utils/errorHandler';
 
 const DashboardScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,7 +36,7 @@ const DashboardScreen: React.FC = () => {
     try {
       await dispatch(getCurrentLocation()).unwrap();
     } catch (error) {
-      console.error('위치 요청 실패:', error);
+      ErrorHandler.handle(error, true);
     }
   };
 
@@ -46,7 +49,7 @@ const DashboardScreen: React.FC = () => {
         })
       ).unwrap();
     } catch (error) {
-      console.error('알림 요청 실패:', error);
+      ErrorHandler.handle(error, true);
     }
   };
 
@@ -65,9 +68,31 @@ const DashboardScreen: React.FC = () => {
           <ExpoGoLimitationBanner onDismiss={() => setShowLimitationBanner(false)} />
         )}
 
-        {latestHealthData && <HealthDataCard data={latestHealthData} />}
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
+            {latestHealthData ? (
+              <HealthDataCard data={latestHealthData} />
+            ) : (
+              <EmptyState
+                icon="heart-outline"
+                title="건강 데이터가 없습니다"
+                message="건강 정보 메뉴에서 데이터를 입력해보세요"
+              />
+            )}
 
-        {healthScore && <HealthScoreCard healthScore={healthScore} />}
+            {healthScore ? (
+              <HealthScoreCard healthScore={healthScore} />
+            ) : (
+              <EmptyState
+                icon="stats-chart-outline"
+                title="건강 점수가 없습니다"
+                message="건강 데이터를 입력하면 점수를 확인할 수 있습니다"
+              />
+            )}
+          </>
+        )}
 
         <AIAdviceCard analysis={analysis} loading={aiLoading} />
 
@@ -92,7 +117,7 @@ const DashboardScreen: React.FC = () => {
         <View style={styles.permissionSection}>
           <Text style={styles.cardTitle}>권한 관리</Text>
           <View style={styles.permissionGrid}>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={[
                 styles.permissionButton,
                 permissions.location === 'granted' && styles.grantedButton,
@@ -108,7 +133,7 @@ const DashboardScreen: React.FC = () => {
                 위치 정보
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={[
                 styles.permissionButton,
                 permissions.notifications === 'granted' && styles.grantedButton,
@@ -124,7 +149,7 @@ const DashboardScreen: React.FC = () => {
                 알림
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={styles.permissionButton}
               onPress={() => setShowPermissionRequest(true)}
             >
@@ -170,7 +195,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 15,
-  },
+    },
   quickActions: {
     backgroundColor: '#fff',
     borderRadius: 12,
