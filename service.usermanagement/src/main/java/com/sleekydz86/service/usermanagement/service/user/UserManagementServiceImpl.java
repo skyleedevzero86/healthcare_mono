@@ -45,7 +45,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Cacheable(value = "userList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
+    @Cacheable(value = "userList", key = "#dto.userRoleFk + '_' + #dto.pageIndex + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public ServiceResponse<Object> getUserList(UserDto dto) {
         String requestId = UUID.randomUUID().toString();
         String userId = dto.getUserId() != null ? dto.getUserId() : "unknown";
@@ -60,7 +60,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             if (dto == null) {
                 return ServiceResponse.error("사용자 정보는 null일 수 없습니다");
             }
-            log.info("사용자 목록 조회 중: 역할 {}, 페이지 {}", dto.getUserRoleFk(), dto.getPageIdx());
+            log.info("사용자 목록 조회 중: 역할 {}, 페이지 {}", dto.getUserRoleFk(), dto.getPageIndex());
 
             int totalCount = userRepository.countUserList(dto);
             PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -83,7 +83,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    @Cacheable(value = "parentList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
+    @Cacheable(value = "parentList", key = "#dto.userRoleFk + '_' + #dto.pageIndex + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public ServiceResponse<Object> getParentList(UserDto dto) {
         try {
             if (dto == null) {
@@ -104,7 +104,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    @Cacheable(value = "doctorList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
+    @Cacheable(value = "doctorList", key = "#dto.userRoleFk + '_' + #dto.pageIndex + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public ServiceResponse<Object> getDoctorList(UserDto dto) {
         try {
             if (dto == null) {
@@ -124,7 +124,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    @Cacheable(value = "userList", key = "'manage_' + #dto.userId + '_' + #dto.userRoleFk + '_' + #dto.pageIdx")
+    @Cacheable(value = "userList", key = "'manage_' + #dto.userId + '_' + #dto.userRoleFk + '_' + #dto.pageIndex")
     public ServiceResponse<Object> getManageUserList(UserDto dto) {
         try {
             if (dto == null) {

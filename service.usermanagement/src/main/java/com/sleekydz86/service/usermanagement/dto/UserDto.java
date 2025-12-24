@@ -12,6 +12,7 @@ import java.util.ArrayList;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@lombok.EqualsAndHashCode(callSuper = false)
 public class UserDto extends SearchVO {
 
     private static final long serialVersionUID = -1207994115556874337L;

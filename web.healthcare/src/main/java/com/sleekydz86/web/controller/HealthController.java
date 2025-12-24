@@ -15,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/actuator")
+@org.springframework.stereotype.Component("actuatorHealthController")
 public class HealthController {
 
     private final RedisTemplate<String, Object> redisTemplate;

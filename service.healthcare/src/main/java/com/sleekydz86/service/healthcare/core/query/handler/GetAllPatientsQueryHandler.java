@@ -1,6 +1,6 @@
 package com.sleekydz86.service.healthcare.core.query.handler;
 
-import com.sleekydz86.api.gateway.cqrs.query.QueryHandler;
+import com.sleekydz86.service.healthcare.core.cqrs.query.QueryHandler;
 import com.sleekydz86.service.healthcare.core.query.GetAllPatientsQuery;
 import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModel;
 import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModelRepository;

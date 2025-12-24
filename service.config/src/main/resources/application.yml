@@ -23,6 +23,11 @@ spring:
     user:
       name: config-admin
       password: ${CONFIG_ADMIN_PASSWORD:healthcare_config_2025}
+  sleuth:
+    zipkin:
+      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
+    sampler:
+      probability: 1.0
 
 management:
   endpoints:
@@ -31,11 +36,4 @@ management:
         include: health,bus-refresh
   tracing:
     sampling:
-      probability: 1.0
-
-spring:
-  sleuth:
-    zipkin:
-      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
-    sampler:
       probability: 1.0

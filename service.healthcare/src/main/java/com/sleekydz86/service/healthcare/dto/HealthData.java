@@ -13,9 +13,5 @@ import java.util.Map;
 @AllArgsConstructor
 public class HealthData {
     private Map<String, Object> data;
-
-    public HealthData(Map<String, Object> data) {
-        this.data = data;
-    }
 }
 

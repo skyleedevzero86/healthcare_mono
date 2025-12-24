@@ -1,25 +1,17 @@
 package com.sleekydz86.service.healthcare.core.eventsourcing;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Repository
-public interface EventRepository extends JpaRepository<EventEntity, Long> {
-    @Query("SELECT e FROM EventEntity e WHERE e.aggregateId = :aggregateId ORDER BY e.version ASC")
+@Mapper
+public interface EventRepository {
     List<EventEntity> findByAggregateIdOrderByVersionAsc(@Param("aggregateId") String aggregateId);
-
-    @Query("SELECT COALESCE(MAX(e.version), 0) FROM EventEntity e WHERE e.aggregateId = :aggregateId")
     int getLatestVersion(@Param("aggregateId") String aggregateId);
-    
-    @Query("SELECT e FROM EventEntity e WHERE e.aggregateId = :aggregateId AND e.version > :fromVersion ORDER BY e.version ASC")
     List<EventEntity> findByAggregateIdAndVersionGreaterThanOrderByVersionAsc(
         @Param("aggregateId") String aggregateId, 
         @Param("fromVersion") int fromVersion);
-    
-    @Query("SELECT DISTINCT e.aggregateId FROM EventEntity e")
     List<String> findAllDistinctAggregateIds();
+    void insert(EventEntity eventEntity);
 }

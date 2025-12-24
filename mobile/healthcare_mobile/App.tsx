@@ -6,7 +6,6 @@ import { store } from './src/store';
 import AppNavigator from './src/navigation/AppNavigator';
 import NetworkStatus from './src/components/NetworkStatus';
 
-// Error Boundary Component
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
@@ -24,7 +23,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, Error
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('App Error:', error, errorInfo);
+    console.error('앱 오류:', error, errorInfo);
     this.setState({ errorInfo });
   }
 
@@ -32,12 +31,12 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, Error
     if (this.state.hasError) {
       return (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
+          <Text style={styles.errorTitle}>오류가 발생했습니다</Text>
           <Text style={styles.errorMessage}>
-            Sorry about that. You can go back to Expo home or try to reload the project.
+            죄송합니다. Expo 홈으로 돌아가거나 프로젝트를 다시 로드해주세요.
           </Text>
           <Text style={styles.errorDetails}>
-            {this.state.error?.message || 'Unknown error occurred'}
+            {this.state.error?.message || '알 수 없는 오류가 발생했습니다'}
           </Text>
           {__DEV__ && this.state.errorInfo && (
             <Text style={styles.errorDetails}>

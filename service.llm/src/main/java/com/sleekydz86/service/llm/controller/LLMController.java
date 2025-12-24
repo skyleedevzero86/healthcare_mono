@@ -1,5 +1,6 @@
 package com.sleekydz86.service.llm.controller;
 
+import com.sleekydz86.service.llm.application.EnhancedHealthcareService;
 import com.sleekydz86.service.llm.application.mapper.LLMMapper;
 import com.sleekydz86.service.llm.domain.model.ConversationId;
 import com.sleekydz86.service.llm.domain.model.ConversationMessage;
@@ -31,6 +32,7 @@ public class LLMController {
     private final GenerateLLMUseCase generateLLMUseCase;
     private final ManageConversationUseCase manageConversationUseCase;
     private final PromptBuilder promptBuilder;
+    private final EnhancedHealthcareService enhancedHealthcareService;
 
     @PostMapping("/generate")
     public ResponseEntity<ApiResponse<LLMResponse>> generate(@Valid @RequestBody LLMRequest request) {
@@ -45,7 +47,8 @@ public class LLMController {
 
             Prompt prompt = buildPrompt(request);
             LLMGenerationRequest domainRequest = LLMMapper.toDomain(request, prompt);
-            var result = generateLLMUseCase.generate(domainRequest);
+            domainRequest.setRequestType("chat");
+            var result = enhancedHealthcareService.generateWithMedicalContext(domainRequest);
 
             if (request.getConversationId() != null) {
                 ConversationId conversationId = ConversationId.of(request.getConversationId());
@@ -90,7 +93,8 @@ public class LLMController {
                     .build();
 
             LLMGenerationRequest domainRequest = LLMMapper.toDomain(llmRequest, prompt);
-            var result = generateLLMUseCase.generate(domainRequest);
+            domainRequest.setRequestType("healthcare");
+            var result = enhancedHealthcareService.generateWithMedicalContext(domainRequest);
 
             LLMResponse response = LLMMapper.toDto(result, null);
             return ResponseEntity.ok(ApiResponse.ok(response));
@@ -123,7 +127,8 @@ public class LLMController {
                     .build();
 
             LLMGenerationRequest domainRequest = LLMMapper.toDomain(llmRequest, prompt);
-            var result = generateLLMUseCase.generate(domainRequest);
+            domainRequest.setRequestType("chat");
+            var result = enhancedHealthcareService.generateWithMedicalContext(domainRequest);
 
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("aiResponse", result.getContent());
@@ -166,6 +171,7 @@ public class LLMController {
                     .build();
 
             LLMGenerationRequest domainRequest = LLMMapper.toDomain(request, prompt);
+            domainRequest.setRequestType("chat");
             var result = generateLLMUseCase.generateWithHistory(domainRequest, request.getConversationId());
 
             manageConversationUseCase.saveMessage(
@@ -193,6 +199,7 @@ public class LLMController {
         try {
             Prompt prompt = buildPrompt(request);
             LLMGenerationRequest domainRequest = LLMMapper.toDomain(request, prompt);
+            domainRequest.setRequestType("chat");
 
             generateLLMUseCase.generateStream(domainRequest, chunk -> {
                 try {

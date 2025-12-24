@@ -1,85 +1,59 @@
 package com.sleekydz86.service.commu.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import java.util.Date;
 
-@Entity
-@Table(name = "user_mng")
 @Getter
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Usermng {
 
-    @Id
-    @Column(name = "user_seq")
-    final String userSeq;
+    String userSeq;
 
-    @Column
-    final String user_id;
+    String user_id;
 
-    @Column
-    final String email;
+    String email;
 
-    @Column
-    final String user_pw_enc;
+    String user_pw_enc;
 
-    @Column
-    final String user_salt;
+    String user_salt;
 
-    @Column
-    final String user_nm;
+    String user_nm;
 
-    @Column
-    final String birth_enc;
+    String birth_enc;
 
-    @Column
-    final String tel_num_enc;
+    String tel_num_enc;
 
-    @Column
-    final String dept_nm;
+    String dept_nm;
 
-    @Column
-    final String height;
+    String height;
 
-    @Column
-    final String weight;
+    String weight;
 
-    @Column
-    final String blood_type;
+    String blood_type;
 
-    @Column
-    final String gender;
+    String gender;
 
-    @Column
-    final Date reg_dt;
+    Date reg_dt;
 
-    @Column
-    final String reg_id;
+    String reg_id;
 
-    @Column
-    final Date upt_dt;
+    Date upt_dt;
 
-    @Column
-    final String upt_id;
+    String upt_id;
 
-    @Column
-    final String web_token;
+    String web_token;
 
-    @Column
-    final String mobile_token;
+    String mobile_token;
 
-    @Column
-    final String agreement_yn;
+    String agreement_yn;
 
-    @Column
-    final String use_yn;
+    String use_yn;
 
-    @Column
-    final String user_profile;
+    String user_profile;
 
 }
 

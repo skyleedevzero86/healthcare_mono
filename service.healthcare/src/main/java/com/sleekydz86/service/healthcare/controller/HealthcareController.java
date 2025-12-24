@@ -51,32 +51,6 @@ public class HealthcareController {
     private final CacheService cacheService;
     private final DtoConverter dtoConverter;
 
-    public HealthcareController(HealthDataService healthDataService,
-            ChartDataService chartDataService,
-            HealthScoreService healthScoreService,
-            AIResponseService aiResponseService,
-            CommunityService communityService,
-            Environment env,
-            ChatService chatService,
-            BioInfoDto bioInfoDto,
-            com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer,
-            PatientService patientService,
-            MedicalRecordService medicalRecordService,
-            CacheService cacheService) {
-        this.healthDataService = healthDataService;
-        this.chartDataService = chartDataService;
-        this.healthScoreService = healthScoreService;
-        this.aiResponseService = aiResponseService;
-        this.communityService = communityService;
-        this.env = env;
-        this.chatService = chatService;
-        this.bioInfoDto = bioInfoDto;
-        this.inputSanitizer = inputSanitizer;
-        this.patientService = patientService;
-        this.medicalRecordService = medicalRecordService;
-        this.cacheService = cacheService;
-    }
-
     private LocalDate getToday() {
         return LocalDate.now();
     }
@@ -120,7 +94,7 @@ public class HealthcareController {
     }
 
     @PostMapping("insertHealthInfo")
-    public ResponseEntity<ApiResponse> insertHealthInfo(
+    public ResponseEntity<ApiResponse<?>> insertHealthInfo(
             HttpServletRequest request,
             @Valid @RequestBody HealthDataRequestDto requestDto) {
         try {
@@ -161,7 +135,7 @@ public class HealthcareController {
                     }
                 }
             }
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } catch (Exception e) {
             log.error("건강 데이터 저장 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -169,15 +143,15 @@ public class HealthcareController {
     }
 
     @GetMapping("/health_check")
-    public ResponseEntity<ApiResponse> status() {
+    public ResponseEntity<ApiResponse<?>> status() {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "UP");
         result.put("service", "healthcare");
-        return ApiResponse.ok(result);
+        return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
     }
 
     @PostMapping("minmaxHealthInfo")
-    public ResponseEntity<ApiResponse> minmaxHealthInfo(
+    public ResponseEntity<ApiResponse<?>> minmaxHealthInfo(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -199,7 +173,7 @@ public class HealthcareController {
     }
 
     @PostMapping("healthInfo")
-    public ResponseEntity<ApiResponse> healthInfo(
+    public ResponseEntity<ApiResponse<?>> healthInfo(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -220,7 +194,7 @@ public class HealthcareController {
     }
 
     @PostMapping("healthInfoChart")
-    public ResponseEntity<ApiResponse> healthInfoChart(
+    public ResponseEntity<ApiResponse<?>> healthInfoChart(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -264,7 +238,7 @@ public class HealthcareController {
                 lv.add(res);
             }
             result.put("lv", lv);
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -275,7 +249,7 @@ public class HealthcareController {
     }
 
     @PostMapping("customMinuteChart")
-    public ResponseEntity<ApiResponse> customMinuteChartData(
+    public ResponseEntity<ApiResponse<?>> customMinuteChartData(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -300,7 +274,7 @@ public class HealthcareController {
     }
 
     @PostMapping("customMinuteDashBRDChart")
-    public ResponseEntity<ApiResponse> customMinuteDashBRDChart(
+    public ResponseEntity<ApiResponse<?>> customMinuteDashBRDChart(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -325,7 +299,7 @@ public class HealthcareController {
     }
 
     @PostMapping("dailydata")
-    public ResponseEntity<ApiResponse> dailydata(
+    public ResponseEntity<ApiResponse<?>> dailydata(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -337,7 +311,7 @@ public class HealthcareController {
             }
             Map<String, Object> responseData = responseDataResponse.getData();
 
-            ServiceResponse<Map<String, Object>> sleepDataResponse = chartDataService.getTodaySleepdata(map);
+            ServiceResponse<Map<String, Object>> sleepDataResponse = chartDataService.getTodaySleepData(map);
             if (!sleepDataResponse.isSuccess()) {
                 return convertToApiResponse(sleepDataResponse);
             }
@@ -371,7 +345,7 @@ public class HealthcareController {
                 return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.ok(responseData);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(responseData);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -382,7 +356,7 @@ public class HealthcareController {
     }
 
     @PostMapping("realtimeBiodata")
-    public ResponseEntity<ApiResponse> realtimeBiodata(
+    public ResponseEntity<ApiResponse<?>> realtimeBiodata(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -424,7 +398,7 @@ public class HealthcareController {
                 return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.ok(responseData);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(responseData);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -435,7 +409,7 @@ public class HealthcareController {
     }
 
     @PostMapping("graphBiodata")
-    public ResponseEntity<ApiResponse> graphBiodata(
+    public ResponseEntity<ApiResponse<?>> graphBiodata(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -452,7 +426,7 @@ public class HealthcareController {
     }
 
     @PostMapping("healthinfoDailySleep")
-    public ResponseEntity<ApiResponse> healthinfoDailySleep(
+    public ResponseEntity<ApiResponse<?>> healthinfoDailySleep(
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
@@ -468,7 +442,7 @@ public class HealthcareController {
     }
 
     @PostMapping("insDailyStep")
-    public ResponseEntity<ApiResponse> insertDailyStep(
+    public ResponseEntity<ApiResponse<?>> insertDailyStep(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -484,7 +458,7 @@ public class HealthcareController {
                 return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -495,7 +469,7 @@ public class HealthcareController {
     }
 
     @PostMapping("insDailySleep")
-    public ResponseEntity<ApiResponse> insertDailySleep(
+    public ResponseEntity<ApiResponse<?>> insertDailySleep(
             HttpServletRequest request,
             @Valid @RequestBody Map<String, Object> map) {
         try {
@@ -517,7 +491,7 @@ public class HealthcareController {
                 return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -528,7 +502,7 @@ public class HealthcareController {
     }
 
     @PostMapping("healthScoreList")
-    public ResponseEntity<ApiResponse> healthScoreList(
+    public ResponseEntity<ApiResponse<?>> healthScoreList(
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
@@ -544,7 +518,7 @@ public class HealthcareController {
     }
 
     @PostMapping("/inscommunity")
-    public ResponseEntity<ApiResponse> inscommunity(
+    public ResponseEntity<ApiResponse<?>> inscommunity(
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
@@ -560,7 +534,7 @@ public class HealthcareController {
     }
 
     @PostMapping("communityList")
-    public ResponseEntity<ApiResponse> communityList(
+    public ResponseEntity<ApiResponse<?>> communityList(
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
@@ -576,7 +550,7 @@ public class HealthcareController {
     }
 
     @PostMapping("/chat_ai")
-    public ResponseEntity<ApiResponse> chat_ai(
+    public ResponseEntity<ApiResponse<?>> chat_ai(
             @Valid @RequestBody Map<String, Object> map) {
         try {
             validateUserId(map);
@@ -606,7 +580,7 @@ public class HealthcareController {
 
             Map<String, Object> result = new HashMap<>();
             result.put("aiResponse", aiResponse);
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
@@ -680,9 +654,9 @@ public class HealthcareController {
         return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdRecord);
     }
 
-    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+    private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
-            return ApiResponse.ok(serviceResponse.getData());
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(serviceResponse.getData());
         } else {
             ApiResultCode errorCode = ApiResultCode.UNKNOWN_ERR;
             if ("400".equals(serviceResponse.getResultCode())) {

@@ -37,7 +37,7 @@ public class ManagementController {
     private final com.sleekydz86.service.usermanagement.util.InputSanitizer inputSanitizer;
 
     @PostMapping("/v1/userInfo")
-    public ResponseEntity<ApiResponse> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -58,7 +58,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/userBoardInfo")
-    public ResponseEntity<ApiResponse> userBoardInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> userBoardInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
 
         Map<String, Object> responseData = new HashMap<>();
 
@@ -94,12 +94,12 @@ public class ManagementController {
         if (userBioinfo == null || userBioinfo.isEmpty()) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
-            return ApiResponse.ok(responseData);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(responseData);
         }
     }
 
     @PostMapping("/v1/updateUserInfo")
-    public ResponseEntity<ApiResponse> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -127,7 +127,7 @@ public class ManagementController {
             int result = response.getData();
 
         if (result == 1) {
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
@@ -143,7 +143,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/deleteUserInfo")
-    public ResponseEntity<ApiResponse> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -158,7 +158,7 @@ public class ManagementController {
             }
             int result = response.getData();
         if (result == 1) {
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
@@ -174,7 +174,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/updatePasswd")
-    public ResponseEntity<ApiResponse> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -189,7 +189,7 @@ public class ManagementController {
             }
             int result = response.getData();
         if (result == 1) {
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
@@ -205,7 +205,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/searchDoctor")
-    public ResponseEntity<ApiResponse> searchDoctor(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> searchDoctor(@RequestBody UserDto dto) {
         try {
             if (dto != null && dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -221,7 +221,7 @@ public class ManagementController {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
@@ -233,7 +233,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/searchParent")
-    public ResponseEntity<ApiResponse> searchParent(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> searchParent(@RequestBody UserDto dto) {
         try {
             if (dto != null && dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -249,7 +249,7 @@ public class ManagementController {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
@@ -261,7 +261,7 @@ public class ManagementController {
     }
 
     @RequestMapping("/v1/list")
-    public ResponseEntity<ApiResponse> userList(UserDto dto, @RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> userList(UserDto dto, @RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
                 return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
@@ -306,7 +306,7 @@ public class ManagementController {
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 목록 조회 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -314,7 +314,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/healthUserList")
-    public ResponseEntity<ApiResponse> searchHealthUserList(@RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> searchHealthUserList(@RequestBody Map<String, Object> map) {
         try {
             if (map != null && map.get("userId") != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
@@ -329,7 +329,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/drguardianList")
-    public ResponseEntity<ApiResponse> drguardianList(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> drguardianList(@RequestBody UserDto dto) {
         try {
             if (dto != null && dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -344,7 +344,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/manage_userList")
-    public ResponseEntity<ApiResponse> roleuserList(@RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> roleuserList(@RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
                 return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
@@ -377,7 +377,7 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("역할별 사용자 목록 조회 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -385,7 +385,7 @@ public class ManagementController {
     }
 
     @PostMapping("/v1/search_userList")
-    public ResponseEntity<ApiResponse> searchuserList(@RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> searchuserList(@RequestBody Map<String, Object> map) {
         try {
             if (map != null && map.get("userId") != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
@@ -407,9 +407,10 @@ public class ManagementController {
         }
     }
 
-    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+    @SuppressWarnings("unchecked")
+    private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
-            return ApiResponse.ok(serviceResponse.getData());
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(serviceResponse.getData());
         } else {
             ApiResultCode errorCode = ApiResultCode.UNKNOWN_ERR;
             if ("400".equals(serviceResponse.getResultCode())) {

@@ -74,8 +74,7 @@ export const checkAuth = createAsyncThunk(
       const isAuthenticated = await authService.isAuthenticated();
       return { user, isAuthenticated };
     } catch (error: any) {
-      console.error('Auth check error:', error);
-      // 네트워크 에러의 경우 인증되지 않은 상태로 처리
+      console.error('인증 확인 오류:', error);
       if (error.message.includes('Network') || error.message.includes('timeout')) {
         return { user: null, isAuthenticated: false };
       }

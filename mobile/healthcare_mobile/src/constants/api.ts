@@ -43,7 +43,7 @@ export const API_RESPONSE_CODES = {
   RESULT_IS_EMPTY: '3001',
   UPDATE_FAIL: '3002',
   INSERT_FAIL: '3003',
-  UNKOWN_ERR: '5001',
+  UNKNOWN_ERR: '5001',
 } as const;
 
 export const HTTP_STATUS = {

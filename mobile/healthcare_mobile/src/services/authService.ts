@@ -37,7 +37,7 @@ class AuthService {
   async refreshToken(): Promise<JwtToken> {
     const refreshToken = await AsyncStorage.getItem('refreshToken');
     if (!refreshToken) {
-      throw new Error('No refresh token available');
+      throw new Error('갱신 토큰이 없습니다');
     }
 
     const response: ApiResponse<JwtToken> = await apiService.post(
@@ -59,7 +59,7 @@ class AuthService {
     try {
       await apiService.post(API_ENDPOINTS.AUTH.LOGOUT);
     } catch (error) {
-      console.warn('Logout API call failed:', error);
+      console.warn('로그아웃 API 호출 실패:', error);
     } finally {
       await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
     }
@@ -131,7 +131,7 @@ class AuthService {
       const userString = await AsyncStorage.getItem('user');
       return userString ? JSON.parse(userString) : null;
     } catch (error) {
-      console.error('Error getting current user:', error);
+      console.error('현재 사용자 정보 가져오기 오류:', error);
       return null;
     }
   }

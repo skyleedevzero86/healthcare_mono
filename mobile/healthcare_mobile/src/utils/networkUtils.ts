@@ -15,7 +15,7 @@ export const checkNetworkConnection = async (): Promise<NetworkState> => {
       isInternetReachable: state.isInternetReachable,
     };
   } catch (error) {
-    console.error('Network check failed:', error);
+    console.error('네트워크 확인 실패:', error);
     return {
       isConnected: false,
       type: null,
@@ -31,13 +31,13 @@ export const isNetworkAvailable = async (): Promise<boolean> => {
 
 export const getNetworkErrorMessage = (networkState: NetworkState): string => {
   if (!networkState.isConnected) {
-    return 'No internet connection. Please check your network settings.';
+    return '인터넷 연결이 없습니다. 네트워크 설정을 확인해주세요.';
   }
   
   if (networkState.isInternetReachable === false) {
-    return 'Internet is not reachable. Please check your connection.';
+    return '인터넷에 연결할 수 없습니다. 연결을 확인해주세요.';
   }
   
-  return 'Network connection is available.';
+  return '네트워크 연결이 정상입니다.';
 };
 

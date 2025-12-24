@@ -44,15 +44,15 @@ class CommunityIntegrationTest {
 
     private Community testCommunity;
     private Map<String, Object> searchMap;
-    private int uniqueUserId;
+    private String uniqueUserId;
 
     @BeforeEach
     void setUp() {
-        uniqueUserId = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+        uniqueUserId = String.valueOf(System.currentTimeMillis() % Integer.MAX_VALUE);
         testCommunity = new Community();
         testCommunity.setUserNm("통합테스트 사용자_" + uniqueUserId);
         testCommunity.setContent("통합 테스트 게시글 내용입니다. " + System.currentTimeMillis());
-        testCommunity.setUserId(uniqueUserId);
+        testCommunity.setUserId(String.valueOf(uniqueUserId));
         testCommunity.setHeartrate(72);
         testCommunity.setTemperature(36.5);
         testCommunity.setBloodpress(120.0);
@@ -97,7 +97,7 @@ class CommunityIntegrationTest {
         Community uniqueCommunity = new Community();
         uniqueCommunity.setUserNm("플로우테스트_" + System.currentTimeMillis());
         uniqueCommunity.setContent("플로우 테스트 게시글 " + System.currentTimeMillis());
-        uniqueCommunity.setUserId((int) (System.currentTimeMillis() % Integer.MAX_VALUE));
+        uniqueCommunity.setUserId(String.valueOf(System.currentTimeMillis() % Integer.MAX_VALUE));
         uniqueCommunity.setHeartrate(72);
         uniqueCommunity.setTemperature(36.5);
         uniqueCommunity.setBloodpress(120.0);

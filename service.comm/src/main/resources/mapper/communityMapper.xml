@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleekydz86.service.commu.mapper.CommunityMapper">
+
+    <insert id="writeBoard" parameterType="com.sleekydz86.service.commu.entity.Community" useGeneratedKeys="true" keyProperty="commuSeq" keyColumn="community_seq">
+        INSERT INTO health_community (
+            content, reg_date, heartrate, temperature, bloodpress,
+            smoking, drinking, exercise, age, user_id, user_nm,
+            body_age, user_seq, category
+        ) VALUES (
+            #{content}, #{regDate}, #{heartrate}, #{temperature}, #{bloodpress},
+            #{smoking}, #{drinking}, #{exercise}, #{age}, #{userId}, #{userNm},
+            #{bodyAge}, #{userSeq}, #{category}
+        )
+    </insert>
+
+    <select id="findBoard" parameterType="int" resultType="com.sleekydz86.service.commu.entity.Community">
+        SELECT
+            community_seq as commuSeq,
+            content,
+            reg_date as regDate,
+            heartrate,
+            temperature,
+            bloodpress,
+            smoking,
+            drinking,
+            exercise,
+            age,
+            user_id as userId,
+            user_nm as userNm,
+            body_age as bodyAge,
+            user_seq as userSeq,
+            category
+        FROM health_community
+        WHERE community_seq = #{commuSeq}
+    </select>
+
+    <select id="findBoardList" parameterType="map" resultType="com.sleekydz86.service.commu.entity.Community">
+        SELECT
+            community_seq as commuSeq,
+            content,
+            reg_date as regDate,
+            heartrate,
+            temperature,
+            bloodpress,
+            smoking,
+            drinking,
+            exercise,
+            age,
+            user_id as userId,
+            user_nm as userNm,
+            body_age as bodyAge,
+            user_seq as userSeq,
+            category
+        FROM health_community
+        WHERE 1=1
+        <if test="age != null">
+            AND age / 10 = #{age} / 10
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND content LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        ORDER BY reg_date DESC
+        <if test="pageIdx != null and pageSize != null">
+            LIMIT #{pageSize} OFFSET #{pageIdx} * #{pageSize}
+        </if>
+    </select>
+
+    <update id="updateBoard" parameterType="com.sleekydz86.service.commu.entity.Community">
+        UPDATE health_community
+        SET
+            content = #{content},
+            heartrate = #{heartrate},
+            temperature = #{temperature},
+            bloodpress = #{bloodpress},
+            smoking = #{smoking},
+            drinking = #{drinking},
+            exercise = #{exercise},
+            age = #{age},
+            body_age = #{bodyAge}
+        WHERE community_seq = #{commuSeq}
+    </update>
+
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM health_community
+        WHERE community_seq = #{commuSeq}
+    </delete>
+
+</mapper>
+

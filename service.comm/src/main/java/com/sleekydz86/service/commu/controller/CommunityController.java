@@ -33,14 +33,12 @@ public class CommunityController {
         try {
             if (inputSanitizer.containsSqlInjection(requestDto.getContent()) || 
                 inputSanitizer.containsXss(requestDto.getContent())) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             String sanitizedUserId = inputSanitizer.sanitizeUserId(requestDto.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(requestDto.getUserId())) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             requestDto.setUserId(sanitizedUserId);
             
@@ -48,20 +46,16 @@ public class CommunityController {
             int result = communityService.writeBoard(community);
 
             if (result > 0) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
-                return ResponseEntity.ok(responseEntity.getBody());
+                return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
             } else {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.INSERT_FAIL);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.INSERT_FAIL);
             }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("게시글 작성 중 오류 발생", e);
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -70,23 +64,19 @@ public class CommunityController {
         try {
             Object commuSeqObj = map.get("commuSeq");
             if (commuSeqObj == null) {
-                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             int commuSeq;
             try {
                 commuSeq = Integer.parseInt(commuSeqObj.toString());
             } catch (NumberFormatException e) {
-                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             Community result = communityService.findBoard(commuSeq);
-            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.ok(result);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         } catch (Exception e) {
             log.error("게시글 조회 중 오류 발생", e);
-            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.UNKNOWN_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -98,12 +88,10 @@ public class CommunityController {
             }
 
             List<Community> items = communityService.findBoardList(map);
-            ResponseEntity<ApiResponse<List<Community>>> responseEntity = ApiResponse.ok(items);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(items);
         } catch (Exception e) {
             log.error("게시글 목록 조회 중 오류 발생", e);
-            ResponseEntity<ApiResponse<List<Community>>> responseEntity = ApiResponse.<List<Community>>error(ApiResultCode.UNKNOWN_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -111,42 +99,35 @@ public class CommunityController {
     public ResponseEntity<ApiResponse<?>> updateBoard(@Valid @RequestBody CommunityRequestDto requestDto) {
         try {
             if (requestDto.getCommuSeq() == null || requestDto.getCommuSeq() < 1) {
-                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             if (inputSanitizer.containsSqlInjection(requestDto.getContent()) || 
                 inputSanitizer.containsXss(requestDto.getContent())) {
-                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             String sanitizedUserId = inputSanitizer.sanitizeUserId(requestDto.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(requestDto.getUserId())) {
-                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             requestDto.setUserId(sanitizedUserId);
             
             Community community = dtoConverter.convertToEntity(requestDto, Community.class);
             Community updatedCommu = communityService.findBoard(community.getCommuSeq());
             if (updatedCommu == null) {
-                ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.RESULT_IS_EMPTY);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
             }
             updatedCommu.setContent(community.getContent());
             communityService.writeBoard(updatedCommu);
 
-            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.ok(community);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(community);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("게시글 수정 중 오류 발생", e);
-            ResponseEntity<ApiResponse<Community>> responseEntity = ApiResponse.<Community>error(ApiResultCode.UNKNOWN_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -155,30 +136,25 @@ public class CommunityController {
         try {
             Object commuSeqObj = map.get("commuSeq");
             if (commuSeqObj == null) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             int commuSeq;
             try {
                 commuSeq = Integer.parseInt(commuSeqObj.toString());
             } catch (NumberFormatException e) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             int result = communityService.deleteBoard(commuSeq);
             
             if (result == 1) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
-                return ResponseEntity.ok(responseEntity.getBody());
+                return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
             } else {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.RESULT_IS_EMPTY);
-                return ResponseEntity.ok(responseEntity.getBody());
+                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
             }
         } catch (Exception e) {
             log.error("게시글 삭제 중 오류 발생", e);
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 }

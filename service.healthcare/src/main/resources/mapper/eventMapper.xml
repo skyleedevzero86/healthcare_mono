@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleekydz86.service.healthcare.core.eventsourcing.EventRepository">
+    
+    <resultMap id="EventEntityResultMap" type="com.sleekydz86.service.healthcare.core.eventsourcing.EventEntity">
+        <id property="id" column="id"/>
+        <result property="eventId" column="event_id" jdbcType="VARCHAR"/>
+        <result property="aggregateId" column="aggregate_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="version" column="version"/>
+        <result property="timestamp" column="timestamp"/>
+        <result property="eventData" column="event_data"/>
+    </resultMap>
+    
+    <select id="findByAggregateIdOrderByVersionAsc" resultMap="EventEntityResultMap">
+        SELECT id, event_id, aggregate_id, event_type, version, timestamp, event_data
+        FROM event_store
+        WHERE aggregate_id = #{aggregateId}
+        ORDER BY version ASC
+    </select>
+    
+    <select id="getLatestVersion" resultType="int">
+        SELECT COALESCE(MAX(version), 0)
+        FROM event_store
+        WHERE aggregate_id = #{aggregateId}
+    </select>
+    
+    <select id="findByAggregateIdAndVersionGreaterThanOrderByVersionAsc" resultMap="EventEntityResultMap">
+        SELECT id, event_id, aggregate_id, event_type, version, timestamp, event_data
+        FROM event_store
+        WHERE aggregate_id = #{aggregateId} AND version > #{fromVersion}
+        ORDER BY version ASC
+    </select>
+    
+    <select id="findAllDistinctAggregateIds" resultType="String">
+        SELECT DISTINCT aggregate_id
+        FROM event_store
+    </select>
+    
+    <insert id="insert" parameterType="com.sleekydz86.service.healthcare.core.eventsourcing.EventEntity">
+        INSERT INTO event_store (event_id, aggregate_id, event_type, version, timestamp, event_data)
+        VALUES (#{eventId, jdbcType=VARCHAR}, #{aggregateId}, #{eventType}, #{version}, #{timestamp}, #{eventData})
+    </insert>
+    
+</mapper>
+

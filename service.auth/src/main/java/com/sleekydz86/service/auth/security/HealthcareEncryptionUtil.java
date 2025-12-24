@@ -73,15 +73,44 @@ public class HealthcareEncryptionUtil {
     }
 
     private static String getKeyByType(KeyType keyType) {
+        String key;
         switch (keyType) {
             case AUTH:
-                return AUTH_KEY != null ? AUTH_KEY : "default_auth_key_32_chars_long_2025";
+                key = AUTH_KEY != null ? AUTH_KEY : "default_auth_key_32_chars_long_2025";
+                break;
             case USER:
-                return USER_KEY != null ? USER_KEY : "default_user_key_32_chars_long_2025";
+                key = USER_KEY != null ? USER_KEY : "default_user_key_32_chars_long_2025";
+                break;
             case HEALTH:
-                return HEALTH_KEY != null ? HEALTH_KEY : "default_health_key_32_chars_long_2025";
+                key = HEALTH_KEY != null ? HEALTH_KEY : "default_health_key_32_chars_long_2025";
+                break;
             default:
-                return "default_encryption_key_32_chars_long_2025";
+                key = "default_encryption_key_32_chars_long_2025";
+                break;
+        }
+        return normalizeKey(key, 32);
+    }
+
+    private static String normalizeKey(String key, int targetLength) {
+        if (key == null) {
+            key = "";
+        }
+        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length == targetLength) {
+            return key;
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(keyBytes);
+            byte[] normalized = new byte[targetLength];
+            System.arraycopy(hash, 0, normalized, 0, targetLength);
+            return new String(normalized, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            byte[] normalized = new byte[targetLength];
+            for (int i = 0; i < targetLength; i++) {
+                normalized[i] = keyBytes[i % keyBytes.length];
+            }
+            return new String(normalized, StandardCharsets.UTF_8);
         }
     }
 

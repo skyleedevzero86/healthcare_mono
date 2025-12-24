@@ -2,10 +2,10 @@
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.commu.entity.Community;
-import com.sleekydz86.service.commu.entity.DiseaseCategory;
-import com.sleekydz86.service.commu.entity.Usermng;
 import com.sleekydz86.service.commu.dto.ApiResultCode;
 import com.sleekydz86.service.commu.service.CommunityService;
+import com.sleekydz86.service.commu.util.DtoConverter;
+import com.sleekydz86.service.commu.util.InputSanitizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,20 +13,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CommunityController.class)
+@WebMvcTest(controllers = CommunityController.class)
+@TestPropertySource(properties = {
+    "spring.cloud.config.enabled=false",
+    "spring.cloud.discovery.enabled=false"
+})
 @DisplayName("CommunityController MockMvc 테스트")
 class CommunityControllerTest {
 
@@ -35,6 +39,12 @@ class CommunityControllerTest {
 
     @MockBean
     private CommunityService communityService;
+
+    @MockBean
+    private InputSanitizer inputSanitizer;
+
+    @MockBean
+    private DtoConverter dtoConverter;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -47,6 +57,24 @@ class CommunityControllerTest {
         testCommunity.setUserNm("testUser");
         testCommunity.setContent("테스트 게시글 내용입니다.");
         testCommunity.setRegDate(new Date());
+
+        when(inputSanitizer.containsSqlInjection(anyString())).thenReturn(false);
+        when(inputSanitizer.containsXss(anyString())).thenReturn(false);
+        when(inputSanitizer.sanitizeUserId(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(dtoConverter.convertToEntity(any(), any(Class.class))).thenAnswer(invocation -> {
+            Object dto = invocation.getArgument(0);
+            if (dto instanceof com.sleekydz86.service.commu.dto.CommunityRequestDto) {
+                Community community = new Community();
+                com.sleekydz86.service.commu.dto.CommunityRequestDto requestDto = (com.sleekydz86.service.commu.dto.CommunityRequestDto) dto;
+                community.setContent(requestDto.getContent());
+                community.setUserId(requestDto.getUserId());
+                if (requestDto.getCommuSeq() != null) {
+                    community.setCommuSeq(requestDto.getCommuSeq());
+                }
+                return community;
+            }
+            return testCommunity;
+        });
     }
 
     @Test
@@ -94,8 +122,8 @@ class CommunityControllerTest {
                 .content(objectMapper.writeValueAsString(testCommunity)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKOWN_ERR.code))
-                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKOWN_ERR.message))
+                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKNOWN_ERR.code))
+                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKNOWN_ERR.message))
                 .andExpect(jsonPath("$.resultData").isEmpty());
 
         verify(communityService, times(1)).writeBoard(any(Community.class));
@@ -146,7 +174,7 @@ class CommunityControllerTest {
         community2.setContent("두 번째 게시글");
 
         List<Community> communityList = Arrays.asList(community1, community2);
-        when(communityService.findBoardList()).thenReturn(communityList);
+        when(communityService.findBoardList(any())).thenReturn(communityList);
 
         mockMvc.perform(post("/community/v1/findBoardList"))
                 .andDo(print())
@@ -160,13 +188,13 @@ class CommunityControllerTest {
                 .andExpect(jsonPath("$.resultData[1].userNm").value("user2"))
                 .andExpect(jsonPath("$.resultData[1].content").value("두 번째 게시글"));
 
-        verify(communityService, times(1)).findBoardList();
+        verify(communityService, times(1)).findBoardList(any());
     }
 
     @Test
     @DisplayName("게시글 목록 조회 - 빈 목록 테스트")
     void findBoardList_Empty() throws Exception {
-        when(communityService.findBoardList()).thenReturn(Arrays.asList());
+        when(communityService.findBoardList(any())).thenReturn(Arrays.asList());
 
         mockMvc.perform(post("/community/v1/findBoardList"))
                 .andDo(print())
@@ -176,7 +204,7 @@ class CommunityControllerTest {
                 .andExpect(jsonPath("$.resultData").isArray())
                 .andExpect(jsonPath("$.resultData.length()").value(0));
 
-        verify(communityService, times(1)).findBoardList();
+        verify(communityService, times(1)).findBoardList(any());
     }
 
     @Test
@@ -212,8 +240,8 @@ class CommunityControllerTest {
                 .param("content", "수정된 내용"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKOWN_ERR.code))
-                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKOWN_ERR.message))
+                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKNOWN_ERR.code))
+                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKNOWN_ERR.message))
                 .andExpect(jsonPath("$.resultData").isEmpty());
 
         verify(communityService, times(1)).findBoard(999);
@@ -231,8 +259,8 @@ class CommunityControllerTest {
                 .param("content", "수정된 내용"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKOWN_ERR.code))
-                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKOWN_ERR.message))
+                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKNOWN_ERR.code))
+                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKNOWN_ERR.message))
                 .andExpect(jsonPath("$.resultData").isEmpty());
 
         verify(communityService, times(1)).findBoard(1);

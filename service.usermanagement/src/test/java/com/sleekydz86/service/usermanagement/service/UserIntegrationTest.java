@@ -50,7 +50,7 @@ class UserIntegrationTest {
         uniqueSearchName = "검색_" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
         userDto = new UserDto();
         userDto.setUserRoleFk("1");
-        userDto.setPageIdx(1);
+        userDto.setPageIndex(1);
         userDto.setPageSize(10);
     }
 

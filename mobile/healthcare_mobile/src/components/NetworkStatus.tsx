@@ -34,19 +34,19 @@ const NetworkStatus: React.FC<NetworkStatusProps> = ({ onRetry }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Network Connection Issue</Text>
+        <Text style={styles.title}>네트워크 연결 문제</Text>
         <Text style={styles.message}>
           {!networkState.isConnected 
-            ? 'No internet connection detected.'
-            : 'Internet is not reachable.'
+            ? '인터넷 연결이 감지되지 않았습니다.'
+            : '인터넷에 연결할 수 없습니다.'
           }
         </Text>
         <Text style={styles.subMessage}>
-          Please check your network settings and try again.
+          네트워크 설정을 확인하고 다시 시도해주세요.
         </Text>
         {onRetry && (
           <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>다시 시도</Text>
           </TouchableOpacity>
         )}
       </View>

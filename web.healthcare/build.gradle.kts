@@ -48,7 +48,6 @@ dependencies {
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("mysql:mysql-connector-java:8.0.33")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16")
     implementation("org.json:json:20231013")
@@ -87,6 +86,21 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    
+    reports {
+        junitXml.required.set(true)
+        html.required.set(true)
+    }
+    
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+    }
+    
+    ignoreFailures = false
+    
+    maxParallelForks = Runtime.getRuntime().availableProcessors().div(2).coerceAtLeast(1)
 }
 
 tasks.jar {

@@ -2,10 +2,17 @@ package com.sleekydz86.service.auth.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+    "spring.cloud.config.enabled=false",
+    "spring.cloud.discovery.enabled=false"
+})
+@TestPropertySource(properties = {
+    "spring.cloud.config.fail-fast=false"
+})
 public class EncryptionUtilTest {
 
     @Test

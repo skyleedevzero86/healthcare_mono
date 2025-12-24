@@ -10,6 +10,7 @@ import com.sleekydz86.service.healthcare.service.ai.AIResponseService;
 import com.sleekydz86.service.healthcare.service.ai.AIResponseServiceImpl;
 import com.sleekydz86.service.healthcare.service.ai.AIService;
 import com.sleekydz86.service.healthcare.service.ai.AIServiceImpl;
+import com.sleekydz86.service.healthcare.service.ChatService;
 import com.sleekydz86.service.healthcare.service.chart.ChartDataProcessor;
 import com.sleekydz86.service.healthcare.service.chart.ChartDataProcessorImpl;
 import com.sleekydz86.service.healthcare.service.chart.ChartDataService;
@@ -45,13 +46,13 @@ public class ServiceConfiguration {
 
     @Bean
     public HealthDataService healthDataService(HealthDataRepository healthDataRepository,
-                                             HealthDataValidator healthDataValidator,
-                                             DataProcessingService dataProcessingService,
-                                             EventPublisher eventPublisher,
-                                             EventStore eventStore,
-                                             AuthServiceClient authServiceClient,
-                                             HealthcareMetrics healthcareMetrics,
-                                             io.micrometer.core.instrument.MeterRegistry meterRegistry) {
+            HealthDataValidator healthDataValidator,
+            DataProcessingService dataProcessingService,
+            EventPublisher eventPublisher,
+            EventStore eventStore,
+            AuthServiceClient authServiceClient,
+            HealthcareMetrics healthcareMetrics,
+            io.micrometer.core.instrument.MeterRegistry meterRegistry) {
         return new HealthDataServiceImpl(healthDataRepository, healthDataValidator, dataProcessingService,
                 eventPublisher, eventStore, authServiceClient, healthcareMetrics, meterRegistry);
     }
@@ -83,10 +84,11 @@ public class ServiceConfiguration {
 
     @Bean
     public HealthScoreService healthScoreService(HealthScoreRepository healthScoreRepository,
-                                                HealthDataValidator healthDataValidator,
-                                                AuthServiceClient authServiceClient,
-                                                HealthcareMetrics healthcareMetrics) {
-        return new HealthScoreServiceImpl(healthScoreRepository, healthDataValidator, authServiceClient, healthcareMetrics);
+            HealthDataValidator healthDataValidator,
+            AuthServiceClient authServiceClient,
+            HealthcareMetrics healthcareMetrics) {
+        return new HealthScoreServiceImpl(healthScoreRepository, healthDataValidator, authServiceClient,
+                healthcareMetrics);
     }
 
     @Bean
@@ -95,15 +97,15 @@ public class ServiceConfiguration {
     }
 
     @Bean
-    public AIService aiService() {
-        return new AIServiceImpl();
+    public AIService aiService(ChatService chatService) {
+        return new AIServiceImpl(chatService);
     }
 
     @Bean
     public AIResponseService aiResponseService(AIResponseRepository aiResponseRepository,
-                                             AIService aiService,
-                                             HealthDataValidator healthDataValidator,
-                                             AuthServiceClient authServiceClient) {
+            AIService aiService,
+            HealthDataValidator healthDataValidator,
+            AuthServiceClient authServiceClient) {
         return new AIResponseServiceImpl(aiResponseRepository, aiService, healthDataValidator, authServiceClient);
     }
 
@@ -114,9 +116,9 @@ public class ServiceConfiguration {
 
     @Bean
     public CommunityService communityService(CommunityRepository communityRepository,
-                                           HealthDataValidator healthDataValidator,
-                                           AuthServiceClient authServiceClient,
-                                           HealthcareMetrics healthcareMetrics) {
+            HealthDataValidator healthDataValidator,
+            AuthServiceClient authServiceClient,
+            HealthcareMetrics healthcareMetrics) {
         return new CommunityServiceImpl(communityRepository, healthDataValidator, authServiceClient, healthcareMetrics);
     }
 
@@ -125,4 +127,3 @@ public class ServiceConfiguration {
         return new DataProcessingService(processors);
     }
 }
-

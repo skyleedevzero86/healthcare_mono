@@ -88,6 +88,108 @@ pipeline {
             }
         }
         
+        stage('Run Tests') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "테스트 자동화 실행"
+                    echo "========================================="
+                    
+                    def services = [
+                        'service.discovery',
+                        'service.config',
+                        'api.gateway',
+                        'service.auth',
+                        'service.comm',
+                        'service.healthcare',
+                        'service.usermanagement',
+                        'service.llm',
+                        'web.healthcare'
+                    ]
+                    
+                    def testResults = [:]
+                    
+                    services.each { service ->
+                        testResults[service] = {
+                            echo ""
+                            echo "----------------------------------------"
+                            echo "테스트 실행 중: ${service}"
+                            echo "----------------------------------------"
+                            
+                            dir(service) {
+                                try {
+                                    sh """
+                                        chmod +x gradlew || true
+                                        ./gradlew test --no-daemon || echo "테스트 경고 (계속 진행)"
+                                    """
+                                    
+                                    def testReport = sh(
+                                        script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
+                                        returnStdout: true
+                                    ).trim()
+                                    
+                                    if (testReport) {
+                                        echo "${service} 테스트 완료: ${testReport}"
+                                    } else {
+                                        echo "${service}: 테스트 리포트를 찾을 수 없습니다"
+                                    }
+                                    
+                                } catch (Exception e) {
+                                    echo "${service} 테스트 실패: ${e.getMessage()}"
+                                    currentBuild.result = 'UNSTABLE'
+                                }
+                            }
+                        }
+                    }
+                    
+                    parallel testResults
+                    
+                    echo ""
+                    echo "----------------------------------------"
+                    echo "모바일 앱 테스트 실행"
+                    echo "----------------------------------------"
+                    
+                    dir('mobile/healthcare_mobile') {
+                        try {
+                            sh '''
+                                pwd
+                                ls -la
+                                
+                                if [ ! -f "package.json" ]; then
+                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
+                                    exit 1
+                                fi
+                                
+                                if ! command -v node &> /dev/null; then
+                                    echo "Node.js 설치 중..."
+                                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                                    apt-get install -y nodejs || yum install -y nodejs npm || true
+                                fi
+                                
+                                node --version
+                                npm --version
+                                
+                                if ! command -v pnpm &> /dev/null; then
+                                    npm install -g pnpm
+                                fi
+                                pnpm --version
+                                
+                                pnpm install --frozen-lockfile
+                                
+                                pnpm test:ci
+                            '''
+                            
+                            echo "모바일 앱 테스트 완료"
+                            
+                        } catch (Exception e) {
+                            echo "모바일 앱 테스트 실패: ${e.getMessage()}"
+                            currentBuild.result = 'UNSTABLE'
+                        }
+                    }
+                }
+            }
+        }
+        
         stage('Build Services') {
             steps {
                 script {
@@ -129,13 +231,13 @@ pipeline {
                                     ).trim()
                                     
                                     if (jarFiles) {
-                                        echo "✓ ${service} 빌드 성공: ${jarFiles}"
+                                        echo "${service} 빌드 성공: ${jarFiles}"
                                     } else {
                                         error "${service}: JAR 파일을 찾을 수 없습니다"
                                     }
                                     
                                 } catch (Exception e) {
-                                    echo "✗ ${service} 빌드 실패: ${e.getMessage()}"
+                                    echo "${service} 빌드 실패: ${e.getMessage()}"
                                     currentBuild.result = 'UNSTABLE'
                                 }
                             }
@@ -184,9 +286,9 @@ pipeline {
                                     sh """
                                         docker build -t ${imageName} -t ${imageTag} .
                                     """
-                                    echo "✓ ${service} Docker 이미지 빌드 성공: ${imageName}"
+                                    echo "${service} Docker 이미지 빌드 성공: ${imageName}"
                                 } else {
-                                    echo "⚠ ${service}: Dockerfile이 없거나 JAR 파일을 찾을 수 없습니다"
+                                    echo "${service}: Dockerfile이 없거나 JAR 파일을 찾을 수 없습니다"
                                 }
                             }
                         }
@@ -207,31 +309,37 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
-                                echo "Node.js 버전 확인"
-                                node --version || echo "⚠ Node.js가 설치되지 않았습니다"
+                                pwd
+                                ls -la
                                 
-                                echo "pnpm 설치 확인"
+                                if [ ! -f "package.json" ]; then
+                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
+                                    exit 1
+                                fi
+                                
+                                if ! command -v node &> /dev/null; then
+                                    echo "Node.js 설치 중..."
+                                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                                    apt-get install -y nodejs || yum install -y nodejs npm || true
+                                fi
+                                
+                                node --version
+                                npm --version
+                                
                                 if ! command -v pnpm &> /dev/null; then
-                                    echo "pnpm 설치 중..."
-                                    npm install -g pnpm || echo "⚠ pnpm 설치 실패"
+                                    npm install -g pnpm
                                 fi
                                 pnpm --version
                                 
-                                echo "의존성 설치"
-                                pnpm install --frozen-lockfile || echo "⚠ 의존성 설치 경고"
+                                pnpm install --frozen-lockfile
                                 
-                                echo "TypeScript 타입 체크"
-                                pnpm tsc --noEmit || echo "⚠ 타입 체크 경고 (무시 가능)"
-                                
-                                echo "✓ 모바일 앱 빌드 준비 완료"
-                                echo "참고: 실제 APK/IPA 빌드는 EAS Build를 사용하거나 별도 빌드 서버 필요"
+                                pnpm tsc --noEmit
                             '''
                             
-                            echo "✓ 모바일 앱 빌드 준비 완료"
+                            echo "모바일 앱 빌드 준비 완료"
                             
                         } catch (Exception e) {
-                            echo "✗ 모바일 앱 빌드 실패: ${e.getMessage()}"
-                            echo "참고: 모바일 앱은 Node.js/pnpm이 필요하며, EAS Build를 사용하거나 별도 빌드 환경이 필요할 수 있습니다"
+                            echo "모바일 앱 빌드 실패: ${e.getMessage()}"
                             currentBuild.result = 'UNSTABLE'
                         }
                     }
@@ -269,10 +377,10 @@ pipeline {
                             ).trim()
                             
                             if (jarFile) {
-                                echo "✓ ${service}: ${jarFile}"
+                                echo "${service}: ${jarFile}"
                                 successCount++
                             } else {
-                                echo "✗ ${service}: 빌드 실패"
+                                echo "${service}: 빌드 실패"
                                 failCount++
                             }
                         }
@@ -321,10 +429,10 @@ pipeline {
                                 docker push ${imageName} || echo 'Push 실패 (무시)'
                                 docker push ${imageLatest} || echo 'Push 실패 (무시)'
                             """
-                            echo "✓ ${service} 이미지 푸시: ${imageName}"
+                            echo "${service} 이미지 푸시: ${imageName}"
                         }
                     } else {
-                        echo "⚠ DOCKER_REGISTRY가 설정되지 않아 이미지 푸시를 건너뜁니다"
+                        echo "DOCKER_REGISTRY가 설정되지 않아 이미지 푸시를 건너뜁니다"
                     }
                 }
             }
@@ -391,7 +499,7 @@ pipeline {
                             """
                         }
                     } else {
-                        echo "⚠ DEPLOY_TARGET_SERVER가 localhost로 설정되어 배포를 건너뜁니다"
+                        echo "DEPLOY_TARGET_SERVER가 localhost로 설정되어 배포를 건너뜁니다"
                         echo "실제 서버 배포를 원하시면 Jenkins 환경 변수에 DEPLOY_TARGET_SERVER를 설정하세요"
                     }
                 }
@@ -436,12 +544,12 @@ pipeline {
                             ).trim()
                             
                             if (response != 'FAILED' && response.contains('"status":"UP"')) {
-                                echo "✓ ${service} (포트 ${port}): 정상"
+                                echo "${service} (포트 ${port}): 정상"
                             } else {
-                                echo "✗ ${service} (포트 ${port}): 헬스 체크 실패"
+                                echo "${service} (포트 ${port}): 헬스 체크 실패"
                             }
                         } catch (Exception e) {
-                            echo "✗ ${service} (포트 ${port}): 헬스 체크 오류"
+                            echo "${service} (포트 ${port}): 헬스 체크 오류"
                         }
                     }
                 }
@@ -461,24 +569,38 @@ pipeline {
                 } catch (Exception e) {
                     echo "아티팩트 아카이브 실패 (무시): ${e.getMessage()}"
                 }
+                
+                try {
+                    archiveArtifacts artifacts: '**/build/test-results/**/*.xml', fingerprint: true, allowEmptyArchive: true
+                    archiveArtifacts artifacts: '**/build/reports/tests/**/*', fingerprint: true, allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'mobile/**/coverage/**/*', fingerprint: true, allowEmptyArchive: true
+                } catch (Exception e) {
+                    echo "테스트 리포트 아카이브 실패 (무시): ${e.getMessage()}"
+                }
+                
+                try {
+                    junit '**/build/test-results/**/*.xml'
+                } catch (Exception e) {
+                    echo "JUnit 리포트 발행 실패 (무시): ${e.getMessage()}"
+                }
             }
         }
         
         success {
             echo "========================================="
-            echo "✓ 빌드 성공"
+            echo "빌드 성공"
             echo "========================================="
         }
         
         failure {
             echo "========================================="
-            echo "✗ 빌드 실패"
+            echo "빌드 실패"
             echo "========================================="
         }
         
         unstable {
             echo "========================================="
-            echo "⚠ 빌드 불안정"
+            echo "빌드 불안정"
             echo "========================================="
         }
     }

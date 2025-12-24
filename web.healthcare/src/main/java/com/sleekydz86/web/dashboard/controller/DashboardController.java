@@ -64,7 +64,7 @@ public class DashboardController {
         return new ModelAndView("health/healthInfoList");
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/dashboard/health")
     public String healthInfoList(HttpServletRequest req, HttpServletResponse res, @RequestParam Map<String, Object> map,
             Model model, HttpSession session) {
 

@@ -37,77 +37,12 @@
 | **Service Discovery**     | 8761 | 서비스 등록 및 발견         | Netflix Eureka Server             |
 | **Config Service**        | 8888 | 중앙화된 설정 관리          | Spring Cloud Config Server        |
 | **Auth Service**          | 8082 | 사용자 인증 및 권한 관리    | Spring Boot, JWT, Spring Security |
-| **User Management**       | 8086 | 사용자 정보 관리            | Spring Boot, MyBatis              |
+| **User Management**       | 8087 | 사용자 정보 관리            | Spring Boot, MyBatis              |
 | **Healthcare Service**    | 8084 | 건강 데이터 처리 및 AI 분석 | Spring Boot, MyBatis, ChatGPT API |
+| **LLM Service**           | 8086 | LLM 모델 서비스             | Spring Boot, Llama.cpp            |
 | **Communication Service** | 8085 | 커뮤니티 기능               | Spring Boot, JPA                  |
 | **Web Application**       | 8981 | 웹 사용자 인터페이스        | Spring Boot, JSP, Apache Tiles    |
 | **Mobile App**            | -    | 모바일 애플리케이션         | React Native, Expo SDK 54         |
-
-#### 서비스 상세 설명
-
-**1. API Gateway (`api.gateway`)**
-
-- 모든 클라이언트 요청의 단일 진입점
-- 라우팅, 로드 밸런싱, 인증/인가 처리
-- Circuit Breaker (Resilience4j), Rate Limiting (Redis) 적용
-- CORS 설정 및 요청/응답 로깅
-- 분산 추적 (Zipkin) 지원
-
-**2. Service Discovery (`service.discovery`)**
-
-- Eureka Server를 통한 서비스 등록 및 발견
-- 서비스 간 동적 라우팅 지원
-- 헬스 체크 및 서비스 상태 모니터링
-
-**3. Config Service (`service.config`)**
-
-- 중앙화된 설정 관리 (Git 기반)
-- 환경별 설정 분리 (dev, prod)
-- Spring Cloud Bus를 통한 동적 설정 갱신
-
-**4. Auth Service (`service.auth`)**
-
-- JWT 기반 인증/인가
-- 회원가입, 로그인, 토큰 갱신, 로그아웃
-- 사용자 데이터 암호화 (AES-256)
-- 토큰 블랙리스트 관리 (Redis)
-- 역할 기반 접근 제어 (RBAC)
-
-**5. User Management Service (`service.usermanagement`)**
-
-- 사용자 프로필 관리
-- 사용자 정보 조회/수정/삭제
-- 의사-환자, 보호자-환자 매핑 관리
-- 사용자 검색 및 목록 조회
-
-**6. Healthcare Service (`service.healthcare`)**
-
-- 생체 데이터 수집 및 저장
-- 건강 데이터 분석 및 차트 생성
-- 건강 점수 계산 (수면, 운동, 스트레스)
-- ChatGPT API를 통한 AI 건강 상담
-- 실시간 생체 데이터 조회
-
-**7. Communication Service (`service.comm`)**
-
-- 커뮤니티 게시글 작성/조회/수정/삭제
-- 게시글 좋아요 기능
-- 연령대별 건강 정보 공유
-- JPA를 활용한 데이터 관리
-
-**8. Web Application (`web.healthcare`)**
-
-- JSP 기반 웹 인터페이스
-- Apache Tiles를 활용한 레이아웃 관리
-- 반응형 웹 디자인
-- 실시간 건강 데이터 시각화
-
-**9. Mobile Application (`mobile/healthcare_mobile`)**
-
-- React Native 기반 크로스 플랫폼 앱
-- 오프라인 데이터 저장 (AsyncStorage)
-- 푸시 알림 (Expo Notifications)
-- 카메라 및 위치 기반 기능
 
 ### 기술 스택
 
@@ -134,6 +69,9 @@
 - **Circuit Breaker**: Resilience4j
 - **Distributed Tracing**: Zipkin, Brave
 - **Monitoring**: Spring Boot Actuator, Micrometer
+- **CI/CD**: Jenkins
+- **Container**: Docker
+- **Reverse Proxy**: Nginx
 
 #### 보안 및 인증
 
@@ -146,10 +84,6 @@
 
 - **Logging Framework**: Log4j2
 - **SQL Logging**: Log4jdbc, P6Spy
-
-#### AI 통합
-
-- **AI Service**: ChatGPT API (OpenAI)
 
 ## 👥 사용자 역할
 
@@ -229,7 +163,8 @@ healthcare_mono/
 ├── service.auth/                # 인증 서비스 (JWT)
 ├── service.usermanagement/      # 사용자 관리 서비스
 ├── service.healthcare/          # 헬스케어 서비스 (AI 통합)
-├── service.comm/                 # 커뮤니티 서비스
+├── service.llm/                 # LLM 모델 서비스
+├── service.comm/                # 커뮤니티 서비스
 ├── web.healthcare/              # 웹 애플리케이션
 │   ├── src/main/java/           # Java 소스코드
 │   └── src/main/webapp/         # 웹 리소스
@@ -241,12 +176,26 @@ healthcare_mono/
 │       ├── css/                 # 스타일시트
 │       ├── js/                  # JavaScript 파일
 │       └── images/              # 이미지 리소스
-└── mobile/healthcare_mobile/    # 모바일 애플리케이션
-    ├── src/                     # React Native 소스코드
-    ├── assets/                  # 이미지 및 리소스
-    ├── android/                 # Android 네이티브 코드
-    ├── App.tsx                  # 메인 앱 컴포넌트
-    └── package.json             # Node.js 의존성
+├── mobile/healthcare_mobile/    # 모바일 애플리케이션
+│   ├── src/                     # React Native 소스코드
+│   ├── assets/                  # 이미지 및 리소스
+│   ├── android/                 # Android 네이티브 코드
+│   ├── App.tsx                  # 메인 앱 컴포넌트
+│   └── package.json             # Node.js 의존성
+├── scripts/                     # 배포 및 운영 스크립트
+│   ├── deploy-docker.sh         # Docker 무중단 배포 스크립트
+│   ├── deploy.sh                # JAR 파일 배포 스크립트
+│   ├── jenkins-setup.sh         # Jenkins 초기 설정 스크립트
+│   ├── fix-bom.sh               # BOM 문자 제거 스크립트
+│   ├── prod/                    # 운영 환경 설정
+│   │   ├── setup-nginx.sh       # Nginx 설정 스크립트
+│   │   ├── nginx.conf           # Nginx 설정 파일
+│   │   └── docker-compose.prod.yml  # 프로덕션 Docker Compose
+│   └── docs/                    # 배포 및 설정 문서
+│       ├── DEPLOYMENT_GUIDE.md  # 배포 가이드
+│       ├── DOMAIN_DEPLOYMENT_GUIDE.md  # 도메인 연결 가이드
+│       └── JENKINS_SETUP.md     # Jenkins 설정 가이드
+└── Jenkinsfile                  # Jenkins CI/CD 파이프라인
 ```
 
 ## 🔧 개발 환경 설정
@@ -317,7 +266,7 @@ healthcare_mono/
    ./gradlew bootRun
    ```
 
-4. **User Management Service** (`service.usermanagement`) - 포트 8086
+4. **User Management Service** (`service.usermanagement`) - 포트 8087
 
    ```bash
    cd service.usermanagement
@@ -331,14 +280,21 @@ healthcare_mono/
    ./gradlew bootRun
    ```
 
-6. **Communication Service** (`service.comm`) - 포트 8085
+6. **LLM Service** (`service.llm`) - 포트 8086
+
+   ```bash
+   cd service.llm
+   ./gradlew bootRun
+   ```
+
+7. **Communication Service** (`service.comm`) - 포트 8085
 
    ```bash
    cd service.comm
    ./gradlew bootRun
    ```
 
-7. **API Gateway** (`api.gateway`) - 포트 8080
+8. **API Gateway** (`api.gateway`) - 포트 8080
 
    ```bash
    cd api.gateway
@@ -346,7 +302,7 @@ healthcare_mono/
    # API Gateway: http://localhost:8080
    ```
 
-8. **Web Application** (`web.healthcare`) - 포트 8981
+9. **Web Application** (`web.healthcare`) - 포트 8981
    ```bash
    cd web.healthcare
    ./gradlew bootRun
@@ -363,17 +319,6 @@ pnpm android        # Android 에뮬레이터에서 실행
 pnpm ios            # iOS 시뮬레이터에서 실행
 pnpm web            # 웹 브라우저에서 실행
 ```
-
-#### 환경 변수 설정
-
-각 서비스의 `application.yml` 또는 환경 변수를 통해 다음 설정을 구성할 수 있습니다:
-
-- 데이터베이스 연결 정보
-- JWT 시크릿 키 및 만료 시간
-- Redis 연결 정보
-- RabbitMQ 연결 정보
-- ChatGPT API 키
-- 로깅 레벨
 
 ## 📡 API 엔드포인트
 
@@ -448,10 +393,11 @@ pnpm web            # 웹 브라우저에서 실행
 - `likeboard`: 게시글 좋아요 정보
 - `recommend`: 추천 게시글 정보
 
-## 🤖 AI 통합
+## 🤖 AI LLM 서비스
 
-### ChatGPT API 활용
-
+- **로컬 LLM 모델**: Llama.cpp를 활용한 로컬 LLM 실행
+- **모델 관리**: 모델 다운로드 및 버전 관리
+- **Docker 기반**: LLM 서버를 Docker 컨테이너로 운영
 - 사용자 생체 데이터를 기반으로 한 개인화된 건강 조언
 - 질병 예방 정보 및 음식 추천
 - 연령대별 맞춤형 건강 관리 가이드
@@ -509,27 +455,27 @@ pnpm web            # 웹 브라우저에서 실행
 
 ## 🚀 배포 및 운영
 
-### 모니터링
+### CI/CD 파이프라인
 
-- **Spring Boot Actuator**: 헬스 체크, 메트릭, 환경 정보 제공
-- **Eureka Dashboard**: 서비스 등록 상태 모니터링
-- **Distributed Tracing**: Zipkin을 통한 분산 추적
-- **Circuit Breaker**: Resilience4j를 활용한 장애 격리
-
-### 로깅
-
-- **Log4j2**: 구조화된 로깅
-- **로그 레벨**: 환경별 로그 레벨 설정 (dev, prod)
-- **SQL 로깅**: Log4jdbc, P6Spy를 통한 SQL 쿼리 로깅
-
-### 성능 최적화
-
-- **Connection Pooling**: HikariCP를 활용한 데이터베이스 연결 풀
-- **캐싱**: Redis를 활용한 토큰 및 세션 관리
-- **비동기 처리**: RabbitMQ를 통한 이벤트 기반 아키텍처
-- **로드 밸런싱**: Eureka를 통한 서비스 인스턴스 로드 밸런싱
+- **Jenkins**: 자동화된 빌드 및 배포 파이프라인
+- **Git 기반 트리거**: 5분마다 SCM 폴링으로 자동 빌드
+- **병렬 빌드**: 모든 서비스를 병렬로 빌드하여 빌드 시간 단축
+- **Docker 이미지 빌드**: 각 서비스별 Docker 이미지 자동 생성
+- **무중단 배포**: Blue-Green 배포 전략을 통한 제로 다운타임 배포
+- **자동 헬스 체크**: 배포 후 서비스 상태 자동 확인
 
 ## 🛠️ 개발 가이드
+
+### 아키텍처 패턴
+
+- **Saga 패턴**: 분산 트랜잭션 관리를 위한 Saga 패턴 적용
+  - 환자 등록 시: CreatePatient → CreateUserAccount → SendWelcomeNotification
+  - 각 서비스별 독립적인 Saga 클래스 구현
+  - 보상 트랜잭션을 통한 롤백 지원
+- **Event Sourcing**: Healthcare Service에서 이벤트 소싱 패턴 적용
+- **CQRS**: Command와 Query 분리를 통한 성능 최적화
+- **MyBatis**: Healthcare, UserManagement 서비스에서 MyBatis 사용
+- **JPA**: Communication 서비스에서 JPA 사용
 
 ### 코드 스타일
 
@@ -548,6 +494,13 @@ pnpm web            # 웹 브라우저에서 실행
 - **개발 환경**: `application-dev.yml`
 - **운영 환경**: `application-prod.yml`
 - **공통 설정**: `application-common.yml`
+
+### 배포 스크립트
+
+- **deploy-docker.sh**: Docker 기반 무중단 배포 스크립트
+- **deploy.sh**: JAR 파일 기반 배포 스크립트
+- **setup-nginx.sh**: 운영 서버 Nginx 초기 설정 (1회 실행)
+- **fix-bom.sh**: BOM 문자 제거 스크립트
 
 ## ❓ 트러블슈팅
 
@@ -569,6 +522,13 @@ pnpm web            # 웹 브라우저에서 실행
 1. JWT 토큰 만료 시간 확인
 2. 토큰 시크릿 키 일치 여부 확인
 3. Redis 연결 상태 확인 (토큰 블랙리스트)
+
+### 배포 실패
+
+1. Jenkins 환경 변수 확인 (DEPLOY_TARGET_SERVER, DEPLOY_SSH_KEY 등)
+2. 운영 서버 SSH 접근 권한 확인
+3. Docker 이미지 빌드 및 전송 상태 확인
+4. Nginx 설정 확인 (초기 설정 시 1회만 필요)
 
 ## 📝 라이선스
 

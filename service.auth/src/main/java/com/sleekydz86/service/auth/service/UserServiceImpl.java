@@ -201,19 +201,11 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean duplicateId(UserDto dto) {
-        if (userMapper.duplicateId(dto) != null) {
-            return false;
-        } else {
-            return true;
-        }
+        return userMapper.duplicateId(dto) != null;
     }
 
     public boolean duplicateEmail(UserDto dto) {
-        if (userMapper.duplicateEmail(dto) != null) {
-            return false;
-        } else {
-            return true;
-        }
+        return userMapper.duplicateEmail(dto) != null;
     }
 
     @Transactional

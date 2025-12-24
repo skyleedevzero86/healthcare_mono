@@ -286,7 +286,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             log.info("건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, params.get("date"));
             List<Map<String, Object>> rawResult = healthDataRepository.findHealthInfo(params);
             List<HealthData> result = rawResult.stream()
-                    .map(HealthData::new)
+                    .map(data -> HealthData.builder().data(data).build())
                     .toList();
             log.info("건강 정보 조회 완료: 사용자 {}, 결과 크기: {}", userId, result != null ? result.size() : 0);
             return ServiceResponse.success(result);
@@ -322,7 +322,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             log.info("최소/최대 건강 정보 조회 중: 사용자 {}, 날짜 {}", userId, params.get("date"));
             List<Map<String, Object>> rawResult = healthDataRepository.findMinMaxHealthInfo(params);
             List<HealthData> result = rawResult.stream()
-                    .map(HealthData::new)
+                    .map(data -> HealthData.builder().data(data).build())
                     .toList();
             log.info("최소/최대 건강 정보 조회 완료: 사용자 {}, 결과 크기: {}", userId, result != null ? result.size() : 0);
             return ServiceResponse.success(result);

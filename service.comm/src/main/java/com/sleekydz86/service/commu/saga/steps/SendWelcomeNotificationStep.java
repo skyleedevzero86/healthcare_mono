@@ -68,7 +68,6 @@ public class SendWelcomeNotificationStep implements SagaStep {
                 PatientRegistrationData data =
                     (PatientRegistrationData) saga.getData();
 
-                // 알림은 이미 전송되었으므로, 보상 트랜잭션에서는 취소 알림을 보낼 수 있습니다
                 if (data.getUserId() != null && "true".equals(data.getNotificationSent())) {
                     try {
                         Long userId = Long.parseLong(data.getUserId());

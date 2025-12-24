@@ -16,7 +16,7 @@ class PermissionService {
       const { status } = await Location.requestForegroundPermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Location permission error:', error);
+      console.error('위치 권한 오류:', error);
       return false;
     }
   }
@@ -29,7 +29,7 @@ class PermissionService {
       const { status } = await Camera.requestCameraPermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Camera permission error:', error);
+      console.error('카메라 권한 오류:', error);
       return false;
     }
   }
@@ -42,14 +42,13 @@ class PermissionService {
       const { status } = await Camera.requestMicrophonePermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Microphone permission error:', error);
+      console.error('마이크 권한 오류:', error);
       return false;
     }
   }
 
   async requestMediaLibraryPermission(): Promise<boolean> {
     try {
-      // Check if feature is supported in Expo Go
       if (!this.isFeatureSupportedInExpoGo('mediaLibrary')) {
         this.showExpoGoLimitationAlert('미디어 라이브러리');
         return false;
@@ -58,7 +57,7 @@ class PermissionService {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Media library permission error:', error);
+      console.error('미디어 라이브러리 권한 오류:', error);
       if (isExpoGo()) {
         this.showExpoGoLimitationAlert('미디어 라이브러리');
       }
@@ -72,16 +71,15 @@ class PermissionService {
         return await requestWebPermission('notifications');
       }
 
-      // Check if feature is supported in Expo Go
       if (!this.isFeatureSupportedInExpoGo('notifications')) {
         this.showExpoGoLimitationAlert('푸시 알림');
         return false;
       }
 
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } =       await Notifications.requestPermissionsAsync();
       return status === 'granted';
     } catch (error) {
-      console.error('Notification permission error:', error);
+      console.error('알림 권한 오류:', error);
       if (isExpoGo()) {
         this.showExpoGoLimitationAlert('푸시 알림');
       }
@@ -107,7 +105,7 @@ class PermissionService {
         notifications: notificationStatus.status,
       };
     } catch (error) {
-      console.error('Permission check error:', error);
+      console.error('권한 확인 오류:', error);
       return {
         location: 'undetermined',
         camera: 'undetermined',
@@ -149,7 +147,7 @@ class PermissionService {
         timestamp: location.timestamp,
       };
     } catch (error) {
-      console.error('Get location error:', error);
+      console.error('위치 가져오기 오류:', error);
       return null;
     }
   }
@@ -158,7 +156,7 @@ class PermissionService {
     try {
       const hasPermission = await this.requestLocationPermission();
       if (!hasPermission) {
-        throw new Error('Location permission denied');
+        throw new Error('위치 권한이 거부되었습니다');
       }
 
       const subscription = await Location.watchPositionAsync(
@@ -179,7 +177,7 @@ class PermissionService {
 
       return () => subscription.remove();
     } catch (error) {
-      console.error('Start location tracking error:', error);
+      console.error('위치 추적 시작 오류:', error);
       return () => {};
     }
   }
@@ -192,7 +190,7 @@ class PermissionService {
 
       const hasPermission = await this.requestCameraPermission();
       if (!hasPermission) {
-        throw new Error('Camera permission denied');
+        throw new Error('카메라 권한이 거부되었습니다');
       }
 
       const result = await Camera.launchCameraAsync({
@@ -208,7 +206,7 @@ class PermissionService {
 
       return null;
     } catch (error) {
-      console.error('Take picture error:', error);
+      console.error('사진 촬영 오류:', error);
       return null;
     }
   }
@@ -221,7 +219,7 @@ class PermissionService {
 
       const hasPermission = await this.requestMediaLibraryPermission();
       if (!hasPermission) {
-        throw new Error('Media library permission denied');
+        throw new Error('미디어 라이브러리 권한이 거부되었습니다');
       }
 
       const result = await Camera.launchImageLibraryAsync({
@@ -237,7 +235,7 @@ class PermissionService {
 
       return null;
     } catch (error) {
-      console.error('Select image error:', error);
+      console.error('이미지 선택 오류:', error);
       return null;
     }
   }
@@ -277,7 +275,7 @@ class PermissionService {
         magnetometerSubscription.remove();
       };
     } catch (error) {
-      console.error('Start sensor tracking error:', error);
+      console.error('센서 추적 시작 오류:', error);
       return () => {};
     }
   }
@@ -291,7 +289,7 @@ class PermissionService {
 
       const hasPermission = await this.requestNotificationPermission();
       if (!hasPermission) {
-        throw new Error('Notification permission denied');
+        throw new Error('알림 권한이 거부되었습니다');
       }
 
       await Notifications.scheduleNotificationAsync({
@@ -302,7 +300,7 @@ class PermissionService {
         trigger: null,
       });
     } catch (error) {
-      console.error('Send notification error:', error);
+      console.error('알림 전송 오류:', error);
     }
   }
 
@@ -321,7 +319,7 @@ class PermissionService {
     try {
       await Linking.openSettings();
     } catch (error) {
-      console.error('Open settings error:', error);
+      console.error('설정 열기 오류:', error);
     }
   }
 
@@ -343,7 +341,7 @@ class PermissionService {
         notifications: notificationGranted ? 'granted' : 'denied',
       };
     } catch (error) {
-      console.error('Request all permissions error:', error);
+      console.error('모든 권한 요청 오류:', error);
       return {
         location: 'denied',
         camera: 'denied',
@@ -354,7 +352,6 @@ class PermissionService {
     }
   }
 
-  // Expo Go limitation handlers
   showExpoGoLimitationAlert(feature: string): void {
     if (isExpoGo()) {
       Alert.alert(
@@ -380,16 +377,16 @@ class PermissionService {
     if (isExpoGo()) {
       switch (feature) {
         case 'camera':
-          return true; // Camera works in Expo Go
+          return true;
         case 'mediaLibrary':
-          return false; // Media library has limitations
+          return false;
         case 'notifications':
-          return false; // Push notifications don't work
+          return false;
         default:
           return true;
       }
     }
-    return true; // All features work in development builds
+    return true;
   }
 
   getExpoGoStatus(): { isExpoGo: boolean; isDevelopmentBuild: boolean; limitations: string[] } {

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleekydz86.service.commu.mapper.UserMapper">
+
+    <select id="findOne" parameterType="int" resultType="com.sleekydz86.service.commu.entity.Usermng">
+        SELECT
+            user_seq as userSeq,
+            user_id,
+            email,
+            user_pw_enc,
+            user_salt,
+            user_nm,
+            birth_enc,
+            tel_num_enc,
+            dept_nm,
+            height,
+            weight,
+            blood_type,
+            gender,
+            reg_dt,
+            reg_id,
+            upt_dt,
+            upt_id,
+            web_token,
+            mobile_token,
+            agreement_yn,
+            use_yn,
+            user_profile
+        FROM user_mng
+        WHERE user_seq = #{userId}
+    </select>
+
+</mapper>
+

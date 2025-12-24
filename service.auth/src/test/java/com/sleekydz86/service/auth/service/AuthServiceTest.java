@@ -7,7 +7,7 @@ import com.sleekydz86.service.auth.dto.User;
 import com.sleekydz86.service.auth.exception.BusinessException;
 import com.sleekydz86.service.auth.mapper.UserMapper;
 import com.sleekydz86.service.auth.provider.JwtTokenProvider;
-import com.sleekydz86.service.auth.provider.JwtTokenDto;
+import com.sleekydz86.service.auth.dto.JwtTokenDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -123,7 +123,7 @@ class AuthServiceTest {
 
     @Test
     @DisplayName("토큰 검증 실패 - 빈 토큰")
-    void validateToken_EmptyToken() {
+    void validateToken_EmptyToken() throws Exception {
         boolean result = authService.validateToken("");
 
         assertThat(result).isFalse();
@@ -132,7 +132,7 @@ class AuthServiceTest {
 
     @Test
     @DisplayName("토큰 검증 실패 - null 토큰")
-    void validateToken_NullToken() {
+    void validateToken_NullToken() throws Exception {
         boolean result = authService.validateToken(null);
 
         assertThat(result).isFalse();

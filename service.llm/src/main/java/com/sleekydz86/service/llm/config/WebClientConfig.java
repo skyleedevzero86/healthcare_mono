@@ -14,11 +14,16 @@ import java.time.Duration;
 public class WebClientConfig {
 
     @Bean
-    public WebClient webClient(LLMProperties llmProperties) {
+    public WebClient webClient(LlamaCppProperties llamaCppProperties,
+                               Glm47Properties glm47Properties,
+                               KmBertProperties kmBertProperties) {
+        int maxTimeout = Math.max(
+            Math.max(llamaCppProperties.getTimeout(), glm47Properties.getTimeout()),
+            kmBertProperties.getTimeout()
+        );
         HttpClient httpClient = HttpClient.create()
-                .responseTimeout(Duration.ofMillis(llmProperties.getLlamaCpp().getTimeout()))
-                .option(reactor.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                        (int) llmProperties.getLlamaCpp().getTimeout());
+                .responseTimeout(Duration.ofMillis(maxTimeout))
+                .option(reactor.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, maxTimeout);
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
