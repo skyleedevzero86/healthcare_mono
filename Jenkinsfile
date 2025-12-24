@@ -233,7 +233,7 @@ pipeline {
                     echo "  건너뜀: ${totalSkipped}개"
                     
                     if (totalTests > 0) {
-                        def failRate = (totalFailed * 100.0 / totalTests).setScale(2, java.math.RoundingMode.HALF_UP)
+                        def failRate = (totalFailed * 100.0 / totalTests).setScale(2, 1)
                         echo "  실패율: ${failRate}%"
                         
                         if (failRate > 20) {
