@@ -14,10 +14,7 @@ spring:
       server:
         encrypt:
           enabled: true
-        git:
-          uri: file:///D:/intel/2005/healthcare_mono/
-          search-paths: gits
-          default-label: main
+
         bootstrap: true
   security:
     user:

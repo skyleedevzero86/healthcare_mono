@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: discoveryservice
-  #cloud.config.uri/name -> spring-config
 
 eureka:
   client:
