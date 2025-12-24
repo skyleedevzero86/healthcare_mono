@@ -54,9 +54,20 @@ public class Community {
     @Column(name = "body_age")
     int bodyAge;
 
+    @Column(name = "user_seq")
+    String userSeq;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    DiseaseCategory category;
+
     @PrePersist
     public void beforePersist() {
         this.regDate = new Date();
+    }
+
+    public int getCommuId() {
+        return commuSeq;
     }
 
 }

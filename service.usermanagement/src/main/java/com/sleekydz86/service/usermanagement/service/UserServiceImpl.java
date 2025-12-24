@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private final UserManagementMetrics userManagementMetrics;
     private final DtoConverter dtoConverter;
 
-    @Cacheable(value = "userList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
+    @Cacheable(value = "userList", key = "#dto.userRoleFk + '_' + #dto.pageIndex + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public Object userList(UserDto dto) {
         String requestId = UUID.randomUUID().toString();
         String userId = dto.getUserId() != null ? dto.getUserId() : "unknown";
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
         Timer.Sample sample = userManagementMetrics.startUserListQueryTimer();
 
         try {
-            log.info("사용자 목록 조회 중: 역할 {}, 페이지 {}", dto.getUserRoleFk(), dto.getPageIdx());
+            log.info("사용자 목록 조회 중: 역할 {}, 페이지 {}", dto.getUserRoleFk(), dto.getPageIndex());
 
             int totalCount = userMapper.userListCount(dto);
             PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Cacheable(value = "parentList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
+    @Cacheable(value = "parentList", key = "#dto.userRoleFk + '_' + #dto.pageIndex + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public Object parentList(UserDto dto) {
         int totalCount = userMapper.parentListCount(dto);
         PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    @Cacheable(value = "doctorList", key = "#dto.userRoleFk + '_' + #dto.pageIdx + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
+    @Cacheable(value = "doctorList", key = "#dto.userRoleFk + '_' + #dto.pageIndex + '_' + (#dto.searchKeyword != null ? #dto.searchKeyword : '')")
     public Object doctorList(UserDto dto) {
         int totalCount = userMapper.doctorListCount(dto);
         PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "userList", key = "'manage_' + #dto.userId + '_' + #dto.userRoleFk + '_' + #dto.pageIdx")
+    @Cacheable(value = "userList", key = "'manage_' + #dto.userId + '_' + #dto.userRoleFk + '_' + #dto.pageIndex")
     public Object manage_userList(UserDto dto) {
         int totalCount = userMapper.manage_userList_cnt(dto);
         PaginationInfo paginationInfo = pagingUtil.getPageInfo(dto, totalCount);

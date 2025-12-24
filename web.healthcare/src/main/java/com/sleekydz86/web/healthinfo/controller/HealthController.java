@@ -23,6 +23,7 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequestMapping("/health")
+@org.springframework.stereotype.Component("healthInfoHealthController")
 public class HealthController {
 
     @Value("${gateway.healthcare.uri}")

@@ -49,7 +49,7 @@ public class JPATest {
 
         System.out.println("2. 검증 시작...");
 
-        Community savedCommunity = em.find(Community.class, commu.getCommuId());
+        Community savedCommunity = em.find(Community.class, commu.getCommuSeq());
         assertNotNull(savedCommunity, "저장된 커뮤니티 게시글이 null입니다!");
         assertEquals("This is test board", savedCommunity.getContent(), "게시글 내용이 일치하지 않습니다!");
         assertEquals("ash", savedCommunity.getUserNm(), "사용자명이 일치하지 않습니다!");
@@ -58,7 +58,7 @@ public class JPATest {
 
         System.out.println("모든 검증 통과!");
         System.out.println("저장된 데이터 정보:");
-        System.out.println("   - 게시글 ID: " + savedCommunity.getCommuId());
+        System.out.println("   - 게시글 ID: " + savedCommunity.getCommuSeq());
         System.out.println("   - 게시글 내용: " + savedCommunity.getContent());
         System.out.println("   - 작성자: " + savedCommunity.getUserNm());
         System.out.println("   - 사용자 ID: " + savedCommunity.getUserSeq());
@@ -100,7 +100,7 @@ public class JPATest {
         System.out.println("조회된 게시글 목록:");
         for (int i = 0; i < communities.size(); i++) {
             Community commu = communities.get(i);
-            System.out.println("   " + (i + 1) + ". ID: " + commu.getCommuId() +
+            System.out.println("   " + (i + 1) + ". ID: " + commu.getCommuSeq() +
                     ", 작성자: " + commu.getUserNm() +
                     ", 내용: " + commu.getContent());
         }
@@ -126,7 +126,7 @@ public class JPATest {
         em.persist(commu);
         em.flush();
 
-        Long savedId = commu.getCommuId();
+        int savedId = commu.getCommuSeq();
         System.out.println("테스트 게시글 생성 완료! ID: " + savedId);
 
         Community foundCommunity = em.find(Community.class, savedId);
@@ -134,13 +134,13 @@ public class JPATest {
 
         System.out.println("검증 시작...");
         assertNotNull(foundCommunity, "조회된 게시글이 null입니다!");
-        assertEquals(savedId, foundCommunity.getCommuId(), "조회된 게시글 ID가 일치하지 않습니다!");
+        assertEquals(savedId, foundCommunity.getCommuSeq(), "조회된 게시글 ID가 일치하지 않습니다!");
         assertEquals("Specific test content", foundCommunity.getContent(), "게시글 내용이 일치하지 않습니다!");
         assertEquals("testUser", foundCommunity.getUserNm(), "작성자명이 일치하지 않습니다!");
 
         System.out.println("모든 검증 통과!");
         System.out.println("조회된 게시글 정보:");
-        System.out.println("   - 게시글 ID: " + foundCommunity.getCommuId());
+        System.out.println("   - 게시글 ID: " + foundCommunity.getCommuSeq());
         System.out.println("   - 작성자: " + foundCommunity.getUserNm());
         System.out.println("   - 내용: " + foundCommunity.getContent());
         System.out.println("   - 등록일: " + foundCommunity.getRegDate());
@@ -167,7 +167,7 @@ public class JPATest {
         em.persist(commu);
         em.flush();
 
-        Long savedId = commu.getCommuId();
+        int savedId = commu.getCommuSeq();
         System.out.println("원본 게시글 생성 완료! ID: " + savedId);
         System.out.println("원본 내용: " + commu.getContent());
         System.out.println("원본 카테고리: " + commu.getCategory());
@@ -187,7 +187,7 @@ public class JPATest {
 
         System.out.println("모든 검증 통과!");
         System.out.println("수정된 게시글 정보:");
-        System.out.println("   - 게시글 ID: " + updatedCommunity.getCommuId());
+        System.out.println("   - 게시글 ID: " + updatedCommunity.getCommuSeq());
         System.out.println("   - 작성자: " + updatedCommunity.getUserNm());
         System.out.println("   - 내용: " + updatedCommunity.getContent());
         System.out.println("   - 카테고리: " + updatedCommunity.getCategory());
@@ -215,7 +215,7 @@ public class JPATest {
         em.persist(commu);
         em.flush();
 
-        Long savedId = commu.getCommuId();
+        int savedId = commu.getCommuSeq();
         System.out.println("원본 게시글 생성 완료! ID: " + savedId);
 
         Community foundCommunity = em.find(Community.class, savedId);
@@ -233,7 +233,7 @@ public class JPATest {
 
         System.out.println("모든 검증 통과!");
         System.out.println("부분 수정된 게시글 정보:");
-        System.out.println("   - 게시글 ID: " + updatedCommunity.getCommuId());
+        System.out.println("   - 게시글 ID: " + updatedCommunity.getCommuSeq());
         System.out.println("   - 작성자: " + updatedCommunity.getUserNm());
         System.out.println("   - 내용: " + updatedCommunity.getContent());
         System.out.println("   - 카테고리: " + updatedCommunity.getCategory());
@@ -260,7 +260,7 @@ public class JPATest {
         em.persist(commu);
         em.flush();
 
-        Long savedId = commu.getCommuId();
+        int savedId = commu.getCommuSeq();
         System.out.println("삭제할 게시글 생성 완료! ID: " + savedId);
         System.out.println("게시글 내용: " + commu.getContent());
 
@@ -302,7 +302,7 @@ public class JPATest {
         em.clear();
         System.out.println("존재하지 않는 게시글 ID로 삭제 시도...");
 
-        Long nonExistentId = 99999L;
+        int nonExistentId = 99999;
 
         Community foundCommunity = em.find(Community.class, nonExistentId);
         boolean deleteResult = false;
@@ -352,9 +352,9 @@ public class JPATest {
         System.out.println("모든 검증 통과!");
         System.out.println("조회된 게시글 개수: " + list.size());
         for (Community community : list) {
-            System.out.println("   - ID: " + community.getCommuId() +
+            System.out.println("   - ID: " + community.getCommuSeq() +
                     ", 내용: " + community.getContent() +
-                    ", 카테고리: " + community.getCategory());
+                    ", 카테고리: " + (community.getCategory() != null ? community.getCategory() : "N/A"));
         }
 
         System.out.println("===== 게시글 목록 조회 테스트 성공 완료 =====");
