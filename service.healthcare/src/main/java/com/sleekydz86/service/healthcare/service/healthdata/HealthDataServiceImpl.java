@@ -71,67 +71,72 @@ public class HealthDataServiceImpl implements HealthDataService {
     @Transactional
     @CacheEvict(value = {"healthInfo", "healthChart", "healthData"}, allEntries = true)
     public ServiceResponse<Integer> insertMinuteData(MinuteDataDto dto) {
-        return insertTimer.recordCallable(() -> {
-            insertCounter.increment();
-            String requestId = UUID.randomUUID().toString();
-            MDC.put("userId", dto.getUserId() != null ? dto.getUserId() : "unknown");
-            MDC.put("requestId", requestId);
-            MDC.put("operation", "insMinuteData");
+        try {
+            return insertTimer.recordCallable(() -> {
+                insertCounter.increment();
+                String requestId = UUID.randomUUID().toString();
+                MDC.put("userId", dto.getUserId() != null ? dto.getUserId() : "unknown");
+                MDC.put("requestId", requestId);
+                MDC.put("operation", "insMinuteData");
 
-            Timer.Sample sample = healthcareMetrics.startHealthDataProcessingTimer();
+                Timer.Sample sample = healthcareMetrics.startHealthDataProcessingTimer();
 
-            try {
-                healthDataValidator.validate(dto);
-                log.info("분 단위 건강 데이터 처리 중: {}", dto.getUserId());
+                try {
+                    healthDataValidator.validate(dto);
+                    log.info("분 단위 건강 데이터 처리 중: {}", dto.getUserId());
 
-                if (dto.getUserSeq() == null) {
-                    Map<String, String> request = new HashMap<>();
-                    request.put("userId", dto.getUserId());
-                    Map<String, Object> response = authServiceClient.getUserSeq(request);
-                    if (response != null && response.get("resultCode") != null
-                            && "0000".equals(response.get("resultCode"))) {
-                        Map<String, Object> data = (Map<String, Object>) response.get("data");
-                        if (data != null && data.get("userSeq") != null) {
-                            dto.setUserSeq(((Number) data.get("userSeq")).intValue());
+                    if (dto.getUserSeq() == null) {
+                        Map<String, String> request = new HashMap<>();
+                        request.put("userId", dto.getUserId());
+                        Map<String, Object> response = authServiceClient.getUserSeq(request);
+                        if (response != null && response.get("resultCode") != null
+                                && "0000".equals(response.get("resultCode"))) {
+                            Map<String, Object> data = (Map<String, Object>) response.get("data");
+                            if (data != null && data.get("userSeq") != null) {
+                                dto.setUserSeq(((Number) data.get("userSeq")).intValue());
+                            }
                         }
                     }
+                    if (dto.getUserSeq() == null) {
+                        log.error("사용자 시퀀스를 찾을 수 없음: {}", dto.getUserId());
+                        return ServiceResponse.error("사용자 시퀀스를 찾을 수 없습니다. 사용자 ID: " + dto.getUserId());
+                    }
+                    int result = healthDataRepository.insertMinuteData(dto);
+
+                    if (result > 0) {
+                        healthcareMetrics.incrementHealthDataProcessed();
+                        healthcareMetrics.incrementHealthDataProcessedMinute();
+
+                        HealthDataEvent event = new HealthDataEvent(
+                                UUID.randomUUID().toString(),
+                                "INSERT",
+                                dto.getUserId(),
+                                "MINUTE",
+                                dto,
+                                LocalDateTime.now(),
+                                "service.healthcare");
+                        eventStore.saveEvent(event);
+                        eventPublisher.publishHealthDataEvent(event);
+
+                        log.info("분 단위 건강 데이터 처리 완료: {}, 결과: {}", dto.getUserId(), result);
+                    }
+
+                    return ServiceResponse.success(result);
+                } catch (ValidationException e) {
+                    log.error("검증 실패: {}", e.getMessage());
+                    return ServiceResponse.error("검증 실패: " + e.getMessage());
+                } catch (Exception e) {
+                    log.error("분 단위 건강 데이터 처리 중 오류 발생: {}", dto.getUserId(), e);
+                    return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
+                } finally {
+                    sample.stop(healthcareMetrics.getHealthDataProcessingTime());
+                    MDC.clear();
                 }
-                if (dto.getUserSeq() == null) {
-                    log.error("사용자 시퀀스를 찾을 수 없음: {}", dto.getUserId());
-                    return ServiceResponse.error("사용자 시퀀스를 찾을 수 없습니다. 사용자 ID: " + dto.getUserId());
-                }
-                int result = healthDataRepository.insertMinuteData(dto);
-
-                if (result > 0) {
-                    healthcareMetrics.incrementHealthDataProcessed();
-                    healthcareMetrics.incrementHealthDataProcessedMinute();
-
-                    HealthDataEvent event = new HealthDataEvent(
-                            UUID.randomUUID().toString(),
-                            "INSERT",
-                            dto.getUserId(),
-                            "MINUTE",
-                            dto,
-                            LocalDateTime.now(),
-                            "service.healthcare");
-                    eventStore.saveEvent(event);
-                    eventPublisher.publishHealthDataEvent(event);
-
-                    log.info("분 단위 건강 데이터 처리 완료: {}, 결과: {}", dto.getUserId(), result);
-                }
-
-                return ServiceResponse.success(result);
-            } catch (ValidationException e) {
-                log.error("검증 실패: {}", e.getMessage());
-                return ServiceResponse.error("검증 실패: " + e.getMessage());
-            } catch (Exception e) {
-                log.error("분 단위 건강 데이터 처리 중 오류 발생: {}", dto.getUserId(), e);
-                return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
-            } finally {
-                sample.stop(healthcareMetrics.getHealthDataProcessingTime());
-                MDC.clear();
-            }
-        });
+            });
+        } catch (Exception e) {
+            log.error("분 단위 건강 데이터 처리 중 예외 발생: {}", dto.getUserId(), e);
+            return ServiceResponse.error("데이터 삽입 실패: " + e.getMessage());
+        }
     }
 
     @Override

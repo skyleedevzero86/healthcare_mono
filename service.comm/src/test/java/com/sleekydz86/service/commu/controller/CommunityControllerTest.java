@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,8 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = CommunityController.class)
 @TestPropertySource(properties = {
     "spring.cloud.config.enabled=false",
-    "spring.cloud.discovery.enabled=false"
+    "spring.cloud.discovery.enabled=false",
+    "spring.security.user.name=test",
+    "spring.security.user.password=test"
 })
+@WithMockUser
 @DisplayName("CommunityController MockMvc 테스트")
 class CommunityControllerTest {
 

@@ -20,6 +20,7 @@ pipeline {
         DEPLOY_TARGET_USER = "${env.DEPLOY_TARGET_USER ?: 'ec2-user'}"
         DEPLOY_TARGET_DIR = "${env.DEPLOY_TARGET_DIR ?: '/app/services'}"
         DOCKER_REGISTRY = "${env.DOCKER_REGISTRY ?: ''}"
+        FAIL_TESTS_ON_FAILURE = "${env.FAIL_TESTS_ON_FAILURE ?: 'false'}"
     }
     
     tools {
@@ -108,6 +109,8 @@ pipeline {
                     ]
                     
                     def testResults = [:]
+                    def failedServices = []
+                    def testSummary = [:]
                     
                     services.each { service ->
                         testResults[service] = {
@@ -118,10 +121,13 @@ pipeline {
                             
                             dir(service) {
                                 try {
-                                    sh """
-                                        chmod +x gradlew || true
-                                        ./gradlew test --no-daemon || echo "테스트 경고 (계속 진행)"
-                                    """
+                                    def testOutput = sh(
+                                        script: """
+                                            chmod +x gradlew || true
+                                            ./gradlew test --no-daemon 2>&1 || echo "EXIT_CODE:1"
+                                        """,
+                                        returnStdout: true
+                                    )
                                     
                                     def testReport = sh(
                                         script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
@@ -129,13 +135,68 @@ pipeline {
                                     ).trim()
                                     
                                     if (testReport) {
-                                        echo "${service} 테스트 완료: ${testReport}"
+                                        def stats = sh(
+                                            script: """
+                                                if [ -f "${testReport}" ]; then
+                                                    tests=\$(grep -oP 'tests=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
+                                                    failures=\$(grep -oP 'failures=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
+                                                    errors=\$(grep -oP 'errors=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
+                                                    skipped=\$(grep -oP 'skipped=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
+                                                    echo "\${tests}:\${failures}:\${errors}:\${skipped}"
+                                                else
+                                                    echo "0:0:0:0"
+                                                fi
+                                            """,
+                                            returnStdout: true
+                                        ).trim()
+                                        
+                                        def (total, failures, errors, skipped) = stats.split(':')
+                                        def passed = (total as Integer) - (failures as Integer) - (errors as Integer) - (skipped as Integer)
+                                        
+                                        testSummary[service] = [
+                                            total: total,
+                                            passed: passed,
+                                            failed: (failures as Integer) + (errors as Integer),
+                                            skipped: skipped
+                                        ]
+                                        
+                                        if ((failures as Integer) > 0 || (errors as Integer) > 0) {
+                                            failedServices.add(service)
+                                            echo "${service} 테스트 실패: 총 ${total}개 중 ${failures + errors}개 실패"
+                                            
+                                            def failedTestDetails = sh(
+                                                script: """
+                                                    if [ -f "${testReport}" ]; then
+                                                        grep -A 10 '<testcase' "${testReport}" | grep -B 5 '<failure\\|<error' | head -30 || echo "상세 정보 없음"
+                                                    fi
+                                                """,
+                                                returnStdout: true
+                                            ).trim()
+                                            
+                                            if (failedTestDetails && failedTestDetails != "상세 정보 없음") {
+                                                echo "실패한 테스트 상세:"
+                                                echo failedTestDetails
+                                            }
+                                            
+                                            currentBuild.result = 'UNSTABLE'
+                                        } else {
+                                            echo "${service} 테스트 성공: 총 ${total}개 중 ${passed}개 통과"
+                                        }
                                     } else {
                                         echo "${service}: 테스트 리포트를 찾을 수 없습니다"
+                                        testSummary[service] = [total: 0, passed: 0, failed: 0, skipped: 0]
+                                    }
+                                    
+                                    if (testOutput.contains("EXIT_CODE:1") || testOutput.contains("FAILED")) {
+                                        if (!failedServices.contains(service)) {
+                                            failedServices.add(service)
+                                        }
                                     }
                                     
                                 } catch (Exception e) {
-                                    echo "${service} 테스트 실패: ${e.getMessage()}"
+                                    echo "${service} 테스트 실행 중 오류: ${e.getMessage()}"
+                                    failedServices.add(service)
+                                    testSummary[service] = [total: 0, passed: 0, failed: 1, skipped: 0]
                                     currentBuild.result = 'UNSTABLE'
                                 }
                             }
@@ -143,6 +204,58 @@ pipeline {
                     }
                     
                     parallel testResults
+                    
+                    echo ""
+                    echo "========================================="
+                    echo "테스트 결과 요약"
+                    echo "========================================="
+                    
+                    def totalTests = 0
+                    def totalPassed = 0
+                    def totalFailed = 0
+                    def totalSkipped = 0
+                    
+                    testSummary.each { service, stats ->
+                        totalTests += stats.total as Integer
+                        totalPassed += stats.passed as Integer
+                        totalFailed += stats.failed as Integer
+                        totalSkipped += stats.skipped as Integer
+                        
+                        def status = stats.failed > 0 ? "[FAIL]" : "[PASS]"
+                        echo "${status} ${service}: 총 ${stats.total}개 (통과: ${stats.passed}, 실패: ${stats.failed}, 건너뜀: ${stats.skipped})"
+                    }
+                    
+                    echo ""
+                    echo "전체 통계:"
+                    echo "  총 테스트: ${totalTests}개"
+                    echo "  통과: ${totalPassed}개"
+                    echo "  실패: ${totalFailed}개"
+                    echo "  건너뜀: ${totalSkipped}개"
+                    
+                    if (totalTests > 0) {
+                        def failRate = (totalFailed * 100.0 / totalTests).round(2)
+                        echo "  실패율: ${failRate}%"
+                        
+                        if (failRate > 20) {
+                            echo ""
+                            echo "경고: 실패율이 20%를 초과합니다!"
+                        }
+                    }
+                    
+                    if (failedServices.size() > 0) {
+                        echo ""
+                        echo "========================================="
+                        echo "테스트 실패한 서비스 목록"
+                        echo "========================================="
+                        failedServices.each { service ->
+                            echo "  - ${service}"
+                        }
+                        echo "총 ${failedServices.size()}개 서비스에서 테스트 실패"
+                        
+                        if (env.FAIL_TESTS_ON_FAILURE == 'true') {
+                            error("테스트 실패로 인해 빌드 중단 (FAIL_TESTS_ON_FAILURE=true)")
+                        }
+                    }
                     
                     echo ""
                     echo "----------------------------------------"
@@ -582,6 +695,50 @@ pipeline {
                     junit '**/build/test-results/**/*.xml'
                 } catch (Exception e) {
                     echo "JUnit 리포트 발행 실패 (무시): ${e.getMessage()}"
+                }
+                
+                try {
+                    def failureReport = sh(
+                        script: """
+                            echo "========================================="
+                            echo "실패한 테스트 상세 리포트"
+                            echo "========================================="
+                            echo ""
+                            
+                            total_failures=0
+                            for xml_file in \$(find . -path '*/build/test-results/*.xml' 2>/dev/null); do
+                                if [ -f "\$xml_file" ]; then
+                                    failures=\$(grep -oP 'failures=\"\\K[0-9]+' "\$xml_file" | head -1 || echo 0)
+                                    errors=\$(grep -oP 'errors=\"\\K[0-9]+' "\$xml_file" | head -1 || echo 0)
+                                    total=\$((failures + errors))
+                                    
+                                    if [ \$total -gt 0 ]; then
+                                        total_failures=\$((total_failures + total))
+                                        echo "파일: \${xml_file}"
+                                        echo "실패: \${failures}개, 오류: \${errors}개"
+                                        
+                                        grep -oP '<testcase[^>]*name=\"\\K[^\"]+' "\$xml_file" | while read testname; do
+                                            if grep -A 20 "name=\"\${testname}\"" "\$xml_file" | grep -q '<failure\\|<error'; then
+                                                echo "  - \${testname}"
+                                            fi
+                                        done
+                                        echo "---"
+                                    fi
+                                fi
+                            done
+                            
+                            if [ \$total_failures -eq 0 ]; then
+                                echo "실패한 테스트가 없습니다."
+                            else
+                                echo ""
+                                echo "총 실패한 테스트: \$total_failures개"
+                            fi
+                        """,
+                        returnStdout: true
+                    )
+                    echo failureReport
+                } catch (Exception e) {
+                    echo "실패 리포트 생성 실패 (무시): ${e.getMessage()}"
                 }
             }
         }

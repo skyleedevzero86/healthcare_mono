@@ -8,6 +8,7 @@ import com.sleekydz86.service.auth.metrics.AuthMetrics;
 import com.sleekydz86.service.auth.util.DtoConverter;
 import com.sleekydz86.service.auth.util.PasswordPolicyValidator;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.Timer.Sample;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,15 @@ class UserServiceTest {
 
     @Mock
     private PasswordPolicyValidator passwordPolicyValidator;
+
+    @Mock
+    private Timer signinTimer;
+
+    @Mock
+    private Timer signupTimer;
+
+    @Mock
+    private Sample timerSample;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -108,7 +118,9 @@ class UserServiceTest {
                         .refreshToken("refreshToken")
                         .grantType("Bearer")
                         .build());
-        when(authMetrics.startSigninProcessingTimer()).thenReturn(Timer.start());
+        when(authMetrics.startSigninProcessingTimer()).thenReturn(timerSample);
+        when(authMetrics.getSigninProcessingTime()).thenReturn(signinTimer);
+        doNothing().when(timerSample).stop(any(Timer.class));
         doNothing().when(authMetrics).incrementSigninAttempts();
 
         Map<Object, Object> result = userService.signin(signinDto);
@@ -129,6 +141,9 @@ class UserServiceTest {
         when(userMapper.signup(any(SignupDto.class))).thenReturn(1);
         when(userMapper.getUserSeq(anyString())).thenReturn(1);
         when(userMapper.insUserAuth(any(SignupDto.class))).thenReturn(1);
+        when(authMetrics.startSignupProcessingTimer()).thenReturn(timerSample);
+        when(authMetrics.getSignupProcessingTime()).thenReturn(signupTimer);
+        doNothing().when(timerSample).stop(any(Timer.class));
         doNothing().when(authMetrics).incrementSignupAttempts();
 
         int result = userService.signup(signupDto);

@@ -29,7 +29,15 @@ public class HealthcareEncryptionUtil {
     public static String encrypt(String plainText, KeyType keyType) {
         try {
             String key = getKeyByType(keyType);
-            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                keyBytes = md.digest(keyBytes);
+                byte[] normalized = new byte[32];
+                System.arraycopy(keyBytes, 0, normalized, 0, 32);
+                keyBytes = normalized;
+            }
+            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
 
             byte[] iv = new byte[GCM_IV_LENGTH];
@@ -52,7 +60,15 @@ public class HealthcareEncryptionUtil {
     public static String decrypt(String encryptedText, KeyType keyType) {
         try {
             String key = getKeyByType(keyType);
-            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                keyBytes = md.digest(keyBytes);
+                byte[] normalized = new byte[32];
+                System.arraycopy(keyBytes, 0, normalized, 0, 32);
+                keyBytes = normalized;
+            }
+            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
 
             byte[] encryptedWithIv = Base64.getDecoder().decode(encryptedText);
@@ -103,14 +119,19 @@ public class HealthcareEncryptionUtil {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(keyBytes);
             byte[] normalized = new byte[targetLength];
-            System.arraycopy(hash, 0, normalized, 0, targetLength);
-            return new String(normalized, StandardCharsets.UTF_8);
+            System.arraycopy(hash, 0, normalized, 0, Math.min(targetLength, hash.length));
+            if (normalized.length < targetLength) {
+                for (int i = normalized.length; i < targetLength; i++) {
+                    normalized[i] = (byte) (i % 256);
+                }
+            }
+            return Base64.getEncoder().encodeToString(normalized).substring(0, targetLength);
         } catch (Exception e) {
             byte[] normalized = new byte[targetLength];
             for (int i = 0; i < targetLength; i++) {
                 normalized[i] = keyBytes[i % keyBytes.length];
             }
-            return new String(normalized, StandardCharsets.UTF_8);
+            return new String(normalized, StandardCharsets.ISO_8859_1);
         }
     }
 

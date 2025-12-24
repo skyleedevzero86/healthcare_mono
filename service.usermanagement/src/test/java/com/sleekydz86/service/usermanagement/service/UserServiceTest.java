@@ -6,7 +6,7 @@ import com.sleekydz86.service.usermanagement.global.mapper.UserMapper;
 import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
 import com.sleekydz86.service.usermanagement.global.util.PaginationInfo;
 import com.sleekydz86.service.usermanagement.metrics.UserManagementMetrics;
-import com.sleekydz86.service.usermanagement.global.util.DtoConverter;
+import com.sleekydz86.service.usermanagement.util.DtoConverter;
 import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
