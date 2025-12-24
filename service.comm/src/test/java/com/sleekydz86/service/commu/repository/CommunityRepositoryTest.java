@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,7 +49,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 저장 성공 테스트")
     void writeBoard_Success() {
-        // given
         doNothing().when(entityManager).persist(any(Community.class));
 
         int result = communityRepository.writeBoard(testCommunity);
@@ -60,7 +60,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 저장 실패 테스트")
     void writeBoard_Failure() {
-        // given
         doThrow(new RuntimeException("데이터베이스 오류")).when(entityManager).persist(any(Community.class));
 
         int result = communityRepository.writeBoard(testCommunity);
@@ -72,7 +71,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 저장 - null 입력 테스트")
     void writeBoard_NullInput() {
-        // given
         doThrow(new IllegalArgumentException("Entity cannot be null")).when(entityManager).persist(null);
 
         int result = communityRepository.writeBoard(null);
@@ -84,7 +82,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 상세 조회 성공 테스트")
     void findBoard_Success() {
-        // given
         when(entityManager.find(Community.class, 1)).thenReturn(testCommunity);
 
         Community result = communityRepository.findBoard(1);
@@ -98,7 +95,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 상세 조회 - 존재하지 않는 게시글 테스트")
     void findBoard_NotFound() {
-        // given
         when(entityManager.find(Community.class, 999)).thenReturn(null);
 
         Community result = communityRepository.findBoard(999);
@@ -110,12 +106,11 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 상세 조회 중 예외 발생 테스트")
     void findBoard_Exception() {
-        // given
         when(entityManager.find(Community.class, 1)).thenThrow(new RuntimeException("데이터베이스 연결 오류"));
 
- & then
         try {
             communityRepository.findBoard(1);
+            fail("예외가 발생해야 합니다");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("데이터베이스 연결 오류");
         }
@@ -126,7 +121,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 목록 조회 성공 테스트")
     void findBoardList_Success() {
-        // given
         Community community1 = new Community();
         community1.setUserNm("user1");
         community1.setContent("첫 번째 게시글");
@@ -156,7 +150,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 목록 조회 - 빈 목록 테스트")
     void findBoardList_Empty() {
-        // given
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(Arrays.asList());
 
@@ -172,13 +165,12 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 목록 조회 중 예외 발생 테스트")
     void findBoardList_Exception() {
-        // given
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenThrow(new RuntimeException("쿼리 실행 오류"));
 
- & then
         try {
             communityRepository.findBoardList();
+            fail("예외가 발생해야 합니다");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("쿼리 실행 오류");
         }
@@ -190,7 +182,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 저장 - EntityManager persist 호출 검증")
     void writeBoard_EntityManagerPersistCall() {
-        // given
         Community newCommunity = new Community();
         newCommunity.setUserNm("newUser");
         newCommunity.setContent("새로운 게시글");
@@ -207,7 +198,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 조회 - EntityManager find 호출 검증")
     void findBoard_EntityManagerFindCall() {
-        // given
         when(entityManager.find(Community.class, 123)).thenReturn(testCommunity);
 
         communityRepository.findBoard(123);
@@ -220,7 +210,6 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 목록 조회 - JPQL 쿼리 검증")
     void findBoardList_JPQLQueryVerification() {
-        // given
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(Arrays.asList(testCommunity));
 

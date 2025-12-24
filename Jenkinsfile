@@ -25,6 +25,7 @@ pipeline {
     tools {
         jdk 'jdk21'
         gradle 'Gradle'
+        nodejs 'NodeJS-18'
     }
     
     stages {
@@ -123,7 +124,6 @@ pipeline {
                                         ./gradlew test --no-daemon || echo "⚠ 테스트 경고 (계속 진행)"
                                     """
                                     
-                                    // 테스트 리포트 확인
                                     def testReport = sh(
                                         script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
                                         returnStdout: true
@@ -137,7 +137,6 @@ pipeline {
                                     
                                 } catch (Exception e) {
                                     echo "✗ ${service} 테스트 실패: ${e.getMessage()}"
-                                    echo "참고: 테스트 실패 시에도 빌드는 계속 진행됩니다"
                                     currentBuild.result = 'UNSTABLE'
                                 }
                             }
@@ -146,7 +145,6 @@ pipeline {
                     
                     parallel testResults
                     
-                    // 모바일 앱 테스트
                     echo ""
                     echo "----------------------------------------"
                     echo "모바일 앱 테스트 실행"
@@ -155,28 +153,21 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
-                                echo "Node.js 버전 확인"
-                                node --version || echo "⚠ Node.js가 설치되지 않았습니다"
+                                node --version
+                                npm --version
                                 
-                                echo "pnpm 설치 확인"
-                                if ! command -v pnpm &> /dev/null; then
-                                    echo "pnpm 설치 중..."
-                                    npm install -g pnpm || echo "⚠ pnpm 설치 실패"
-                                fi
+                                npm install -g pnpm
                                 pnpm --version
                                 
-                                echo "의존성 설치"
-                                pnpm install --frozen-lockfile || echo "⚠ 의존성 설치 경고"
+                                pnpm install --frozen-lockfile
                                 
-                                echo "테스트 실행"
-                                pnpm test:ci || echo "⚠ 테스트 경고 (계속 진행)"
+                                pnpm test:ci
                             '''
                             
                             echo "✓ 모바일 앱 테스트 완료"
                             
                         } catch (Exception e) {
                             echo "✗ 모바일 앱 테스트 실패: ${e.getMessage()}"
-                            echo "참고: 모바일 앱 테스트 실패 시에도 빌드는 계속 진행됩니다"
                             currentBuild.result = 'UNSTABLE'
                         }
                     }
@@ -303,31 +294,21 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
-                                echo "Node.js 버전 확인"
-                                node --version || echo "⚠ Node.js가 설치되지 않았습니다"
+                                node --version
+                                npm --version
                                 
-                                echo "pnpm 설치 확인"
-                                if ! command -v pnpm &> /dev/null; then
-                                    echo "pnpm 설치 중..."
-                                    npm install -g pnpm || echo "⚠ pnpm 설치 실패"
-                                fi
+                                npm install -g pnpm
                                 pnpm --version
                                 
-                                echo "의존성 설치"
-                                pnpm install --frozen-lockfile || echo "⚠ 의존성 설치 경고"
+                                pnpm install --frozen-lockfile
                                 
-                                echo "TypeScript 타입 체크"
-                                pnpm tsc --noEmit || echo "⚠ 타입 체크 경고 (무시 가능)"
-                                
-                                echo "✓ 모바일 앱 빌드 준비 완료"
-                                echo "참고: 실제 APK/IPA 빌드는 EAS Build를 사용하거나 별도 빌드 서버 필요"
+                                pnpm tsc --noEmit
                             '''
                             
                             echo "✓ 모바일 앱 빌드 준비 완료"
                             
                         } catch (Exception e) {
                             echo "✗ 모바일 앱 빌드 실패: ${e.getMessage()}"
-                            echo "참고: 모바일 앱은 Node.js/pnpm이 필요하며, EAS Build를 사용하거나 별도 빌드 환경이 필요할 수 있습니다"
                             currentBuild.result = 'UNSTABLE'
                         }
                     }
@@ -559,17 +540,13 @@ pipeline {
                 }
                 
                 try {
-                    // 테스트 리포트 아카이브
                     archiveArtifacts artifacts: '**/build/test-results/**/*.xml', fingerprint: true, allowEmptyArchive: true
                     archiveArtifacts artifacts: '**/build/reports/tests/**/*', fingerprint: true, allowEmptyArchive: true
-                    
-                    // 모바일 앱 테스트 커버리지 리포트
                     archiveArtifacts artifacts: 'mobile/**/coverage/**/*', fingerprint: true, allowEmptyArchive: true
                 } catch (Exception e) {
                     echo "테스트 리포트 아카이브 실패 (무시): ${e.getMessage()}"
                 }
                 
-                // 테스트 결과 발행
                 try {
                     junit '**/build/test-results/**/*.xml'
                 } catch (Exception e) {

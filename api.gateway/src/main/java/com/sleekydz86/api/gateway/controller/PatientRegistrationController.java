@@ -45,7 +45,6 @@ public class PatientRegistrationController {
                 
                 PatientRegistrationSaga saga = new PatientRegistrationSaga(sagaData);
                 
-                // Saga 실행
                 CompletableFuture<SagaResult> sagaFuture = sagaOrchestrator.executeSaga(saga);
                 SagaResult result = sagaFuture.join();
                 

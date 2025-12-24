@@ -84,13 +84,10 @@ class CommunityServiceTest {
     @Test
     @DisplayName("게시글 상세 조회 성공 테스트")
     void findBoard_Success() {
-        // given
         when(communityRepository.findBoard(anyInt())).thenReturn(testCommunity);
 
-        // when
         Community result = communityService.findBoard(1);
 
-        // then
         assertThat(result).isNotNull();
         assertThat(result.getUserNm()).isEqualTo("testUser");
         assertThat(result.getContent()).isEqualTo("테스트 게시글 내용입니다.");
@@ -100,13 +97,10 @@ class CommunityServiceTest {
     @Test
     @DisplayName("게시글 상세 조회 - 존재하지 않는 게시글 테스트")
     void findBoard_NotFound() {
-        // given
         when(communityRepository.findBoard(anyInt())).thenReturn(null);
 
-        // when
         Community result = communityService.findBoard(999);
 
-        // then
         assertThat(result).isNull();
         verify(communityRepository, times(1)).findBoard(999);
     }
@@ -114,10 +108,8 @@ class CommunityServiceTest {
     @Test
     @DisplayName("게시글 상세 조회 중 예외 발생 테스트")
     void findBoard_Exception() {
-        // given
         when(communityRepository.findBoard(anyInt())).thenThrow(new RuntimeException("데이터베이스 연결 오류"));
 
-        // when & then
         assertThatThrownBy(() -> communityService.findBoard(1))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("데이터베이스 연결 오류");
