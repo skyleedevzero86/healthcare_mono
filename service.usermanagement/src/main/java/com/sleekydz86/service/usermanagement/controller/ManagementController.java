@@ -94,7 +94,7 @@ public class ManagementController {
         if (userBioinfo == null || userBioinfo.isEmpty()) {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
-            return ApiResponse.ok(responseData);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(responseData);
         }
     }
 
@@ -127,7 +127,7 @@ public class ManagementController {
             int result = response.getData();
 
         if (result == 1) {
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
@@ -158,7 +158,7 @@ public class ManagementController {
             }
             int result = response.getData();
         if (result == 1) {
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
@@ -189,7 +189,7 @@ public class ManagementController {
             }
             int result = response.getData();
         if (result == 1) {
-            return ApiResponse.ok();
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else if (result == 0) {
             return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
@@ -221,7 +221,7 @@ public class ManagementController {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
@@ -249,7 +249,7 @@ public class ManagementController {
             return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
-            return ApiResponse.ok(result);
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
@@ -410,7 +410,7 @@ public class ManagementController {
     @SuppressWarnings("unchecked")
     private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
-            return (ResponseEntity<ApiResponse<?>>) ApiResponse.ok(serviceResponse.getData());
+            return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(serviceResponse.getData());
         } else {
             ApiResultCode errorCode = ApiResultCode.UNKNOWN_ERR;
             if ("400".equals(serviceResponse.getResultCode())) {
