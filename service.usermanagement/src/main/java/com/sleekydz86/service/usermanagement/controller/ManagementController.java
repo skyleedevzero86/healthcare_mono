@@ -37,12 +37,12 @@ public class ManagementController {
     private final com.sleekydz86.service.usermanagement.util.InputSanitizer inputSanitizer;
 
     @PostMapping("/v1/userInfo")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> userInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
-                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setUserId(sanitizedUserId);
             }
@@ -50,15 +50,15 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 정보 조회 중 오류 발생", e);
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/userBoardInfo")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> userBoardInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> userBoardInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
 
         Map<String, Object> responseData = new HashMap<>();
 
@@ -92,19 +92,19 @@ public class ManagementController {
         log.info("사용자 게시판 정보 결과 : " + responseData.toString());
 
         if (userBioinfo == null || userBioinfo.isEmpty()) {
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.RESULT_IS_EMPTY);
+            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             return ApiResponse.ok(responseData);
         }
     }
 
     @PostMapping("/v1/updateUserInfo")
-    public ResponseEntity<ApiResponse<Void>> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> updateUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setUserId(sanitizedUserId);
             }
@@ -129,26 +129,26 @@ public class ManagementController {
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
-            return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+            return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 정보 수정 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/deleteUserInfo")
-    public ResponseEntity<ApiResponse<Void>> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> deleteUserInfo(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setUserId(sanitizedUserId);
             }
@@ -160,26 +160,26 @@ public class ManagementController {
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
-            return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+            return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 정보 삭제 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/updatePasswd")
-    public ResponseEntity<ApiResponse<Void>> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> updatePasswd(HttpServletRequest req, @Valid @RequestBody UserDto dto) {
         try {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setUserId(sanitizedUserId);
             }
@@ -191,21 +191,21 @@ public class ManagementController {
         if (result == 1) {
             return ApiResponse.ok();
         } else if (result == 0) {
-            return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+            return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
         } else {
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("비밀번호 변경 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/searchDoctor")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> searchDoctor(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> searchDoctor(@RequestBody UserDto dto) {
         try {
             if (dto != null && dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -218,22 +218,22 @@ public class ManagementController {
             List<Map<String, Object>> list = response.getData();
             Map<String, Object> result = new HashMap<>();
         if (list == null || list.size() == 0) {
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.RESULT_IS_EMPTY);
+            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
             return ApiResponse.ok(result);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("의사 검색 중 오류 발생", e);
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/searchParent")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> searchParent(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> searchParent(@RequestBody UserDto dto) {
         try {
             if (dto != null && dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -246,17 +246,17 @@ public class ManagementController {
             List<Map<String, Object>> list = response.getData();
             Map<String, Object> result = new HashMap<>();
         if (list == null || list.size() == 0) {
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.RESULT_IS_EMPTY);
+            return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
         } else {
             result.put("list", list);
             return ApiResponse.ok(result);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("보호자 검색 중 오류 발생", e);
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -264,18 +264,18 @@ public class ManagementController {
     public ResponseEntity<ApiResponse<?>> userList(UserDto dto, @RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
-                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             String userRoleFk = (String) map.get("userRoleFk");
             if (userRoleFk == null) {
-                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             Object pageIdxObj = map.get("pageIdx");
             Object pageOffsetObj = map.get("pageOffset");
             if (pageIdxObj == null || pageOffsetObj == null) {
-                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             dto.setUserRoleFk(userRoleFk);
@@ -286,7 +286,7 @@ public class ManagementController {
             if (searchKeyword != null) {
                 if (inputSanitizer.containsSqlInjection(searchKeyword) || 
                     inputSanitizer.containsXss(searchKeyword)) {
-                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
             }
@@ -302,14 +302,14 @@ public class ManagementController {
             ServiceResponse<Object> response = userManagementService.getUserList(dto);
             return convertToApiResponse(response);
         } else {
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 목록 조회 중 오류 발생", e);
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -324,12 +324,12 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("건강 사용자 목록 조회 중 오류 발생", e);
-            return ApiResponse.<List<Map<String, Object>>>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/drguardianList")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> drguardianList(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> drguardianList(@RequestBody UserDto dto) {
         try {
             if (dto != null && dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
@@ -339,15 +339,15 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("의사/보호자 목록 조회 중 오류 발생", e);
-            return ApiResponse.<List<Map<String, Object>>>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/manage_userList")
-    public ResponseEntity<ApiResponse<Object>> roleuserList(@RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> roleuserList(@RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
-                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             UserDto dto = new UserDto();
@@ -368,7 +368,7 @@ public class ManagementController {
             if (searchKeyword != null) {
                 if (inputSanitizer.containsSqlInjection(searchKeyword) || 
                     inputSanitizer.containsXss(searchKeyword)) {
-                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
             }
@@ -380,12 +380,12 @@ public class ManagementController {
             return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("역할별 사용자 목록 조회 중 오류 발생", e);
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/search_userList")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> searchuserList(@RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> searchuserList(@RequestBody Map<String, Object> map) {
         try {
             if (map != null && map.get("userId") != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
@@ -395,7 +395,7 @@ public class ManagementController {
                 String searchKeyword = map.get("searchKeyword").toString();
                 if (inputSanitizer.containsSqlInjection(searchKeyword) || 
                     inputSanitizer.containsXss(searchKeyword)) {
-                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 map.put("searchKeyword", inputSanitizer.sanitize(searchKeyword));
             }
@@ -403,14 +403,14 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("사용자 검색 중 오류 발생", e);
-            return ApiResponse.<List<Map<String, Object>>>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+    private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
-            return (ResponseEntity<ApiResponse<T>>) ApiResponse.ok(serviceResponse.getData());
+            return (ResponseEntity<ApiResponse<?>>) ApiResponse.ok(serviceResponse.getData());
         } else {
             ApiResultCode errorCode = ApiResultCode.UNKNOWN_ERR;
             if ("400".equals(serviceResponse.getResultCode())) {
@@ -418,7 +418,7 @@ public class ManagementController {
             } else if ("500".equals(serviceResponse.getResultCode())) {
                 errorCode = ApiResultCode.UNKNOWN_ERR;
             }
-            return ApiResponse.<T>error(errorCode, serviceResponse.getMessage());
+            return ApiResponse.error(errorCode, serviceResponse.getMessage());
         }
     }
 }

@@ -8,7 +8,6 @@ import java.util.Date;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class Usermng {
 
@@ -16,45 +15,45 @@ public class Usermng {
 
     String user_id;
 
-    final String email;
+    String email;
 
-    final String user_pw_enc;
+    String user_pw_enc;
 
-    final String user_salt;
+    String user_salt;
 
-    final String user_nm;
+    String user_nm;
 
-    final String birth_enc;
+    String birth_enc;
 
-    final String tel_num_enc;
+    String tel_num_enc;
 
-    final String dept_nm;
+    String dept_nm;
 
-    final String height;
+    String height;
 
-    final String weight;
+    String weight;
 
-    final String blood_type;
+    String blood_type;
 
-    final String gender;
+    String gender;
 
-    final Date reg_dt;
+    Date reg_dt;
 
-    final String reg_id;
+    String reg_id;
 
-    final Date upt_dt;
+    Date upt_dt;
 
-    final String upt_id;
+    String upt_id;
 
-    final String web_token;
+    String web_token;
 
-    final String mobile_token;
+    String mobile_token;
 
-    final String agreement_yn;
+    String agreement_yn;
 
-    final String use_yn;
+    String use_yn;
 
-    final String user_profile;
+    String user_profile;
 
 }
 

@@ -120,13 +120,13 @@ public class HealthcareController {
     }
 
     @PostMapping("insertHealthInfo")
-    public ResponseEntity<ApiResponse<Void>> insertHealthInfo(
+    public ResponseEntity<ApiResponse<?>> insertHealthInfo(
             HttpServletRequest request,
             @Valid @RequestBody HealthDataRequestDto requestDto) {
         try {
             String sanitizedUserId = inputSanitizer.sanitizeUserId(requestDto.getUserId());
             if (sanitizedUserId == null || !sanitizedUserId.equals(requestDto.getUserId())) {
-                return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+                return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
             }
 
             Map<String, Object> map = new HashMap<>();
@@ -161,10 +161,10 @@ public class HealthcareController {
                     }
                 }
             }
-            return ApiResponse.<Void>ok();
+            return ApiResponse.ok();
         } catch (Exception e) {
             log.error("건강 데이터 저장 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -173,7 +173,7 @@ public class HealthcareController {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "UP");
         result.put("service", "healthcare");
-            return (ResponseEntity) ApiResponse.ok(result);
+        return ApiResponse.ok(result);
     }
 
     @PostMapping("minmaxHealthInfo")
@@ -191,10 +191,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생", e);
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -212,10 +212,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생", e);
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -240,7 +240,7 @@ public class HealthcareController {
             Map<String, Object> result = response.getData();
             String[] strArr = (String[]) result.get("lv");
             if (strArr == null || strArr.length == 0) {
-                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.RESULT_IS_EMPTY);
+                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
             }
 
             java.util.ArrayList<String[]> lv = new java.util.ArrayList<>();
@@ -264,13 +264,13 @@ public class HealthcareController {
                 lv.add(res);
             }
             result.put("lv", lv);
-            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
+            return ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 차트 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -292,10 +292,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("분 단위 차트 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -317,10 +317,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("대시보드 차트 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -368,16 +368,16 @@ public class HealthcareController {
             responseData.putAll(targetData);
 
             if (responseData.isEmpty() || sleepData.isEmpty()) {
-                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.<Map<String, Object>>ok(responseData);
+            return ApiResponse.ok(responseData);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 데이터 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -421,16 +421,16 @@ public class HealthcareController {
             responseData.putAll(targetData);
 
             if (responseData.isEmpty()) {
-                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.<Map<String, Object>>ok(responseData);
+            return ApiResponse.ok(responseData);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("실시간 생체 데이터 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -444,10 +444,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("생체 데이터 그래프 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -460,10 +460,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 수면 정보 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -481,16 +481,16 @@ public class HealthcareController {
             result.put("count", response.getData());
 
             if (response.getData() == null || response.getData() == 0) {
-                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
+            return ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 걸음수 저장 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -514,16 +514,16 @@ public class HealthcareController {
             result.put("count", response.getData());
 
             if (response.getData() == null || response.getData() == 0) {
-                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return ApiResponse.error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
+            return ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("일일 수면 정보 저장 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -536,10 +536,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 점수 목록 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -552,10 +552,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("커뮤니티 데이터 저장 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -568,10 +568,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("커뮤니티 목록 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -606,13 +606,13 @@ public class HealthcareController {
 
             Map<String, Object> result = new HashMap<>();
             result.put("aiResponse", aiResponse);
-            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
+            return ApiResponse.ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return ApiResponse.error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("AI 챗봇 응답 생성 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 

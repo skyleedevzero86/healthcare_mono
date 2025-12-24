@@ -46,8 +46,8 @@ public class ApiResponse<T> {
                 .build());
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> error(ApiResultCode errorCode) {
-        return ResponseEntity.ok(ApiResponse.<T>builder()
+    public static ResponseEntity<ApiResponse<?>> error(ApiResultCode errorCode) {
+        return ResponseEntity.ok(ApiResponse.builder()
                 .code(errorCode.code)
                 .message(errorCode.message)
                 .data(null)
@@ -55,8 +55,8 @@ public class ApiResponse<T> {
                 .build());
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> error(ApiResultCode errorCode, String customMessage) {
-        return ResponseEntity.ok(ApiResponse.<T>builder()
+    public static ResponseEntity<ApiResponse<?>> error(ApiResultCode errorCode, String customMessage) {
+        return ResponseEntity.ok(ApiResponse.builder()
                 .code(errorCode.code)
                 .message(customMessage != null ? customMessage : errorCode.message)
                 .data(null)
@@ -64,8 +64,8 @@ public class ApiResponse<T> {
                 .build());
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> error(String errorCode, String message) {
-        return ResponseEntity.ok(ApiResponse.<T>builder()
+    public static ResponseEntity<ApiResponse<?>> error(String errorCode, String message) {
+        return ResponseEntity.ok(ApiResponse.builder()
                 .code(errorCode)
                 .message(message)
                 .data(null)

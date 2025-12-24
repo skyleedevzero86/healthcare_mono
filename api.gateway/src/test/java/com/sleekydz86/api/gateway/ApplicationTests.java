@@ -6,8 +6,8 @@ import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
 @TestPropertySource(properties = {
-    "spring.config.import=optional:configserver:",
-    "spring.cloud.config.enabled=false"
+    "spring.cloud.config.enabled=false",
+    "spring.config.import="
 })
 class ApplicationTests {
 
