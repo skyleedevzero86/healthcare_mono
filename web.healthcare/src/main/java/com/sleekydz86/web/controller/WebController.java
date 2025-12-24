@@ -29,7 +29,7 @@ public class WebController {
         return "patients";
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/web/dashboard")
     public String dashboard(Model model, HttpServletRequest request) {
         String token = extractToken(request);
         if (token != null) {

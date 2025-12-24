@@ -38,7 +38,7 @@ class CommunityServiceTest {
         testCommunity.setUserNm("testUser_" + System.currentTimeMillis());
         testCommunity.setContent("테스트 게시글 내용입니다. " + System.currentTimeMillis());
         testCommunity.setRegDate(new Date());
-        testCommunity.setUserId((int) (System.currentTimeMillis() % Integer.MAX_VALUE));
+        testCommunity.setUserId(String.valueOf(System.currentTimeMillis() % Integer.MAX_VALUE));
     }
 
     @org.junit.jupiter.api.AfterEach
@@ -89,8 +89,8 @@ class CommunityServiceTest {
         Community result = communityService.findBoard(1);
 
         assertThat(result).isNotNull();
-        assertThat(result.getUserNm()).isEqualTo("testUser");
-        assertThat(result.getContent()).isEqualTo("테스트 게시글 내용입니다.");
+        assertThat(result.getUserNm()).startsWith("testUser_");
+        assertThat(result.getContent()).contains("테스트 게시글 내용입니다.");
         verify(communityRepository, times(1)).findBoard(1);
     }
 

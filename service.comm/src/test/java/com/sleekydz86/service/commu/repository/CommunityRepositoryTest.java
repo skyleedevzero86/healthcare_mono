@@ -43,7 +43,7 @@ class CommunityRepositoryTest {
         testCommunity.setUserNm("testUser");
         testCommunity.setContent("테스트 게시글 내용입니다.");
         testCommunity.setRegDate(new Date());
-        testCommunity.setUserId(1);
+        testCommunity.setUserId("1");
     }
 
     @Test
@@ -134,7 +134,7 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(communityList);
 
-        List<Community> result = communityRepository.findBoardList();
+        List<Community> result = communityRepository.findBoardList(new java.util.HashMap<>());
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
@@ -153,7 +153,7 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(Arrays.asList());
 
-        List<Community> result = communityRepository.findBoardList();
+        List<Community> result = communityRepository.findBoardList(new java.util.HashMap<>());
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
@@ -169,7 +169,7 @@ class CommunityRepositoryTest {
         when(typedQuery.getResultList()).thenThrow(new RuntimeException("쿼리 실행 오류"));
 
         try {
-            communityRepository.findBoardList();
+            communityRepository.findBoardList(new java.util.HashMap<>());
             fail("예외가 발생해야 합니다");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("쿼리 실행 오류");
@@ -213,9 +213,9 @@ class CommunityRepositoryTest {
         when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(Arrays.asList(testCommunity));
 
-        communityRepository.findBoardList();
+        communityRepository.findBoardList(new java.util.HashMap<>());
 
-        verify(entityManager, times(1)).createQuery("select h from health_community h", Community.class);
+        verify(entityManager, times(1)).createQuery(anyString(), eq(Community.class));
         verify(typedQuery, times(1)).getResultList();
         verify(typedQuery, never()).setParameter(anyString(), any());
         verify(typedQuery, never()).setMaxResults(anyInt());

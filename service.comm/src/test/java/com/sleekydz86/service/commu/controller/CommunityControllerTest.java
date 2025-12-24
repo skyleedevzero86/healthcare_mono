@@ -94,8 +94,8 @@ class CommunityControllerTest {
                 .content(objectMapper.writeValueAsString(testCommunity)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKOWN_ERR.code))
-                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKOWN_ERR.message))
+                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKNOWN_ERR.code))
+                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKNOWN_ERR.message))
                 .andExpect(jsonPath("$.resultData").isEmpty());
 
         verify(communityService, times(1)).writeBoard(any(Community.class));
@@ -146,7 +146,7 @@ class CommunityControllerTest {
         community2.setContent("두 번째 게시글");
 
         List<Community> communityList = Arrays.asList(community1, community2);
-        when(communityService.findBoardList()).thenReturn(communityList);
+        when(communityService.findBoardList(any())).thenReturn(communityList);
 
         mockMvc.perform(post("/community/v1/findBoardList"))
                 .andDo(print())
@@ -160,13 +160,13 @@ class CommunityControllerTest {
                 .andExpect(jsonPath("$.resultData[1].userNm").value("user2"))
                 .andExpect(jsonPath("$.resultData[1].content").value("두 번째 게시글"));
 
-        verify(communityService, times(1)).findBoardList();
+        verify(communityService, times(1)).findBoardList(any());
     }
 
     @Test
     @DisplayName("게시글 목록 조회 - 빈 목록 테스트")
     void findBoardList_Empty() throws Exception {
-        when(communityService.findBoardList()).thenReturn(Arrays.asList());
+        when(communityService.findBoardList(any())).thenReturn(Arrays.asList());
 
         mockMvc.perform(post("/community/v1/findBoardList"))
                 .andDo(print())
@@ -176,7 +176,7 @@ class CommunityControllerTest {
                 .andExpect(jsonPath("$.resultData").isArray())
                 .andExpect(jsonPath("$.resultData.length()").value(0));
 
-        verify(communityService, times(1)).findBoardList();
+        verify(communityService, times(1)).findBoardList(any());
     }
 
     @Test
@@ -212,8 +212,8 @@ class CommunityControllerTest {
                 .param("content", "수정된 내용"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKOWN_ERR.code))
-                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKOWN_ERR.message))
+                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKNOWN_ERR.code))
+                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKNOWN_ERR.message))
                 .andExpect(jsonPath("$.resultData").isEmpty());
 
         verify(communityService, times(1)).findBoard(999);
@@ -231,8 +231,8 @@ class CommunityControllerTest {
                 .param("content", "수정된 내용"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKOWN_ERR.code))
-                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKOWN_ERR.message))
+                .andExpect(jsonPath("$.resultCode").value(ApiResultCode.UNKNOWN_ERR.code))
+                .andExpect(jsonPath("$.resultMessage").value(ApiResultCode.UNKNOWN_ERR.message))
                 .andExpect(jsonPath("$.resultData").isEmpty());
 
         verify(communityService, times(1)).findBoard(1);

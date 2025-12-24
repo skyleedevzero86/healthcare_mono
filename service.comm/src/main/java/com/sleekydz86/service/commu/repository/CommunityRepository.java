@@ -3,8 +3,7 @@
 import com.sleekydz86.service.commu.entity.Community;
 import com.sleekydz86.service.commu.exception.BusinessException;
 import com.sleekydz86.service.commu.dto.ApiResultCode;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.sleekydz86.service.commu.mapper.CommunityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -18,15 +17,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CommunityRepository {
 
-    @PersistenceContext
-    private final EntityManager em;
+    private final CommunityMapper communityMapper;
 
     @Transactional
     public int writeBoard(Community community) {
         try {
             log.debug("게시글 작성 시작: userId={}", community.getUserId());
-            em.persist(community);
-            em.flush();
+            if (community.getRegDate() == null) {
+                community.beforePersist();
+            }
+            communityMapper.writeBoard(community);
             log.info("게시글 작성 완료: commuSeq={}, userId={}", 
                     community.getCommuSeq(), community.getUserId());
             return community.getCommuSeq();

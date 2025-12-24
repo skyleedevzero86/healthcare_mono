@@ -173,7 +173,7 @@ public class HealthcareController {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "UP");
         result.put("service", "healthcare");
-        return ApiResponse.ok(result);
+            return (ResponseEntity) ApiResponse.ok(result);
     }
 
     @PostMapping("minmaxHealthInfo")
@@ -191,10 +191,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -212,10 +212,10 @@ public class HealthcareController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
         } catch (Exception e) {
             log.error("건강 정보 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -240,7 +240,7 @@ public class HealthcareController {
             Map<String, Object> result = response.getData();
             String[] strArr = (String[]) result.get("lv");
             if (strArr == null || strArr.length == 0) {
-                return ApiResponse.<Void>error(ApiResultCode.RESULT_IS_EMPTY);
+                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.RESULT_IS_EMPTY);
             }
 
             java.util.ArrayList<String[]> lv = new java.util.ArrayList<>();
@@ -264,7 +264,7 @@ public class HealthcareController {
                 lv.add(res);
             }
             result.put("lv", lv);
-            return ApiResponse.<Map<String, Object>>ok(result);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
@@ -368,7 +368,7 @@ public class HealthcareController {
             responseData.putAll(targetData);
 
             if (responseData.isEmpty() || sleepData.isEmpty()) {
-                return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
             }
 
             return ApiResponse.<Map<String, Object>>ok(responseData);
@@ -421,7 +421,7 @@ public class HealthcareController {
             responseData.putAll(targetData);
 
             if (responseData.isEmpty()) {
-                return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
             }
 
             return ApiResponse.<Map<String, Object>>ok(responseData);
@@ -481,10 +481,10 @@ public class HealthcareController {
             result.put("count", response.getData());
 
             if (response.getData() == null || response.getData() == 0) {
-                return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.<Map<String, Object>>ok(result);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
@@ -514,10 +514,10 @@ public class HealthcareController {
             result.put("count", response.getData());
 
             if (response.getData() == null || response.getData() == 0) {
-                return ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
+                return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UPDATE_FAIL);
             }
 
-            return ApiResponse.<Map<String, Object>>ok(result);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
@@ -606,7 +606,7 @@ public class HealthcareController {
 
             Map<String, Object> result = new HashMap<>();
             result.put("aiResponse", aiResponse);
-            return ApiResponse.<Map<String, Object>>ok(result);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>ok(result);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
             return ApiResponse.<Void>error(ApiResultCode.INVALID_REQUEST);
@@ -680,7 +680,7 @@ public class HealthcareController {
         return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdRecord);
     }
 
-    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+    private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
             return ApiResponse.ok(serviceResponse.getData());
         } else {

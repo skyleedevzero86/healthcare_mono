@@ -14,7 +14,6 @@ public class HealthDataValidator implements ConstraintValidator<ValidHealthData,
     
     @Override
     public void initialize(ValidHealthData constraintAnnotation) {
-        // 초기화 로직이 필요하면 여기에 추가
     }
     
     @Override

@@ -42,7 +42,7 @@ public class ManagementController {
             if (dto.getUserId() != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(dto.getUserId());
                 if (sanitizedUserId == null || !sanitizedUserId.equals(dto.getUserId())) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setUserId(sanitizedUserId);
             }
@@ -261,21 +261,21 @@ public class ManagementController {
     }
 
     @RequestMapping("/v1/list")
-    public ResponseEntity<ApiResponse<Object>> userList(UserDto dto, @RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> userList(UserDto dto, @RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
-                return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             String userRoleFk = (String) map.get("userRoleFk");
             if (userRoleFk == null) {
-                return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             Object pageIdxObj = map.get("pageIdx");
             Object pageOffsetObj = map.get("pageOffset");
             if (pageIdxObj == null || pageOffsetObj == null) {
-                return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             dto.setUserRoleFk(userRoleFk);
@@ -286,7 +286,7 @@ public class ManagementController {
             if (searchKeyword != null) {
                 if (inputSanitizer.containsSqlInjection(searchKeyword) || 
                     inputSanitizer.containsXss(searchKeyword)) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
             }
@@ -302,19 +302,19 @@ public class ManagementController {
             ServiceResponse<Object> response = userManagementService.getUserList(dto);
             return convertToApiResponse(response);
         } else {
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 목록 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
     @PostMapping("/v1/healthUserList")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> searchHealthUserList(@RequestBody Map<String, Object> map) {
+    public ResponseEntity<ApiResponse<?>> searchHealthUserList(@RequestBody Map<String, Object> map) {
         try {
             if (map != null && map.get("userId") != null) {
                 String sanitizedUserId = inputSanitizer.sanitizeUserId(map.get("userId").toString());
@@ -324,7 +324,7 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("건강 사용자 목록 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -347,7 +347,7 @@ public class ManagementController {
     public ResponseEntity<ApiResponse<Object>> roleuserList(@RequestBody Map<String, Object> map) {
         try {
             if (map == null) {
-                return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+                return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
             }
             
             UserDto dto = new UserDto();
@@ -368,7 +368,7 @@ public class ManagementController {
             if (searchKeyword != null) {
                 if (inputSanitizer.containsSqlInjection(searchKeyword) || 
                     inputSanitizer.containsXss(searchKeyword)) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 dto.setSearchKeyword(inputSanitizer.sanitize(searchKeyword));
             }
@@ -377,10 +377,10 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return (ResponseEntity) ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("역할별 사용자 목록 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -395,7 +395,7 @@ public class ManagementController {
                 String searchKeyword = map.get("searchKeyword").toString();
                 if (inputSanitizer.containsSqlInjection(searchKeyword) || 
                     inputSanitizer.containsXss(searchKeyword)) {
-                    return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
+                    return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
                 }
                 map.put("searchKeyword", inputSanitizer.sanitize(searchKeyword));
             }
@@ -403,11 +403,11 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("사용자 검색 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
-    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+    private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
             return ApiResponse.ok(serviceResponse.getData());
         } else {

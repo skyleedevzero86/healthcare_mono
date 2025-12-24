@@ -11,6 +11,9 @@ public enum ApiResultCode {
 
     DUPLICATE_KEY_ERR		("2001", "중복 키 오류"),
     DUPLICATE_CODE			("2002", "중복 오류"),
+    DUPLICATE_DATA			("2003", "중복 데이터"),
+
+    AUTH_ERR				("4001", "인증 오류"),
 
     RESULT_IS_EMPTY			("3001", "결과가 비어있습니다"),
     UPDATE_FAIL				("3002","업데이트 실패 (업데이트된 행 수 : 0)"),

@@ -19,12 +19,9 @@ public class DistributedCacheManager {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheManager.Builder builder = RedisCacheManager
-            .RedisCacheManagerBuilder
-            .fromConnectionFactory(connectionFactory)
-            .cacheDefaults(cacheConfiguration(Duration.ofMinutes(60)));
-
-        return builder.build();
+        return RedisCacheManager.builder(connectionFactory)
+            .cacheDefaults(cacheConfiguration(Duration.ofMinutes(60)))
+            .build();
     }
 
     private RedisCacheConfiguration cacheConfiguration(Duration ttl) {

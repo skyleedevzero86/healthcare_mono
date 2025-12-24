@@ -95,8 +95,8 @@ public class ServiceConfiguration {
     }
 
     @Bean
-    public AIService aiService() {
-        return new AIServiceImpl();
+    public AIService aiService(ChatService chatService) {
+        return new AIServiceImpl(chatService);
     }
 
     @Bean
