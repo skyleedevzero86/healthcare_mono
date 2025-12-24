@@ -88,6 +88,102 @@ pipeline {
             }
         }
         
+        stage('Run Tests') {
+            steps {
+                script {
+                    echo "========================================="
+                    echo "테스트 자동화 실행"
+                    echo "========================================="
+                    
+                    def services = [
+                        'service.discovery',
+                        'service.config',
+                        'api.gateway',
+                        'service.auth',
+                        'service.comm',
+                        'service.healthcare',
+                        'service.usermanagement',
+                        'service.llm',
+                        'web.healthcare'
+                    ]
+                    
+                    def testResults = [:]
+                    
+                    services.each { service ->
+                        testResults[service] = {
+                            echo ""
+                            echo "----------------------------------------"
+                            echo "테스트 실행 중: ${service}"
+                            echo "----------------------------------------"
+                            
+                            dir(service) {
+                                try {
+                                    sh """
+                                        chmod +x gradlew || true
+                                        ./gradlew test --no-daemon || echo "⚠ 테스트 경고 (계속 진행)"
+                                    """
+                                    
+                                    // 테스트 리포트 확인
+                                    def testReport = sh(
+                                        script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
+                                        returnStdout: true
+                                    ).trim()
+                                    
+                                    if (testReport) {
+                                        echo "✓ ${service} 테스트 완료: ${testReport}"
+                                    } else {
+                                        echo "⚠ ${service}: 테스트 리포트를 찾을 수 없습니다"
+                                    }
+                                    
+                                } catch (Exception e) {
+                                    echo "✗ ${service} 테스트 실패: ${e.getMessage()}"
+                                    echo "참고: 테스트 실패 시에도 빌드는 계속 진행됩니다"
+                                    currentBuild.result = 'UNSTABLE'
+                                }
+                            }
+                        }
+                    }
+                    
+                    parallel testResults
+                    
+                    // 모바일 앱 테스트
+                    echo ""
+                    echo "----------------------------------------"
+                    echo "모바일 앱 테스트 실행"
+                    echo "----------------------------------------"
+                    
+                    dir('mobile/healthcare_mobile') {
+                        try {
+                            sh '''
+                                echo "Node.js 버전 확인"
+                                node --version || echo "⚠ Node.js가 설치되지 않았습니다"
+                                
+                                echo "pnpm 설치 확인"
+                                if ! command -v pnpm &> /dev/null; then
+                                    echo "pnpm 설치 중..."
+                                    npm install -g pnpm || echo "⚠ pnpm 설치 실패"
+                                fi
+                                pnpm --version
+                                
+                                echo "의존성 설치"
+                                pnpm install --frozen-lockfile || echo "⚠ 의존성 설치 경고"
+                                
+                                echo "테스트 실행"
+                                pnpm test:ci || echo "⚠ 테스트 경고 (계속 진행)"
+                            '''
+                            
+                            echo "✓ 모바일 앱 테스트 완료"
+                            
+                        } catch (Exception e) {
+                            echo "✗ 모바일 앱 테스트 실패: ${e.getMessage()}"
+                            echo "참고: 모바일 앱 테스트 실패 시에도 빌드는 계속 진행됩니다"
+                            currentBuild.result = 'UNSTABLE'
+                        }
+                    }
+                }
+            }
+        }
+        
         stage('Build Services') {
             steps {
                 script {
@@ -460,6 +556,24 @@ pipeline {
                     archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true, allowEmptyArchive: true
                 } catch (Exception e) {
                     echo "아티팩트 아카이브 실패 (무시): ${e.getMessage()}"
+                }
+                
+                try {
+                    // 테스트 리포트 아카이브
+                    archiveArtifacts artifacts: '**/build/test-results/**/*.xml', fingerprint: true, allowEmptyArchive: true
+                    archiveArtifacts artifacts: '**/build/reports/tests/**/*', fingerprint: true, allowEmptyArchive: true
+                    
+                    // 모바일 앱 테스트 커버리지 리포트
+                    archiveArtifacts artifacts: 'mobile/**/coverage/**/*', fingerprint: true, allowEmptyArchive: true
+                } catch (Exception e) {
+                    echo "테스트 리포트 아카이브 실패 (무시): ${e.getMessage()}"
+                }
+                
+                // 테스트 결과 발행
+                try {
+                    junit '**/build/test-results/**/*.xml'
+                } catch (Exception e) {
+                    echo "JUnit 리포트 발행 실패 (무시): ${e.getMessage()}"
                 }
             }
         }

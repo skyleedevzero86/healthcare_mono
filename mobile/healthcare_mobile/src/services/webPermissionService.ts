@@ -4,7 +4,7 @@ class WebPermissionService {
   async requestLocationPermission(): Promise<boolean> {
     try {
       if (!navigator.geolocation) {
-        throw new Error('Geolocation is not supported by this browser.');
+        throw new Error('이 브라우저는 지오로케이션을 지원하지 않습니다.');
       }
 
       return new Promise((resolve) => {
@@ -15,7 +15,7 @@ class WebPermissionService {
         );
       });
     } catch (error) {
-      console.error('Location permission error:', error);
+      console.error('위치 권한 오류:', error);
       return false;
     }
   }
@@ -23,14 +23,14 @@ class WebPermissionService {
   async requestCameraPermission(): Promise<boolean> {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera is not supported by this browser.');
+        throw new Error('이 브라우저는 카메라를 지원하지 않습니다.');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (error) {
-      console.error('Camera permission error:', error);
+      console.error('카메라 권한 오류:', error);
       return false;
     }
   }
@@ -38,14 +38,14 @@ class WebPermissionService {
   async requestMicrophonePermission(): Promise<boolean> {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Microphone is not supported by this browser.');
+        throw new Error('이 브라우저는 마이크를 지원하지 않습니다.');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (error) {
-      console.error('Microphone permission error:', error);
+      console.error('마이크 권한 오류:', error);
       return false;
     }
   }
@@ -53,7 +53,7 @@ class WebPermissionService {
   async requestNotificationPermission(): Promise<boolean> {
     try {
       if (!('Notification' in window)) {
-        throw new Error('Notifications are not supported by this browser.');
+        throw new Error('이 브라우저는 알림을 지원하지 않습니다.');
       }
 
       if (Notification.permission === 'granted') {
@@ -67,7 +67,7 @@ class WebPermissionService {
       const permission = await Notification.requestPermission();
       return permission === 'granted';
     } catch (error) {
-      console.error('Notification permission error:', error);
+      console.error('알림 권한 오류:', error);
       return false;
     }
   }
@@ -89,7 +89,7 @@ class WebPermissionService {
         notifications: notificationGranted ? 'granted' : 'denied',
       };
     } catch (error) {
-      console.error('Permission check error:', error);
+      console.error('권한 확인 오류:', error);
       return {
         location: 'undetermined',
         camera: 'undetermined',
@@ -168,13 +168,13 @@ class WebPermissionService {
             });
           },
           (error) => {
-            reject(new Error(`Location error: ${error.message}`));
+            reject(new Error(`위치 오류: ${error.message}`));
           },
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       });
     } catch (error) {
-      console.error('Get location error:', error);
+      console.error('위치 가져오기 오류:', error);
       return null;
     }
   }
@@ -183,7 +183,7 @@ class WebPermissionService {
     try {
       const hasPermission = await this.requestLocationPermission();
       if (!hasPermission) {
-        throw new Error('Location permission denied');
+        throw new Error('위치 권한이 거부되었습니다');
       }
 
       const watchId = navigator.geolocation.watchPosition(
@@ -196,14 +196,14 @@ class WebPermissionService {
           });
         },
         (error) => {
-          console.error('Location tracking error:', error);
+          console.error('위치 추적 오류:', error);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
 
       return () => navigator.geolocation.clearWatch(watchId);
     } catch (error) {
-      console.error('Start location tracking error:', error);
+      console.error('위치 추적 시작 오류:', error);
       return () => {};
     }
   }
@@ -212,7 +212,7 @@ class WebPermissionService {
     try {
       const hasPermission = await this.requestCameraPermission();
       if (!hasPermission) {
-        throw new Error('Camera permission denied');
+        throw new Error('카메라 권한이 거부되었습니다');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -233,7 +233,7 @@ class WebPermissionService {
         });
       });
     } catch (error) {
-      console.error('Take picture error:', error);
+      console.error('사진 촬영 오류:', error);
       return null;
     }
   }
@@ -259,7 +259,7 @@ class WebPermissionService {
         input.click();
       });
     } catch (error) {
-      console.error('Select image error:', error);
+      console.error('이미지 선택 오류:', error);
       return null;
     }
   }
@@ -267,7 +267,7 @@ class WebPermissionService {
   async startSensorTracking(callback: (sensorData: SensorData) => void): Promise<() => void> {
     try {
       if (!('DeviceMotionEvent' in window) && !('DeviceOrientationEvent' in window)) {
-        throw new Error('Device sensors are not supported by this browser.');
+        throw new Error('이 브라우저는 디바이스 센서를 지원하지 않습니다.');
       }
 
       let accelerometerData = { x: 0, y: 0, z: 0 };
@@ -317,7 +317,7 @@ class WebPermissionService {
         clearInterval(interval);
       };
     } catch (error) {
-      console.error('Start sensor tracking error:', error);
+      console.error('센서 추적 시작 오류:', error);
       return () => {};
     }
   }
@@ -326,7 +326,7 @@ class WebPermissionService {
     try {
       const hasPermission = await this.requestNotificationPermission();
       if (!hasPermission) {
-        throw new Error('Notification permission denied');
+        throw new Error('알림 권한이 거부되었습니다');
       }
 
       if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -340,7 +340,7 @@ class WebPermissionService {
         new Notification(title, { body });
       }
     } catch (error) {
-      console.error('Send notification error:', error);
+      console.error('알림 전송 오류:', error);
     }
   }
 
@@ -372,7 +372,7 @@ class WebPermissionService {
         notifications: notificationGranted ? 'granted' : 'denied',
       };
     } catch (error) {
-      console.error('Request all permissions error:', error);
+      console.error('모든 권한 요청 오류:', error);
       return {
         location: 'denied',
         camera: 'denied',

@@ -16,11 +16,10 @@ const AppNavigator: React.FC = () => {
   const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    // 안전한 초기화를 위해 try-catch 추가
     try {
       dispatch(checkAuth());
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('인증 확인 실패:', error);
     }
   }, [dispatch]);
 

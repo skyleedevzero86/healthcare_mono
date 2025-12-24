@@ -165,7 +165,7 @@ export const requestWebPermission = async (type: 'geolocation' | 'camera' | 'mic
         return false;
     }
   } catch (error) {
-    console.error(`Web permission request failed for ${type}:`, error);
+    console.error(`웹 권한 요청 실패 (${type}):`, error);
     return false;
   }
 };
@@ -185,7 +185,7 @@ export const getWebLocation = (): Promise<{ latitude: number; longitude: number;
         });
       },
       (error) => {
-        console.error('Geolocation error:', error);
+        console.error('지오로케이션 오류:', error);
         resolve(null);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -216,7 +216,7 @@ export const getWebCamera = (): Promise<string | null> => {
         resolve(canvas.toDataURL('image/jpeg', 0.8));
       });
     } catch (error) {
-      console.error('Camera error:', error);
+      console.error('카메라 오류:', error);
       resolve(null);
     }
   });
@@ -267,7 +267,7 @@ export const sendWebNotification = (title: string, body: string): Promise<void> 
         resolve();
       }
     } catch (error) {
-      console.error('Notification error:', error);
+      console.error('알림 오류:', error);
       resolve();
     }
   });

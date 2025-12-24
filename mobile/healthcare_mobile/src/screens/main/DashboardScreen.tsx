@@ -44,7 +44,7 @@ const DashboardScreen: React.FC = () => {
     try {
       await dispatch(getCurrentLocation()).unwrap();
     } catch (error) {
-      console.error('Location request failed:', error);
+      console.error('위치 요청 실패:', error);
     }
   };
 
@@ -55,7 +55,7 @@ const DashboardScreen: React.FC = () => {
         body: '건강 상태를 확인해보세요!',
       })).unwrap();
     } catch (error) {
-      console.error('Notification request failed:', error);
+      console.error('알림 요청 실패:', error);
     }
   };
 

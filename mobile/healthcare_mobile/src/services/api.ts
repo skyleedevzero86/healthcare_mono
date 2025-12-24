@@ -11,9 +11,8 @@ class ApiService {
       baseURL: API_CONFIG.baseURL,
       timeout: API_CONFIG.timeout,
       headers: API_CONFIG.headers,
-      // iOS 네트워크 안정성을 위한 추가 설정
       maxRedirects: 5,
-      validateStatus: (status) => status < 500, // 5xx 에러도 처리
+      validateStatus: (status) => status < 500,
     });
 
     this.setupInterceptors();
@@ -26,22 +25,22 @@ class ApiService {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        console.log(`API 요청: ${config.method?.toUpperCase()} ${config.url}`);
         return config;
       },
       (error) => {
-        console.error('Request interceptor error:', error);
+        console.error('요청 인터셉터 오류:', error);
         return Promise.reject(error);
       }
     );
 
     this.api.interceptors.response.use(
       (response: AxiosResponse<ApiResponse>) => {
-        console.log(`API Response: ${response.status} ${response.config.url}`);
+        console.log(`API 응답: ${response.status} ${response.config.url}`);
         return response;
       },
       async (error) => {
-        console.error('API Error:', {
+        console.error('API 오류:', {
           message: error.message,
           status: error.response?.status,
           url: error.config?.url,
@@ -68,13 +67,12 @@ class ApiService {
               return this.api(originalRequest);
             }
           } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
+            console.error('토큰 갱신 실패:', refreshError);
             await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
             return Promise.reject(refreshError);
           }
         }
 
-        // Handle network errors
         if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
           error.message = '네트워크 타임아웃이 발생했습니다. 연결을 확인하고 다시 시도해주세요.';
         } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
