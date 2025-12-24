@@ -14,7 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { fetchHealthData, insertHealthData, fetchHealthChart } from '../../store/slices/healthSlice';
 import { takePicture, selectImageFromLibrary } from '../../store/slices/permissionSlice';
-import { HealthData } from '../../types';
+import { HealthData } from '../../types/health';
+import { healthAnalysisService } from '../../services/healthAnalysisService';
 
 const HealthInfoScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -104,23 +105,6 @@ const HealthInfoScreen: React.FC = () => {
     }
   };
 
-  const getHealthStatus = (value: number, type: string) => {
-    switch (type) {
-      case 'heartrate':
-        if (value < 60) return { status: '낮음', color: '#4CAF50' };
-        if (value > 100) return { status: '높음', color: '#F44336' };
-        return { status: '정상', color: '#2196F3' };
-      case 'temperature':
-        if (value < 36.1) return { status: '낮음', color: '#4CAF50' };
-        if (value > 37.2) return { status: '높음', color: '#F44336' };
-        return { status: '정상', color: '#2196F3' };
-      case 'spo2':
-        if (value < 95) return { status: '낮음', color: '#F44336' };
-        return { status: '정상', color: '#2196F3' };
-      default:
-        return { status: '정상', color: '#2196F3' };
-    }
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -252,30 +236,51 @@ const HealthInfoScreen: React.FC = () => {
                 <View style={styles.dataGrid}>
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>심박수</Text>
-                    <Text style={[styles.dataValue, { color: getHealthStatus(data.heartrate, 'heartrate').color }]}>
-                      {data.heartrate} bpm
-                    </Text>
-                    <Text style={[styles.dataStatus, { color: getHealthStatus(data.heartrate, 'heartrate').color }]}>
-                      {getHealthStatus(data.heartrate, 'heartrate').status}
-                    </Text>
+                    {(() => {
+                      const status = healthAnalysisService.getHealthStatus(data.heartrate, 'heartrate');
+                      return (
+                        <>
+                          <Text style={[styles.dataValue, { color: status.color }]}>
+                            {data.heartrate} bpm
+                          </Text>
+                          <Text style={[styles.dataStatus, { color: status.color }]}>
+                            {status.status}
+                          </Text>
+                        </>
+                      );
+                    })()}
                   </View>
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>체온</Text>
-                    <Text style={[styles.dataValue, { color: getHealthStatus(data.temperature, 'temperature').color }]}>
-                      {data.temperature}°C
-                    </Text>
-                    <Text style={[styles.dataStatus, { color: getHealthStatus(data.temperature, 'temperature').color }]}>
-                      {getHealthStatus(data.temperature, 'temperature').status}
-                    </Text>
+                    {(() => {
+                      const status = healthAnalysisService.getHealthStatus(data.temperature, 'temperature');
+                      return (
+                        <>
+                          <Text style={[styles.dataValue, { color: status.color }]}>
+                            {data.temperature}°C
+                          </Text>
+                          <Text style={[styles.dataStatus, { color: status.color }]}>
+                            {status.status}
+                          </Text>
+                        </>
+                      );
+                    })()}
                   </View>
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>산소포화도</Text>
-                    <Text style={[styles.dataValue, { color: getHealthStatus(data.spo2, 'spo2').color }]}>
-                      {data.spo2}%
-                    </Text>
-                    <Text style={[styles.dataStatus, { color: getHealthStatus(data.spo2, 'spo2').color }]}>
-                      {getHealthStatus(data.spo2, 'spo2').status}
-                    </Text>
+                    {(() => {
+                      const status = healthAnalysisService.getHealthStatus(data.spo2, 'spo2');
+                      return (
+                        <>
+                          <Text style={[styles.dataValue, { color: status.color }]}>
+                            {data.spo2}%
+                          </Text>
+                          <Text style={[styles.dataStatus, { color: status.color }]}>
+                            {status.status}
+                          </Text>
+                        </>
+                      );
+                    })()}
                   </View>
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>걸음수</Text>

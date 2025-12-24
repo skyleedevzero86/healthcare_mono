@@ -8,6 +8,8 @@ import HealthInfoScreen from '../screens/main/HealthInfoScreen';
 import CommunityScreen from '../screens/main/CommunityScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import PermissionScreen from '../screens/main/PermissionScreen';
+import NotificationScreen from '../screens/main/NotificationScreen';
+import SettingsScreen from '../screens/main/SettingsScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -29,6 +31,10 @@ const MainTabNavigator: React.FC = () => {
             iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'Permission') {
             iconName = focused ? 'shield-checkmark' : 'shield-checkmark-outline';
+          } else if (route.name === 'Notification') {
+            iconName = focused ? 'notifications' : 'notifications-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
           } else {
             iconName = 'help-outline';
           }
@@ -64,6 +70,16 @@ const MainTabNavigator: React.FC = () => {
         name="Permission" 
         component={PermissionScreen}
         options={{ tabBarLabel: '권한' }}
+      />
+      <Tab.Screen 
+        name="Notification" 
+        component={NotificationScreen}
+        options={{ tabBarLabel: '알림' }}
+      />
+      <Tab.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+        options={{ tabBarLabel: '설정' }}
       />
     </Tab.Navigator>
   );

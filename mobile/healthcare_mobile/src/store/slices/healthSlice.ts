@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { HealthData, HealthScore } from '../../types';
+import { HealthData, HealthScore } from '../../types/health';
 
 interface HealthState {
   healthData: HealthData[];
