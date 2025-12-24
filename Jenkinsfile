@@ -25,7 +25,6 @@ pipeline {
     tools {
         jdk 'jdk21'
         gradle 'Gradle'
-        nodejs 'NodeJS-18'
     }
     
     stages {
@@ -121,7 +120,7 @@ pipeline {
                                 try {
                                     sh """
                                         chmod +x gradlew || true
-                                        ./gradlew test --no-daemon || echo "⚠ 테스트 경고 (계속 진행)"
+                                        ./gradlew test --no-daemon || echo "테스트 경고 (계속 진행)"
                                     """
                                     
                                     def testReport = sh(
@@ -130,13 +129,13 @@ pipeline {
                                     ).trim()
                                     
                                     if (testReport) {
-                                        echo "✓ ${service} 테스트 완료: ${testReport}"
+                                        echo "${service} 테스트 완료: ${testReport}"
                                     } else {
-                                        echo "⚠ ${service}: 테스트 리포트를 찾을 수 없습니다"
+                                        echo "${service}: 테스트 리포트를 찾을 수 없습니다"
                                     }
                                     
                                 } catch (Exception e) {
-                                    echo "✗ ${service} 테스트 실패: ${e.getMessage()}"
+                                    echo "${service} 테스트 실패: ${e.getMessage()}"
                                     currentBuild.result = 'UNSTABLE'
                                 }
                             }
@@ -153,10 +152,18 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
+                                if ! command -v node &> /dev/null; then
+                                    echo "Node.js 설치 중..."
+                                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                                    apt-get install -y nodejs || yum install -y nodejs npm || true
+                                fi
+                                
                                 node --version
                                 npm --version
                                 
-                                npm install -g pnpm
+                                if ! command -v pnpm &> /dev/null; then
+                                    npm install -g pnpm
+                                fi
                                 pnpm --version
                                 
                                 pnpm install --frozen-lockfile
@@ -164,10 +171,10 @@ pipeline {
                                 pnpm test:ci
                             '''
                             
-                            echo "✓ 모바일 앱 테스트 완료"
+                            echo "모바일 앱 테스트 완료"
                             
                         } catch (Exception e) {
-                            echo "✗ 모바일 앱 테스트 실패: ${e.getMessage()}"
+                            echo "모바일 앱 테스트 실패: ${e.getMessage()}"
                             currentBuild.result = 'UNSTABLE'
                         }
                     }
@@ -216,13 +223,13 @@ pipeline {
                                     ).trim()
                                     
                                     if (jarFiles) {
-                                        echo "✓ ${service} 빌드 성공: ${jarFiles}"
+                                        echo "${service} 빌드 성공: ${jarFiles}"
                                     } else {
                                         error "${service}: JAR 파일을 찾을 수 없습니다"
                                     }
                                     
                                 } catch (Exception e) {
-                                    echo "✗ ${service} 빌드 실패: ${e.getMessage()}"
+                                    echo "${service} 빌드 실패: ${e.getMessage()}"
                                     currentBuild.result = 'UNSTABLE'
                                 }
                             }
@@ -271,9 +278,9 @@ pipeline {
                                     sh """
                                         docker build -t ${imageName} -t ${imageTag} .
                                     """
-                                    echo "✓ ${service} Docker 이미지 빌드 성공: ${imageName}"
+                                    echo "${service} Docker 이미지 빌드 성공: ${imageName}"
                                 } else {
-                                    echo "⚠ ${service}: Dockerfile이 없거나 JAR 파일을 찾을 수 없습니다"
+                                    echo "${service}: Dockerfile이 없거나 JAR 파일을 찾을 수 없습니다"
                                 }
                             }
                         }
@@ -294,10 +301,18 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
+                                if ! command -v node &> /dev/null; then
+                                    echo "Node.js 설치 중..."
+                                    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                                    apt-get install -y nodejs || yum install -y nodejs npm || true
+                                fi
+                                
                                 node --version
                                 npm --version
                                 
-                                npm install -g pnpm
+                                if ! command -v pnpm &> /dev/null; then
+                                    npm install -g pnpm
+                                fi
                                 pnpm --version
                                 
                                 pnpm install --frozen-lockfile
@@ -305,10 +320,10 @@ pipeline {
                                 pnpm tsc --noEmit
                             '''
                             
-                            echo "✓ 모바일 앱 빌드 준비 완료"
+                            echo "모바일 앱 빌드 준비 완료"
                             
                         } catch (Exception e) {
-                            echo "✗ 모바일 앱 빌드 실패: ${e.getMessage()}"
+                            echo "모바일 앱 빌드 실패: ${e.getMessage()}"
                             currentBuild.result = 'UNSTABLE'
                         }
                     }
@@ -346,10 +361,10 @@ pipeline {
                             ).trim()
                             
                             if (jarFile) {
-                                echo "✓ ${service}: ${jarFile}"
+                                echo "${service}: ${jarFile}"
                                 successCount++
                             } else {
-                                echo "✗ ${service}: 빌드 실패"
+                                echo "${service}: 빌드 실패"
                                 failCount++
                             }
                         }
@@ -398,10 +413,10 @@ pipeline {
                                 docker push ${imageName} || echo 'Push 실패 (무시)'
                                 docker push ${imageLatest} || echo 'Push 실패 (무시)'
                             """
-                            echo "✓ ${service} 이미지 푸시: ${imageName}"
+                            echo "${service} 이미지 푸시: ${imageName}"
                         }
                     } else {
-                        echo "⚠ DOCKER_REGISTRY가 설정되지 않아 이미지 푸시를 건너뜁니다"
+                        echo "DOCKER_REGISTRY가 설정되지 않아 이미지 푸시를 건너뜁니다"
                     }
                 }
             }
@@ -468,7 +483,7 @@ pipeline {
                             """
                         }
                     } else {
-                        echo "⚠ DEPLOY_TARGET_SERVER가 localhost로 설정되어 배포를 건너뜁니다"
+                        echo "DEPLOY_TARGET_SERVER가 localhost로 설정되어 배포를 건너뜁니다"
                         echo "실제 서버 배포를 원하시면 Jenkins 환경 변수에 DEPLOY_TARGET_SERVER를 설정하세요"
                     }
                 }
@@ -513,12 +528,12 @@ pipeline {
                             ).trim()
                             
                             if (response != 'FAILED' && response.contains('"status":"UP"')) {
-                                echo "✓ ${service} (포트 ${port}): 정상"
+                                echo "${service} (포트 ${port}): 정상"
                             } else {
-                                echo "✗ ${service} (포트 ${port}): 헬스 체크 실패"
+                                echo "${service} (포트 ${port}): 헬스 체크 실패"
                             }
                         } catch (Exception e) {
-                            echo "✗ ${service} (포트 ${port}): 헬스 체크 오류"
+                            echo "${service} (포트 ${port}): 헬스 체크 오류"
                         }
                     }
                 }
@@ -557,19 +572,19 @@ pipeline {
         
         success {
             echo "========================================="
-            echo "✓ 빌드 성공"
+            echo "빌드 성공"
             echo "========================================="
         }
         
         failure {
             echo "========================================="
-            echo "✗ 빌드 실패"
+            echo "빌드 실패"
             echo "========================================="
         }
         
         unstable {
             echo "========================================="
-            echo "⚠ 빌드 불안정"
+            echo "빌드 불안정"
             echo "========================================="
         }
     }
