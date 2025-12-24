@@ -9,6 +9,7 @@ import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -18,6 +19,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 @Configuration
+@ConditionalOnProperty(name = "sharding.enabled", havingValue = "true", matchIfMissing = false)
 public class ShardingConfig {
 
     @Value("${sharding.datasource.ds0.url:jdbc:postgresql://shard0-db:5432/healthcare}")

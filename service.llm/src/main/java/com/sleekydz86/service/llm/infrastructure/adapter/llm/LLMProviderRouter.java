@@ -6,14 +6,12 @@ import com.sleekydz86.service.llm.domain.model.LLMGenerationResult;
 import com.sleekydz86.service.llm.ports.outbound.LLMProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
-@Component("llmProviderRouter")
 @RequiredArgsConstructor
 public class LLMProviderRouter implements LLMProvider {
 

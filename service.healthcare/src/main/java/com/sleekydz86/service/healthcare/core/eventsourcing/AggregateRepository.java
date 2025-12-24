@@ -7,6 +7,7 @@ import com.sleekydz86.service.healthcare.core.event.PatientCreatedEvent;
 import com.sleekydz86.service.healthcare.core.event.PatientUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AggregateRepository {
 
+    @Qualifier("domainEventStore")
     private final EventStore eventStore;
 
     @Transactional

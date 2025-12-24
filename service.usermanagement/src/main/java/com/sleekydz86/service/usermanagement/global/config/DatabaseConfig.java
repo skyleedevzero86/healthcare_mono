@@ -13,7 +13,13 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(value = "com.sleekydz86.service.usermanagement.global.mapper")
+@MapperScan(
+    value = {
+        "com.sleekydz86.service.usermanagement.global.mapper",
+        "com.sleekydz86.service.usermanagement.mapper"
+    },
+    nameGenerator = MapperBeanNameGenerator.class
+)
 public class DatabaseConfig {
 
     @Bean

@@ -9,7 +9,7 @@ import com.sleekydz86.service.usermanagement.global.util.PaginationInfo;
 import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
 import com.sleekydz86.service.usermanagement.metrics.UserManagementMetrics;
 import com.sleekydz86.service.usermanagement.entity.User;
-import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
+import com.sleekydz86.service.usermanagement.mapper.UserMapper;
 import com.sleekydz86.service.usermanagement.repository.UserRepository;
 import com.sleekydz86.service.usermanagement.service.cache.CacheService;
 import com.sleekydz86.service.usermanagement.util.DtoConverter;
@@ -19,16 +19,17 @@ import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -40,7 +41,8 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final UserManagementMetrics userManagementMetrics;
     private final DtoConverter dtoConverter;
     private final PasswordPolicyValidator passwordPolicyValidator;
-    private final UserJpaRepository userJpaRepository;
+    @Qualifier("mapperUserMapper")
+    private final UserMapper userMapper;
     private final CacheService cacheService;
     private final PasswordEncoder passwordEncoder;
 
@@ -329,9 +331,13 @@ public class UserManagementServiceImpl implements UserManagementService {
             }
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User createdUser = userJpaRepository.save(user);
-        cacheService.cacheUserData(createdUser);
-        return createdUser;
+        if (user.getCreatedAt() == null) {
+            user.setCreatedAt(java.time.LocalDateTime.now());
+        }
+        user.setUpdatedAt(java.time.LocalDateTime.now());
+        userMapper.insert(user);
+        cacheService.cacheUserData(user);
+        return user;
     }
 
     @Override
@@ -340,8 +346,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         if (user != null) {
             return user;
         }
-        Optional<User> optionalUser = userJpaRepository.findById(id);
-        user = optionalUser.orElse(null);
+        user = userMapper.findById(id);
         if (user != null) {
             cacheService.cacheUserData(user);
         }
@@ -351,15 +356,16 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     @Transactional
     public User updateUser(User user) {
-        User updatedUser = userJpaRepository.save(user);
-        cacheService.cacheUserData(updatedUser);
-        return updatedUser;
+        user.setUpdatedAt(java.time.LocalDateTime.now());
+        userMapper.update(user);
+        cacheService.cacheUserData(user);
+        return user;
     }
 
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        userJpaRepository.deleteById(id);
+        userMapper.deleteById(id);
         cacheService.removeUserFromCache(id);
     }
 }

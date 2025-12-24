@@ -47,10 +47,5 @@ llm:
     requests-per-minute: ${LLM_RATE_LIMIT_RPM:30}
     requests-per-hour: ${LLM_RATE_LIMIT_RPH:500}
 
-spring:
-  data:
-    redis:
-      host: ${REDIS_HOST:redis}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      timeout: 2000ms
+# Docker 환경에서 Redis 호스트는 환경 변수 REDIS_HOST로 오버라이드됨
+# application.yml의 ${REDIS_HOST:localhost} 설정을 사용

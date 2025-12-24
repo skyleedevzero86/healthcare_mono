@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: service.config
+  profiles:
+    active: native
   rabbitmq:
     host: ${RABBITMQ_HOST:127.0.0.1}
     port: ${RABBITMQ_PORT:5672}
@@ -12,10 +14,11 @@ spring:
   cloud:
     config:
       server:
+        native:
+          search-locations: classpath:/config
         encrypt:
-          enabled: true
-
-        bootstrap: true
+          enabled: false
+        bootstrap: false
   security:
     user:
       name: config-admin

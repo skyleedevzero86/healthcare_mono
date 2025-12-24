@@ -9,7 +9,9 @@ import org.springframework.cloud.config.server.EnableConfigServer;
 public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication app = new SpringApplication(Application.class);
+        app.setDefaultProperties(java.util.Map.of("spring.profiles.active", "native"));
+        app.run(args);
     }
 
 }

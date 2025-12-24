@@ -7,6 +7,7 @@ import com.sleekydz86.service.healthcare.dto.ApiResultCode;
 import com.sleekydz86.service.healthcare.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +16,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
+@Component("domainEventStore")
 @RequiredArgsConstructor
 public class EventStore {
 
     private final EventRepository eventRepository;
+    @Qualifier("domainEventPublisher")
     private final EventPublisher eventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 

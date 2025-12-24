@@ -3,8 +3,10 @@ package com.sleekydz86.service.llm.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.service.llm.config.LLMProperties;
+import com.sleekydz86.service.llm.config.LlamaCppProperties;
 import com.sleekydz86.service.llm.dto.LLMRequest;
 import com.sleekydz86.service.llm.dto.LLMResponse;
+import com.sleekydz86.service.llm.dto.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -150,10 +152,10 @@ public class LLMServiceImpl implements LLMService {
     @Override
     public LLMResponse generateWithHistory(LLMRequest request) {
         if (request.getConversationId() != null) {
-            List<LLMResponse.Message> history = conversationService.getHistory(request.getConversationId());
+            List<Message> history = conversationService.getHistory(request.getConversationId());
             if (history != null && !history.isEmpty()) {
                 StringBuilder contextPrompt = new StringBuilder();
-                for (LLMResponse.Message msg : history) {
+                for (Message msg : history) {
                     contextPrompt.append(msg.getRole()).append(": ").append(msg.getContent()).append("\n\n");
                 }
                 contextPrompt.append("user: ").append(request.getPrompt());
@@ -213,12 +215,11 @@ public class LLMServiceImpl implements LLMService {
 
         body.put("prompt", prompt);
         body.put("n_predict",
-                request.getMaxTokens() != null ? request.getMaxTokens() : llmProperties.getModel().getMaxTokens());
-        body.put("temperature", request.getTemperature() != null ? request.getTemperature()
-                : llmProperties.getModel().getTemperature());
-        body.put("top_p", request.getTopP() != null ? request.getTopP() : llmProperties.getModel().getTopP());
-        body.put("top_k", request.getTopK() != null ? request.getTopK() : llmProperties.getModel().getTopK());
-        body.put("repeat_penalty", llmProperties.getModel().getRepeatPenalty());
+                request.getMaxTokens() != null ? request.getMaxTokens() : 512);
+        body.put("temperature", request.getTemperature() != null ? request.getTemperature() : 0.7);
+        body.put("top_p", request.getTopP() != null ? request.getTopP() : 0.9);
+        body.put("top_k", request.getTopK() != null ? request.getTopK() : 40);
+        body.put("repeat_penalty", 1.1);
         body.put("stop", List.of("<|im_end|>", "<|endoftext|>", "\n\n\n"));
 
         return body;

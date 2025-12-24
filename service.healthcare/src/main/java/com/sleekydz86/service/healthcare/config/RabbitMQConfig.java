@@ -20,6 +20,15 @@ public class RabbitMQConfig {
     
     @Value("${spring.rabbitmq.queue.user:user.queue}")
     private String userQueue;
+    
+    @Value("${spring.rabbitmq.queue.patient-created:patient.created.queue}")
+    private String patientCreatedQueue;
+    
+    @Value("${spring.rabbitmq.queue.patient-updated:patient.updated.queue}")
+    private String patientUpdatedQueue;
+    
+    @Value("${spring.rabbitmq.queue.medical-record-added:medical.record.added.queue}")
+    private String medicalRecordAddedQueue;
 
     @Bean
     public TopicExchange healthcareExchange() {
@@ -34,6 +43,21 @@ public class RabbitMQConfig {
     @Bean
     public Queue userQueue() {
         return QueueBuilder.durable(userQueue).build();
+    }
+    
+    @Bean
+    public Queue patientCreatedQueue() {
+        return QueueBuilder.durable(patientCreatedQueue).build();
+    }
+    
+    @Bean
+    public Queue patientUpdatedQueue() {
+        return QueueBuilder.durable(patientUpdatedQueue).build();
+    }
+    
+    @Bean
+    public Queue medicalRecordAddedQueue() {
+        return QueueBuilder.durable(medicalRecordAddedQueue).build();
     }
 
     @Bean
@@ -50,6 +74,30 @@ public class RabbitMQConfig {
             .bind(userQueue())
             .to(healthcareExchange())
             .with("user.*");
+    }
+    
+    @Bean
+    public Binding patientCreatedBinding() {
+        return BindingBuilder
+            .bind(patientCreatedQueue())
+            .to(healthcareExchange())
+            .with("patient.patientcreatedevent");
+    }
+    
+    @Bean
+    public Binding patientUpdatedBinding() {
+        return BindingBuilder
+            .bind(patientUpdatedQueue())
+            .to(healthcareExchange())
+            .with("patient.patientupdatedevent");
+    }
+    
+    @Bean
+    public Binding medicalRecordAddedBinding() {
+        return BindingBuilder
+            .bind(medicalRecordAddedQueue())
+            .to(healthcareExchange())
+            .with("patient.medicalrecordaddedevent");
     }
 
     @Bean

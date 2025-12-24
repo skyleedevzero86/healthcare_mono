@@ -3,7 +3,7 @@ package com.sleekydz86.service.usermanagement.service.user;
 import com.sleekydz86.service.usermanagement.common.ServiceResponse;
 import com.sleekydz86.service.usermanagement.dto.UserDto;
 import com.sleekydz86.service.usermanagement.entity.User;
-import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
+import com.sleekydz86.service.usermanagement.mapper.UserMapper;
 import com.sleekydz86.service.usermanagement.repository.UserRepository;
 import com.sleekydz86.service.usermanagement.service.cache.CacheService;
 import com.sleekydz86.service.usermanagement.util.DtoConverter;
@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,7 +35,7 @@ class UserManagementServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserJpaRepository userJpaRepository;
+    private UserMapper userMapper;
 
     @Mock
     private CacheService cacheService;
@@ -171,7 +170,7 @@ class UserManagementServiceTest {
         when(passwordPolicyValidator.validate("ValidPass123!"))
                 .thenReturn(PasswordPolicyValidator.ValidationResult.success());
         when(passwordEncoder.encode("ValidPass123!")).thenReturn("encodedPassword");
-        when(userJpaRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.insert(any(User.class))).thenReturn(1);
 
         User result = userManagementService.createUser(user);
 
@@ -179,7 +178,7 @@ class UserManagementServiceTest {
         assertThat(result.getId()).isEqualTo(1L);
         verify(passwordPolicyValidator, times(1)).validate("ValidPass123!");
         verify(passwordEncoder, times(1)).encode("ValidPass123!");
-        verify(userJpaRepository, times(1)).save(any(User.class));
+        verify(userMapper, times(1)).insert(any(User.class));
         verify(cacheService, times(1)).cacheUserData(user);
     }
 
@@ -198,30 +197,30 @@ class UserManagementServiceTest {
 
         verify(passwordPolicyValidator, times(1)).validate("short");
         verify(passwordEncoder, never()).encode(anyString());
-        verify(userJpaRepository, never()).save(any(User.class));
+        verify(userMapper, never()).insert(any(User.class));
     }
 
     @Test
     @DisplayName("사용자 조회 성공")
     void getUser_Success() {
-        when(userJpaRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.findById(1L)).thenReturn(user);
 
         User result = userManagementService.getUser(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
-        verify(userJpaRepository, times(1)).findById(1L);
+        verify(userMapper, times(1)).findById(1L);
     }
 
     @Test
     @DisplayName("사용자 조회 실패 - 없음")
     void getUser_NotFound() {
-        when(userJpaRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userMapper.findById(1L)).thenReturn(null);
 
         User result = userManagementService.getUser(1L);
 
         assertThat(result).isNull();
-        verify(userJpaRepository, times(1)).findById(1L);
+        verify(userMapper, times(1)).findById(1L);
     }
 
     @Test
@@ -231,24 +230,23 @@ class UserManagementServiceTest {
         updatedUser.setId(1L);
         updatedUser.setUsername("updatedUser");
 
-        when(userJpaRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.update(any(User.class))).thenReturn(1);
 
         User result = userManagementService.updateUser(user);
 
         assertThat(result).isNotNull();
-        assertThat(result.getUsername()).isEqualTo("updatedUser");
-        verify(userJpaRepository, times(1)).save(user);
-        verify(cacheService, times(1)).cacheUserData(updatedUser);
+        verify(userMapper, times(1)).update(user);
+        verify(cacheService, times(1)).cacheUserData(user);
     }
 
     @Test
     @DisplayName("사용자 삭제 성공")
     void deleteUser_Success() {
-        doNothing().when(userJpaRepository).deleteById(1L);
+        when(userMapper.deleteById(1L)).thenReturn(1);
 
         userManagementService.deleteUser(1L);
 
-        verify(userJpaRepository, times(1)).deleteById(1L);
+        verify(userMapper, times(1)).deleteById(1L);
     }
 }
 

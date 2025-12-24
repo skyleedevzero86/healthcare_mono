@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Repository
+@Repository("healthDataEventStore")
 @RequiredArgsConstructor
 public class EventStore {
     

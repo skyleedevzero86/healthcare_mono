@@ -9,6 +9,7 @@ import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModel;
 import com.sleekydz86.service.healthcare.core.readmodel.PatientReadModelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EventReplayService {
 
+    @Qualifier("domainEventStore")
     private final EventStore eventStore;
     private final PatientReadModelRepository readModelRepository;
     private final AggregateRepository aggregateRepository;

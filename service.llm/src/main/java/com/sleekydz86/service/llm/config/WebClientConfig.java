@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import io.netty.channel.ChannelOption;
 
 import java.time.Duration;
 
@@ -23,7 +24,7 @@ public class WebClientConfig {
         );
         HttpClient httpClient = HttpClient.create()
                 .responseTimeout(Duration.ofMillis(maxTimeout))
-                .option(reactor.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, maxTimeout);
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, maxTimeout);
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))

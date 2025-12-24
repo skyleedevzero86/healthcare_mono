@@ -19,6 +19,9 @@ spring:
   profiles:
     active: dev
     include: common
+  autoconfigure:
+    exclude:
+      - org.apache.shardingsphere.spring.boot.ShardingSphereAutoConfiguration
 
   mybatis:
     mapper-locations: classpath:mapper/*.xml
@@ -38,7 +41,8 @@ spring:
   cloud:
     config:
       uri: ${CONFIG_SERVER_URL:http://localhost:8888}
-      fail-fast: true
+      fail-fast: false
+      enabled: ${SPRING_CLOUD_CONFIG_ENABLED:true}
       retry:
         initial-interval: 1000
         max-attempts: 6

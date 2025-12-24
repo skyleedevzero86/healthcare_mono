@@ -17,24 +17,31 @@ spring:
   profiles:
     active: dev
     include: common
-
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
-
   cloud:
     config:
       uri: ${CONFIG_SERVER_URL:http://localhost:8888}
-      fail-fast: true
+      fail-fast: false
+      enabled: ${SPRING_CLOUD_CONFIG_ENABLED:true}
       retry:
         initial-interval: 1000
         max-attempts: 6
         max-interval: 2000
         multiplier: 1.1
-
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    exchange: healthcare.exchange
+    queue:
+      health-data: health.data.queue
+      user: user.queue
   data:
     redis:
       host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      port: ${REDIS_PORT:9379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000ms
       lettuce:
@@ -42,29 +49,15 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
-
   cache:
     type: redis
     redis:
       time-to-live: 3600000
-      cache-null-values: false
-
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
+  sleuth:
+    zipkin:
+      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
+    sampler:
+      probability: 1.0
 
 eureka:
   client:
@@ -77,6 +70,19 @@ eureka:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
 
 management:
   endpoints:
@@ -95,85 +101,4 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
-resilience4j:
-  circuitbreaker:
-    configs:
-      default:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 10s
-        failureRateThreshold: 50
-        eventConsumerBufferSize: 10
-
-spring:
-  sleuth:
-    zipkin:
-      base-url: ${ZIPKIN_BASE_URL:http://localhost:9411}
-    sampler:
-      probability: 1.0
-
-logging:
-  config: classpath:log4j2-spring.xml
-
-info:
-  app:
-    name: Healthcare LLM Service
-    description: Qwen2.5-7B-Instruct-GGUF based LLM Service for Healthcare Platform
-    version: 1.0.0
-    encoding: UTF-8
-    java:
-      version: ${java.version}
-
-llm:
-  enabled: ${LLM_ENABLED:true}
-  provider: ${LLM_PROVIDER:router}
-  routing:
-    chat: ${LLM_CHAT_PROVIDER:glm47}
-    healthcare: ${LLM_HEALTHCARE_PROVIDER:glm47}
-    default-provider: ${LLM_DEFAULT_PROVIDER:llama-cpp}
-  llama-cpp:
-    server-url: ${LLAMA_CPP_SERVER_URL:http://localhost:8090}
-    timeout: ${LLAMA_CPP_TIMEOUT:60000}
-    max-retries: ${LLAMA_CPP_MAX_RETRIES:3}
-    model:
-      name: ${LLM_MODEL_NAME:qwen2.5-7b-instruct-q4_k_m}
-      context-size: ${LLM_CONTEXT_SIZE:16384}
-      max-tokens: ${LLM_MAX_TOKENS:2048}
-      temperature: ${LLM_TEMPERATURE:0.7}
-      top-p: ${LLM_TOP_P:0.9}
-      top-k: ${LLM_TOP_K:40}
-      repeat-penalty: ${LLM_REPEAT_PENALTY:1.1}
-  glm47:
-    enabled: ${GLM47_ENABLED:true}
-    api-key: ${GLM47_API_KEY:}
-    base-url: ${GLM47_BASE_URL:https://api.z.ai/api/paas/v4}
-    model: ${GLM47_MODEL:glm-4.7}
-    timeout: ${GLM47_TIMEOUT:120000}
-    max-retries: ${GLM47_MAX_RETRIES:3}
-    chat:
-      options:
-        temperature: ${GLM47_TEMPERATURE:1.0}
-        top-p: ${GLM47_TOP_P:0.95}
-        max-tokens: ${GLM47_MAX_TOKENS:131072}
-    thinking:
-      enabled: ${GLM47_THINKING_ENABLED:true}
-      preserved: ${GLM47_PRESERVED_THINKING:true}
-  km-bert:
-    enabled: ${KM_BERT_ENABLED:true}
-    api-key: ${KM_BERT_API_KEY:}
-    base-url: ${KM_BERT_BASE_URL:https://router.huggingface.co/hf-inference/models/madatnlp/km-bert}
-    timeout: ${KM_BERT_TIMEOUT:10000}
-    max-retries: ${KM_BERT_MAX_RETRIES:3}
-    use-for-preprocessing: ${KM_BERT_USE_FOR_PREPROCESSING:true}
-  cache:
-    enabled: ${LLM_CACHE_ENABLED:true}
-    ttl: ${LLM_CACHE_TTL:3600}
-  rate-limit:
-    enabled: ${LLM_RATE_LIMIT_ENABLED:true}
-    requests-per-minute: ${LLM_RATE_LIMIT_RPM:30}
-    requests-per-hour: ${LLM_RATE_LIMIT_RPH:500}
 

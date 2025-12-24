@@ -2,12 +2,12 @@ spring:
   redis:
     cluster:
       nodes:
-        - ${REDIS_NODE1:redis-node1:6379}
-        - ${REDIS_NODE2:redis-node2:6379}
-        - ${REDIS_NODE3:redis-node3:6379}
-        - ${REDIS_NODE4:redis-node4:6379}
-        - ${REDIS_NODE5:redis-node5:6379}
-        - ${REDIS_NODE6:redis-node6:6379}
+        - ${REDIS_NODE1:redis-node1:9379}
+        - ${REDIS_NODE2:redis-node2:9379}
+        - ${REDIS_NODE3:redis-node3:9379}
+        - ${REDIS_NODE4:redis-node4:9379}
+        - ${REDIS_NODE5:redis-node5:9379}
+        - ${REDIS_NODE6:redis-node6:9379}
       max-redirects: ${REDIS_MAX_REDIRECTS:3}
     lettuce:
       pool:

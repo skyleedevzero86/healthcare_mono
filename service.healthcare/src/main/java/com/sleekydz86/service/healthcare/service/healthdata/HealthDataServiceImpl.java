@@ -17,6 +17,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
@@ -46,8 +47,8 @@ public class HealthDataServiceImpl implements HealthDataService {
     public HealthDataServiceImpl(HealthDataRepository healthDataRepository,
                                 HealthDataValidator healthDataValidator,
                                 DataProcessingService dataProcessingService,
-                                EventPublisher eventPublisher,
-                                EventStore eventStore,
+                                @Qualifier("healthDataEventPublisher") EventPublisher eventPublisher,
+                                @Qualifier("healthDataEventStore") EventStore eventStore,
                                 AuthServiceClient authServiceClient,
                                 HealthcareMetrics healthcareMetrics,
                                 MeterRegistry meterRegistry) {

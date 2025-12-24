@@ -24,17 +24,11 @@ public class GatewaySecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/auth/v1/signin", "/auth/v1/signup").permitAll()
-                .pathMatchers("/healthcare/**", "/management/**", "/community/**").authenticated()
-                .anyExchange().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> {})
-            )
-            .build();
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeExchange(exchanges -> exchanges
+                        .anyExchange().permitAll())
+                .build();
     }
 
     @Bean
@@ -42,24 +36,21 @@ public class GatewaySecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:8981",
-            "http://localhost:19006"
-        ));
+                "http://localhost:3000",
+                "http://localhost:8981",
+                "http://localhost:19006"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
-            "Content-Type",
-            "Authorization",
-            "X-Requested-With",
-            "X-User-Id",
-            "X-User-Role",
-            "X-User-Source"
-        ));
+                "Content-Type",
+                "Authorization",
+                "X-Requested-With",
+                "X-User-Id",
+                "X-User-Role",
+                "X-User-Source"));
         configuration.setExposedHeaders(Arrays.asList(
-            "X-User-Id",
-            "X-User-Role",
-            "X-User-Source"
-        ));
+                "X-User-Id",
+                "X-User-Role",
+                "X-User-Source"));
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -72,7 +63,7 @@ public class GatewaySecurityConfig {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             HttpHeaders headers = request.getHeaders();
-            
+
             String contentLength = headers.getFirst(HttpHeaders.CONTENT_LENGTH);
             if (contentLength != null) {
                 try {
@@ -83,9 +74,8 @@ public class GatewaySecurityConfig {
                 } catch (NumberFormatException e) {
                 }
             }
-            
+
             return chain.filter(exchange);
         };
     }
 }
-
