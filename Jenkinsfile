@@ -141,8 +141,8 @@ pipeline {
                                         returnStdout: true
                                     )
                                     
-                                    def testReport = sh(
-                                        script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
+                                    def testReports = sh(
+                                        script: "find build/test-results -name '*.xml' -type f 2>/dev/null",
                                         returnStdout: true
                                     ).trim()
                                     
@@ -151,24 +151,37 @@ pipeline {
                                                     testOutput.contains("cannot access 'gradlew'") || 
                                                     testOutput.contains("No such file or directory")
                                     
-                                    if (testReport) {
-                                        def stats = sh(
-                                            script: """
-                                                if [ -f "${testReport}" ]; then
-                                                    tests=\$(grep -oP 'tests=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
-                                                    failures=\$(grep -oP 'failures=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
-                                                    errors=\$(grep -oP 'errors=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
-                                                    skipped=\$(grep -oP 'skipped=\"\\K[0-9]+' "${testReport}" | head -1 || echo 0)
-                                                    echo "\${tests}:\${failures}:\${errors}:\${skipped}"
-                                                else
-                                                    echo "0:0:0:0"
-                                                fi
-                                            """,
-                                            returnStdout: true
-                                        ).trim()
+                                    if (testReports) {
+                                        def reportFiles = testReports.split('\n').findAll { it.trim() }
+                                        def total = 0
+                                        def failures = 0
+                                        def errors = 0
+                                        def skipped = 0
                                         
-                                        def (total, failures, errors, skipped) = stats.split(':')
-                                        def passed = (total as Integer) - (failures as Integer) - (errors as Integer) - (skipped as Integer)
+                                        reportFiles.each { reportFile ->
+                                            if (fileExists(reportFile.trim())) {
+                                                def fileStats = sh(
+                                                    script: """
+                                                        tests=\$(grep -oP 'tests=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        failures=\$(grep -oP 'failures=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        errors=\$(grep -oP 'errors=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        skipped=\$(grep -oP 'skipped=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        echo "\${tests}:\${failures}:\${errors}:\${skipped}"
+                                                    """,
+                                                    returnStdout: true
+                                                ).trim()
+                                                
+                                                if (fileStats) {
+                                                    def (t, f, e, s) = fileStats.split(':')
+                                                    total += (t as Integer) ?: 0
+                                                    failures += (f as Integer) ?: 0
+                                                    errors += (e as Integer) ?: 0
+                                                    skipped += (s as Integer) ?: 0
+                                                }
+                                            }
+                                        }
+                                        
+                                        def passed = total - failures - errors - skipped
                                         
                                         testSummary[service] = [
                                             total: total,
@@ -177,21 +190,29 @@ pipeline {
                                             skipped: skipped
                                         ]
                                         
-                                        if ((failures as Integer) > 0 || (errors as Integer) > 0) {
+                                        def totalFailed = (failures as Integer) + (errors as Integer)
+                                        if (totalFailed > 0) {
                                             failedServices.add(service)
-                                            echo "${service} 테스트 실패: 총 ${total}개 중 ${failures + errors}개 실패"
+                                            echo "${service} 테스트 실패: 총 ${total}개 중 ${totalFailed}개 실패"
                                             
+                                            def reportFilesStr = reportFiles.collect { "\"${it.trim()}\"" }.join(' ')
                                             def failedTestDetails = sh(
                                                 script: """
-                                                    if [ -f "${testReport}" ]; then
-                                                        grep -A 10 '<testcase' "${testReport}" | grep -B 5 '<failure\\|<error' | head -30 || echo "상세 정보 없음"
-                                                    fi
+                                                    for report in ${reportFilesStr}; do
+                                                        if [ -f "\$report" ]; then
+                                                            grep -oP '<testcase[^>]*name=\"\\K[^\"]+' "\$report" | while read -r testname; do
+                                                                if grep -A 20 "name=\"\${testname}\"" "\$report" | grep -q '<failure\\|<error'; then
+                                                                    echo "  - \${testname}"
+                                                                fi
+                                                            done
+                                                        fi
+                                                    done | head -10
                                                 """,
                                                 returnStdout: true
                                             ).trim()
                                             
-                                            if (failedTestDetails && failedTestDetails != "상세 정보 없음") {
-                                                echo "실패한 테스트 상세:"
+                                            if (failedTestDetails) {
+                                                echo "실패한 테스트:"
                                                 echo failedTestDetails
                                             }
                                             
@@ -286,31 +307,22 @@ pipeline {
                     
                     dir('mobile/healthcare_mobile') {
                         try {
+                            if (!fileExists('package.json')) {
+                                echo "모바일 앱: package.json이 없어 테스트를 건너뜁니다."
+                                return
+                            }
+                            
                             sh '''
-                                pwd
-                                ls -la
-                                
-                                if [ ! -f "package.json" ]; then
-                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
-                                    exit 1
-                                fi
-                                
                                 if ! command -v node &> /dev/null; then
-                                    echo "Node.js 설치 중..."
                                     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
                                     apt-get install -y nodejs || yum install -y nodejs npm || true
                                 fi
                                 
-                                node --version
-                                npm --version
-                                
                                 if ! command -v pnpm &> /dev/null; then
                                     npm install -g pnpm
                                 fi
-                                pnpm --version
                                 
                                 pnpm install --frozen-lockfile
-                                
                                 pnpm test:ci
                             '''
                             
@@ -443,31 +455,22 @@ pipeline {
                     
                     dir('mobile/healthcare_mobile') {
                         try {
+                            if (!fileExists('package.json')) {
+                                echo "모바일 앱: package.json이 없어 빌드를 건너뜁니다."
+                                return
+                            }
+                            
                             sh '''
-                                pwd
-                                ls -la
-                                
-                                if [ ! -f "package.json" ]; then
-                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
-                                    exit 1
-                                fi
-                                
                                 if ! command -v node &> /dev/null; then
-                                    echo "Node.js 설치 중..."
                                     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
                                     apt-get install -y nodejs || yum install -y nodejs npm || true
                                 fi
                                 
-                                node --version
-                                npm --version
-                                
                                 if ! command -v pnpm &> /dev/null; then
                                     npm install -g pnpm
                                 fi
-                                pnpm --version
                                 
                                 pnpm install --frozen-lockfile
-                                
                                 pnpm tsc --noEmit
                             '''
                             
