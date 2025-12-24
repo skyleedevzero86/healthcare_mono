@@ -152,6 +152,14 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
+                                pwd
+                                ls -la
+                                
+                                if [ ! -f "package.json" ]; then
+                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
+                                    exit 1
+                                fi
+                                
                                 if ! command -v node &> /dev/null; then
                                     echo "Node.js 설치 중..."
                                     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
@@ -301,6 +309,14 @@ pipeline {
                     dir('mobile/healthcare_mobile') {
                         try {
                             sh '''
+                                pwd
+                                ls -la
+                                
+                                if [ ! -f "package.json" ]; then
+                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
+                                    exit 1
+                                fi
+                                
                                 if ! command -v node &> /dev/null; then
                                     echo "Node.js 설치 중..."
                                     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -

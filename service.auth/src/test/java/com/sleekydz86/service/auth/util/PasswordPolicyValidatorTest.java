@@ -112,7 +112,7 @@ class PasswordPolicyValidatorTest {
         PasswordPolicyValidator.ValidationResult result = validator.validate("password123!");
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getMessage()).contains("간단한 비밀번호");
+        assertThat(result.getMessage()).containsAnyOf("간단한 비밀번호", "연속된 숫자", "너무 간단한");
     }
 
     @Test

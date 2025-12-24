@@ -1,7 +1,10 @@
 package com.sleekydz86.service.commu.service;
 
 import com.sleekydz86.service.commu.entity.Community;
+import com.sleekydz86.service.commu.metrics.CommunityMetrics;
 import com.sleekydz86.service.commu.repository.CommunityRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,12 @@ class CommunityServiceTest {
     @Mock
     private CommunityRepository communityRepository;
 
+    @Mock
+    private CommunityMetrics communityMetrics;
+
+    @Mock
+    private Timer timer;
+
     @InjectMocks
     private CommunityServiceImpl communityService;
 
@@ -39,12 +48,22 @@ class CommunityServiceTest {
         testCommunity.setContent("테스트 게시글 내용입니다. " + System.currentTimeMillis());
         testCommunity.setRegDate(new Date());
         testCommunity.setUserId(String.valueOf(System.currentTimeMillis() % Integer.MAX_VALUE));
+
+        when(communityMetrics.startBoardPostProcessingTimer()).thenReturn(Timer.start(mock(MeterRegistry.class)));
+        when(communityMetrics.startBoardQueryTimer()).thenReturn(Timer.start(mock(MeterRegistry.class)));
+        when(communityMetrics.getBoardPostProcessingTime()).thenReturn(timer);
+        when(communityMetrics.getBoardQueryTime()).thenReturn(timer);
+        doNothing().when(communityMetrics).incrementBoardPostsCreated();
+        doNothing().when(communityMetrics).incrementBoardPostsRead();
+        doNothing().when(communityMetrics).incrementBoardListQueries();
+        doNothing().when(communityMetrics).incrementBoardPostsUpdated();
+        doNothing().when(communityMetrics).incrementBoardPostsDeleted();
     }
 
     @org.junit.jupiter.api.AfterEach
     void tearDown() {
         testCommunity = null;
-        reset(communityRepository);
+        reset(communityRepository, communityMetrics);
     }
 
     @Test
@@ -79,6 +98,7 @@ class CommunityServiceTest {
                 .hasMessage("데이터베이스 연결 오류");
 
         verify(communityRepository, times(1)).writeBoard(any(Community.class));
+        verify(communityMetrics, times(1)).incrementBoardPostsCreated();
     }
 
     @Test
@@ -115,6 +135,7 @@ class CommunityServiceTest {
                 .hasMessage("데이터베이스 연결 오류");
 
         verify(communityRepository, times(1)).findBoard(1);
+        verify(communityMetrics, times(1)).incrementBoardPostsRead();
     }
 
     @Test
@@ -176,5 +197,6 @@ class CommunityServiceTest {
                 .hasMessage("데이터베이스 연결 오류");
 
         verify(communityRepository, times(1)).findBoardList(any());
+        verify(communityMetrics, times(1)).incrementBoardListQueries();
     }
 }
