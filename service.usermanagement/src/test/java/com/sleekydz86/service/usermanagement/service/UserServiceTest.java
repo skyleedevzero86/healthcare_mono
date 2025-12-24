@@ -4,6 +4,10 @@ import com.sleekydz86.service.usermanagement.dto.UserDto;
 import com.sleekydz86.service.usermanagement.dto.UserhealthDto;
 import com.sleekydz86.service.usermanagement.global.mapper.UserMapper;
 import com.sleekydz86.service.usermanagement.global.util.PagingUtil;
+import com.sleekydz86.service.usermanagement.global.util.PaginationInfo;
+import com.sleekydz86.service.usermanagement.metrics.UserManagementMetrics;
+import com.sleekydz86.service.usermanagement.global.util.DtoConverter;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +35,12 @@ class UserServiceTest {
     @Mock
     private PagingUtil pagingUtil;
 
+    @Mock
+    private UserManagementMetrics userManagementMetrics;
+
+    @Mock
+    private DtoConverter dtoConverter;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -56,14 +66,20 @@ class UserServiceTest {
     void tearDown() {
         userDto = null;
         userhealthDto = null;
-        reset(userMapper, pagingUtil);
+        reset(userMapper, pagingUtil, userManagementMetrics, dtoConverter);
     }
 
     @Test
     @DisplayName("사용자 리스트 조회 성공")
     void userList_Success() {
+        PaginationInfo paginationInfo = new PaginationInfo();
+        paginationInfo.setTotalRecordCount(100);
+        
         when(userMapper.userListCount(any(UserDto.class))).thenReturn(100);
         when(userMapper.userList(any(UserDto.class))).thenReturn(new ArrayList<>());
+        when(pagingUtil.getPageInfo(any(UserDto.class), anyInt())).thenReturn(paginationInfo);
+        when(userManagementMetrics.startUserListQueryTimer()).thenReturn(Timer.start());
+        doNothing().when(userManagementMetrics).incrementUserListQueries();
 
         Object result = userService.userList(userDto);
 
@@ -75,8 +91,12 @@ class UserServiceTest {
     @Test
     @DisplayName("보호자 리스트 조회 성공")
     void parentList_Success() {
+        PaginationInfo paginationInfo = new PaginationInfo();
+        paginationInfo.setTotalRecordCount(50);
+        
         when(userMapper.parentListCount(any(UserDto.class))).thenReturn(50);
         when(userMapper.parentList(any(UserDto.class))).thenReturn(new ArrayList<>());
+        when(pagingUtil.getPageInfo(any(UserDto.class), anyInt())).thenReturn(paginationInfo);
 
         Object result = userService.parentList(userDto);
 
@@ -88,8 +108,12 @@ class UserServiceTest {
     @Test
     @DisplayName("의사 리스트 조회 성공")
     void doctorList_Success() {
+        PaginationInfo paginationInfo = new PaginationInfo();
+        paginationInfo.setTotalRecordCount(30);
+        
         when(userMapper.doctorListCount(any(UserDto.class))).thenReturn(30);
         when(userMapper.doctorList(any(UserDto.class))).thenReturn(new ArrayList<>());
+        when(pagingUtil.getPageInfo(any(UserDto.class), anyInt())).thenReturn(paginationInfo);
 
         Object result = userService.doctorList(userDto);
 
@@ -106,6 +130,8 @@ class UserServiceTest {
         expectedData.put("userNm", "테스트 사용자");
 
         when(userMapper.userInfo(any(UserDto.class))).thenReturn(expectedData);
+        when(userManagementMetrics.startUserInfoQueryTimer()).thenReturn(Timer.start());
+        doNothing().when(userManagementMetrics).incrementUserInfoQueries();
 
         Map<String, Object> result = userService.userInfo(userDto);
 
@@ -119,6 +145,7 @@ class UserServiceTest {
     void updateUserInfo_Success() {
         when(userMapper.searchParentCount(any(UserDto.class))).thenReturn(0);
         when(userMapper.updateUserInfo(any(UserDto.class))).thenReturn(1);
+        doNothing().when(userManagementMetrics).incrementUserInfoUpdates();
 
         int result = userService.updateUserInfo(userDto);
 
@@ -130,6 +157,7 @@ class UserServiceTest {
     @DisplayName("사용자 정보 삭제 성공")
     void deleteUserInfo_Success() {
         when(userMapper.deleteUserInfo(any(UserDto.class))).thenReturn(1);
+        doNothing().when(userManagementMetrics).incrementUserInfoDeletes();
 
         int result = userService.deleteUserInfo(userDto);
 
@@ -141,6 +169,7 @@ class UserServiceTest {
     @DisplayName("비밀번호 변경 성공")
     void updatePasswd_Success() {
         when(userMapper.updatePasswd(any(UserDto.class))).thenReturn(1);
+        doNothing().when(userManagementMetrics).incrementPasswordUpdates();
 
         int result = userService.updatePasswd(userDto);
 
@@ -157,6 +186,7 @@ class UserServiceTest {
         expectedList.add(doctor);
 
         when(userMapper.searchDoctor(any(UserDto.class))).thenReturn(expectedList);
+        doNothing().when(userManagementMetrics).incrementDoctorSearches();
 
         List<Map<String, Object>> result = userService.searchDoctor(userDto);
 
@@ -174,6 +204,7 @@ class UserServiceTest {
         expectedList.add(parent);
 
         when(userMapper.searchParent(any(UserDto.class))).thenReturn(expectedList);
+        doNothing().when(userManagementMetrics).incrementParentSearches();
 
         List<Map<String, Object>> result = userService.searchParent(userDto);
 

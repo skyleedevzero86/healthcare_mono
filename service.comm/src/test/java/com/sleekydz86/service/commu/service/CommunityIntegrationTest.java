@@ -44,7 +44,7 @@ class CommunityIntegrationTest {
 
     private Community testCommunity;
     private Map<String, Object> searchMap;
-    private int uniqueUserId;
+    private String uniqueUserId;
 
     @BeforeEach
     void setUp() {

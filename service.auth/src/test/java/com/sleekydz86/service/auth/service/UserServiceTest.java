@@ -4,6 +4,10 @@ import com.sleekydz86.service.auth.dto.*;
 import com.sleekydz86.service.auth.mapper.UserMapper;
 import com.sleekydz86.service.auth.provider.JwtTokenProvider;
 import com.sleekydz86.service.auth.service.PasswordService;
+import com.sleekydz86.service.auth.metrics.AuthMetrics;
+import com.sleekydz86.service.auth.util.DtoConverter;
+import com.sleekydz86.service.auth.util.PasswordPolicyValidator;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +37,15 @@ class UserServiceTest {
 
     @Mock
     private PasswordService passwordService;
+
+    @Mock
+    private AuthMetrics authMetrics;
+
+    @Mock
+    private DtoConverter dtoConverter;
+
+    @Mock
+    private PasswordPolicyValidator passwordPolicyValidator;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -76,7 +89,7 @@ class UserServiceTest {
         signinDto = null;
         signupDto = null;
         userDto = null;
-        reset(userMapper, jwtTokenProvider, passwordService);
+        reset(userMapper, jwtTokenProvider, passwordService, authMetrics, dtoConverter, passwordPolicyValidator);
     }
 
     @Test
@@ -95,6 +108,8 @@ class UserServiceTest {
                         .refreshToken("refreshToken")
                         .grantType("Bearer")
                         .build());
+        when(authMetrics.startSigninProcessingTimer()).thenReturn(Timer.start());
+        doNothing().when(authMetrics).incrementSigninAttempts();
 
         Map<Object, Object> result = userService.signin(signinDto);
 
@@ -114,6 +129,7 @@ class UserServiceTest {
         when(userMapper.signup(any(SignupDto.class))).thenReturn(1);
         when(userMapper.getUserSeq(anyString())).thenReturn(1);
         when(userMapper.insUserAuth(any(SignupDto.class))).thenReturn(1);
+        doNothing().when(authMetrics).incrementSignupAttempts();
 
         int result = userService.signup(signupDto);
 

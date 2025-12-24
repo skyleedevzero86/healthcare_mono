@@ -19,7 +19,7 @@ class PasswordPolicyValidatorTest {
     @Test
     @DisplayName("유효한 비밀번호 검증 성공")
     void validate_ValidPassword() {
-        PasswordPolicyValidator.ValidationResult result = validator.validate("ValidPass123!");
+        PasswordPolicyValidator.ValidationResult result = validator.validate("ValidPass45!");
 
         assertThat(result.isValid()).isTrue();
     }
@@ -80,7 +80,7 @@ class PasswordPolicyValidatorTest {
     @Test
     @DisplayName("비밀번호 강도 계산 - 보통")
     void calculateStrength_Medium() {
-        PasswordPolicyValidator.PasswordStrength strength = validator.calculateStrength("MediumPass123!");
+        PasswordPolicyValidator.PasswordStrength strength = validator.calculateStrength("MediumP12!");
 
         assertThat(strength).isEqualTo(PasswordPolicyValidator.PasswordStrength.MEDIUM);
     }

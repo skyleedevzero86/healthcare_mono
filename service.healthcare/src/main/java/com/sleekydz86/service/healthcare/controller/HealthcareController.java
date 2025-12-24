@@ -51,34 +51,6 @@ public class HealthcareController {
     private final CacheService cacheService;
     private final DtoConverter dtoConverter;
 
-    public HealthcareController(HealthDataService healthDataService,
-            ChartDataService chartDataService,
-            HealthScoreService healthScoreService,
-            AIResponseService aiResponseService,
-            CommunityService communityService,
-            Environment env,
-            ChatService chatService,
-            BioInfoDto bioInfoDto,
-            com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer,
-            PatientService patientService,
-            MedicalRecordService medicalRecordService,
-            CacheService cacheService,
-            DtoConverter dtoConverter) {
-        this.healthDataService = healthDataService;
-        this.chartDataService = chartDataService;
-        this.healthScoreService = healthScoreService;
-        this.aiResponseService = aiResponseService;
-        this.communityService = communityService;
-        this.env = env;
-        this.chatService = chatService;
-        this.bioInfoDto = bioInfoDto;
-        this.inputSanitizer = inputSanitizer;
-        this.patientService = patientService;
-        this.medicalRecordService = medicalRecordService;
-        this.cacheService = cacheService;
-        this.dtoConverter = dtoConverter;
-    }
-
     private LocalDate getToday() {
         return LocalDate.now();
     }
