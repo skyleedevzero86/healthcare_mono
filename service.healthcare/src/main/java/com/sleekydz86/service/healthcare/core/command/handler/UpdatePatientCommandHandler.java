@@ -1,6 +1,6 @@
 package com.sleekydz86.service.healthcare.core.command.handler;
 
-import com.sleekydz86.api.gateway.cqrs.command.CommandHandler;
+import com.sleekydz86.service.healthcare.core.cqrs.command.CommandHandler;
 import com.sleekydz86.service.healthcare.core.command.UpdatePatientCommand;
 import com.sleekydz86.service.healthcare.core.domain.PatientAggregate;
 import com.sleekydz86.service.healthcare.core.eventsourcing.AggregateRepository;

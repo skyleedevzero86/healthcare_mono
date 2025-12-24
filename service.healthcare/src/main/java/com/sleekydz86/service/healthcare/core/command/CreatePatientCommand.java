@@ -1,6 +1,6 @@
 package com.sleekydz86.service.healthcare.core.command;
 
-import com.sleekydz86.api.gateway.cqrs.command.Command;
+import com.sleekydz86.service.healthcare.core.cqrs.command.Command;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

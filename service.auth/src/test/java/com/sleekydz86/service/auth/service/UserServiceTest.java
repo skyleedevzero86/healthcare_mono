@@ -89,8 +89,12 @@ class UserServiceTest {
 
         when(userMapper.signin(any(SigninDto.class))).thenReturn(mockUser);
         when(passwordService.matches(anyString(), anyString())).thenReturn(true);
-        when(jwtTokenProvider.generateToken(anyString(), anyString(), anyString())).thenReturn("accessToken");
-        when(jwtTokenProvider.generateRefreshToken(anyString(), anyString(), anyString())).thenReturn("refreshToken");
+        when(jwtTokenProvider.generateToken(anyString(), anyString(), anyString()))
+                .thenReturn(JwtTokenDto.builder()
+                        .accessToken("accessToken")
+                        .refreshToken("refreshToken")
+                        .grantType("Bearer")
+                        .build());
 
         Map<Object, Object> result = userService.signin(signinDto);
 

@@ -1,13 +1,50 @@
 ﻿package com.sleekydz86.service.healthcare.validation;
 
 import com.sleekydz86.service.healthcare.common.ValidationException;
+import com.sleekydz86.service.healthcare.dto.HealthDataItemDto;
 import com.sleekydz86.service.healthcare.dto.MinuteDataDto;
 import com.sleekydz86.service.healthcare.dto.MonthDayDataDto;
 import com.sleekydz86.service.healthcare.dto.TestDto;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.Map;
 
-public class HealthDataValidator {
+public class HealthDataValidator implements ConstraintValidator<ValidHealthData, Object> {
+    
+    @Override
+    public void initialize(ValidHealthData constraintAnnotation) {
+        // 초기화 로직이 필요하면 여기에 추가
+    }
+    
+    @Override
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
+        if (value == null) {
+            return true; // null 검증은 @NotNull로 처리
+        }
+        
+        try {
+            if (value instanceof HealthDataItemDto) {
+                validateHealthDataItem((HealthDataItemDto) value);
+            } else if (value instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> map = (Map<String, Object>) value;
+                validate(map);
+            }
+            return true;
+        } catch (ValidationException e) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(e.getMessage())
+                    .addConstraintViolation();
+            return false;
+        }
+    }
+    
+    private void validateHealthDataItem(HealthDataItemDto item) {
+        if (item == null) {
+            throw new ValidationException("건강 데이터 항목은 null일 수 없습니다");
+        }
+    }
     public void validate(MinuteDataDto dto) {
         if (dto == null) {
             throw new ValidationException("MinuteDataDto는 null일 수 없습니다");

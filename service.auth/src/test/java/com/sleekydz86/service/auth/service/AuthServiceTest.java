@@ -7,7 +7,7 @@ import com.sleekydz86.service.auth.dto.User;
 import com.sleekydz86.service.auth.exception.BusinessException;
 import com.sleekydz86.service.auth.mapper.UserMapper;
 import com.sleekydz86.service.auth.provider.JwtTokenProvider;
-import com.sleekydz86.service.auth.provider.JwtTokenDto;
+import com.sleekydz86.service.auth.dto.JwtTokenDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

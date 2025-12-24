@@ -1,12 +1,10 @@
 package com.sleekydz86.service.healthcare.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 public class TargetDto {
-    int totalSleep;
-    int currentStep;
-    int currentStress;
+    private Integer totalSleep;
+    private Integer currentStep;
+    private Integer currentStress;
 }

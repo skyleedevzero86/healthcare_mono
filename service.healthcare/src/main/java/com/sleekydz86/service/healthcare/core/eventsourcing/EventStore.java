@@ -43,7 +43,7 @@ public class EventStore {
                             version,
                             event.getTimestamp(),
                             serializeEvent(event));
-                    eventRepository.save(eventEntity);
+                    eventRepository.insert(eventEntity);
                 }
 
                 for (DomainEvent event : events) {

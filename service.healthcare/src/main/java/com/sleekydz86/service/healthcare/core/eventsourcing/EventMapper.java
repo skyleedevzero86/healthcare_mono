@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface EventRepository {
+public interface EventMapper {
     List<EventEntity> findByAggregateIdOrderByVersionAsc(@Param("aggregateId") String aggregateId);
     int getLatestVersion(@Param("aggregateId") String aggregateId);
     List<EventEntity> findByAggregateIdAndVersionGreaterThanOrderByVersionAsc(
@@ -15,3 +15,4 @@ public interface EventRepository {
     List<String> findAllDistinctAggregateIds();
     void insert(EventEntity eventEntity);
 }
+

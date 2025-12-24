@@ -1,32 +1,15 @@
 package com.sleekydz86.service.healthcare.core.eventsourcing;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "event_store")
 public class EventEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "event_id", nullable = false, unique = true)
     private UUID eventId;
-
-    @Column(name = "aggregate_id", nullable = false)
     private String aggregateId;
-
-    @Column(name = "event_type", nullable = false)
     private String eventType;
-
-    @Column(name = "version", nullable = false)
     private int version;
-
-    @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
-
-    @Column(name = "event_data", columnDefinition = "TEXT", nullable = false)
     private String eventData;
 
     public EventEntity() {
