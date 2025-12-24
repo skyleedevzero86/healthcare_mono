@@ -1,14 +1,17 @@
 package com.sleekydz86.service.commu.repository;
 
 import com.sleekydz86.service.commu.entity.Usermng;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.sleekydz86.service.commu.mapper.UserMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class UserRepository {
-    @PersistenceContext
-    private EntityManager em;
 
-    public Usermng findOne(int userId) { return em.find(Usermng.class, userId);}
+    private final UserMapper userMapper;
+
+    public Usermng findOne(int userId) {
+        return userMapper.findOne(userId);
+    }
 }

@@ -43,10 +43,7 @@ public class CommunityRepository {
     public Community findBoard(int commuSeq) {
         try {
             log.debug("게시글 조회: commuSeq={}", commuSeq);
-            String jpql = "SELECT c FROM Community c WHERE c.commuSeq = :commuSeq";
-            jakarta.persistence.TypedQuery<Community> query = em.createQuery(jpql, Community.class);
-            query.setParameter("commuSeq", commuSeq);
-            Community community = query.getResultStream().findFirst().orElse(null);
+            Community community = communityMapper.findBoard(commuSeq);
             if (community == null) {
                 log.warn("게시글을 찾을 수 없음: commuSeq={}", commuSeq);
             }
@@ -65,45 +62,17 @@ public class CommunityRepository {
         try {
             log.debug("게시글 목록 조회: 조건={}", map);
             
-            StringBuilder jpql = new StringBuilder("SELECT c FROM Community c WHERE 1=1");
-            Map<String, Object> params = new java.util.HashMap<>();
-
-            if (map.containsKey("age") && map.get("age") != null) {
-                try {
-                    int age = Integer.parseInt(map.get("age").toString());
-                    int ageAvg = age / 10;
-                    jpql.append(" AND c.age / 10 = :ageAvg");
-                    params.put("ageAvg", ageAvg);
-                } catch (NumberFormatException e) {
-                    log.warn("잘못된 나이 형식: {}", map.get("age"));
-                }
-            }
-
-            if (map.containsKey("searchKeyword") && map.get("searchKeyword") != null) {
-                String keyword = map.get("searchKeyword").toString().trim();
-                if (!keyword.isEmpty()) {
-                    jpql.append(" AND c.content LIKE :keyword");
-                    params.put("keyword", "%" + keyword + "%");
-                }
-            }
-
-            jpql.append(" ORDER BY c.regDate DESC");
-
             int pageIdx = map.containsKey("pageIdx") && map.get("pageIdx") != null
                     ? Integer.parseInt(map.get("pageIdx").toString())
                     : 0;
             int pageSize = map.containsKey("pageSize") && map.get("pageSize") != null
                     ? Integer.parseInt(map.get("pageSize").toString())
                     : 10;
-
-            jakarta.persistence.TypedQuery<Community> query = em.createQuery(jpql.toString(), Community.class);
             
-            params.forEach(query::setParameter);
-            
-            query.setFirstResult(pageIdx * pageSize);
-            query.setMaxResults(pageSize);
+            map.put("pageIdx", pageIdx);
+            map.put("pageSize", pageSize);
 
-            List<Community> result = query.getResultList();
+            List<Community> result = communityMapper.findBoardList(map);
             log.info("게시글 목록 조회 완료: 결과 수={}", result.size());
             return result;
             
@@ -129,7 +98,7 @@ public class CommunityRepository {
         try {
             log.debug("게시글 수정 시작: commuSeq={}", community.getCommuSeq());
             
-            Community existing = em.find(Community.class, community.getCommuSeq());
+            Community existing = communityMapper.findBoard(community.getCommuSeq());
             if (existing == null) {
                 log.warn("수정할 게시글을 찾을 수 없음: commuSeq={}", community.getCommuSeq());
                 throw new BusinessException(
@@ -137,20 +106,10 @@ public class CommunityRepository {
                     ApiResultCode.RESULT_IS_EMPTY
                 );
             }
-
-            existing.setContent(community.getContent());
-            existing.setHeartrate(community.getHeartrate());
-            existing.setTemperature(community.getTemperature());
-            existing.setBloodpress(community.getBloodpress());
-            existing.setSmoking(community.getSmoking());
-            existing.setDrinking(community.getDrinking());
-            existing.setExercise(community.getExercise());
-            existing.setAge(community.getAge());
-            existing.setBodyAge(community.getBodyAge());
             
-            em.merge(existing);
+            int result = communityMapper.updateBoard(community);
             log.info("게시글 수정 완료: commuSeq={}", community.getCommuSeq());
-            return 1;
+            return result;
             
         } catch (BusinessException e) {
             throw e;
@@ -169,7 +128,7 @@ public class CommunityRepository {
         try {
             log.debug("게시글 삭제 시작: commuSeq={}", commuSeq);
             
-            Community community = em.find(Community.class, commuSeq);
+            Community community = communityMapper.findBoard(commuSeq);
             if (community == null) {
                 log.warn("삭제할 게시글을 찾을 수 없음: commuSeq={}", commuSeq);
                 throw new BusinessException(
@@ -178,9 +137,9 @@ public class CommunityRepository {
                 );
             }
             
-            em.remove(community);
+            int result = communityMapper.deleteBoard(commuSeq);
             log.info("게시글 삭제 완료: commuSeq={}", commuSeq);
-            return 1;
+            return result;
             
         } catch (BusinessException e) {
             throw e;

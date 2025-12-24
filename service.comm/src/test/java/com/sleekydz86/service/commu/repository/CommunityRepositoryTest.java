@@ -1,8 +1,7 @@
 package com.sleekydz86.service.commu.repository;
 
 import com.sleekydz86.service.commu.entity.Community;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
+import com.sleekydz86.service.commu.mapper.CommunityMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,13 +12,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,10 +28,7 @@ import static org.mockito.Mockito.*;
 class CommunityRepositoryTest {
 
     @Mock
-    private EntityManager entityManager;
-
-    @Mock
-    private TypedQuery<Community> typedQuery;
+    private CommunityMapper communityMapper;
 
     @InjectMocks
     private CommunityRepository communityRepository;
@@ -49,64 +47,77 @@ class CommunityRepositoryTest {
     @Test
     @DisplayName("게시글 저장 성공 테스트")
     void writeBoard_Success() {
-        doNothing().when(entityManager).persist(any(Community.class));
+        testCommunity.setCommuSeq(1);
+        when(communityMapper.writeBoard(any(Community.class))).thenAnswer(invocation -> {
+            Community c = invocation.getArgument(0);
+            c.setCommuSeq(1);
+            return 1;
+        });
 
         int result = communityRepository.writeBoard(testCommunity);
 
         assertThat(result).isEqualTo(1);
-        verify(entityManager, times(1)).persist(testCommunity);
+        verify(communityMapper, times(1)).writeBoard(testCommunity);
     }
 
     @Test
     @DisplayName("게시글 저장 실패 테스트")
     void writeBoard_Failure() {
-        doThrow(new RuntimeException("데이터베이스 오류")).when(entityManager).persist(any(Community.class));
+        doThrow(new RuntimeException("데이터베이스 오류")).when(communityMapper).writeBoard(any(Community.class));
 
-        int result = communityRepository.writeBoard(testCommunity);
+        try {
+            communityRepository.writeBoard(testCommunity);
+            fail("예외가 발생해야 합니다");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(RuntimeException.class);
+        }
 
-        assertThat(result).isEqualTo(0);
-        verify(entityManager, times(1)).persist(testCommunity);
+        verify(communityMapper, times(1)).writeBoard(testCommunity);
     }
 
     @Test
     @DisplayName("게시글 저장 - null 입력 테스트")
     void writeBoard_NullInput() {
-        doThrow(new IllegalArgumentException("Entity cannot be null")).when(entityManager).persist(null);
+        doThrow(new IllegalArgumentException("Community cannot be null")).when(communityMapper).writeBoard(null);
 
-        int result = communityRepository.writeBoard(null);
+        try {
+            communityRepository.writeBoard(null);
+            fail("예외가 발생해야 합니다");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(IllegalArgumentException.class);
+        }
 
-        assertThat(result).isEqualTo(0);
-        verify(entityManager, times(1)).persist(null);
+        verify(communityMapper, times(1)).writeBoard(null);
     }
 
     @Test
     @DisplayName("게시글 상세 조회 성공 테스트")
     void findBoard_Success() {
-        when(entityManager.find(Community.class, 1)).thenReturn(testCommunity);
+        when(communityMapper.findBoard(1)).thenReturn(testCommunity);
 
         Community result = communityRepository.findBoard(1);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserNm()).isEqualTo("testUser");
         assertThat(result.getContent()).isEqualTo("테스트 게시글 내용입니다.");
-        verify(entityManager, times(1)).find(Community.class, 1);
+        verify(communityMapper, times(1)).findBoard(1);
     }
 
     @Test
     @DisplayName("게시글 상세 조회 - 존재하지 않는 게시글 테스트")
     void findBoard_NotFound() {
-        when(entityManager.find(Community.class, 999)).thenReturn(null);
+        when(communityMapper.findBoard(999)).thenReturn(null);
 
         Community result = communityRepository.findBoard(999);
 
         assertThat(result).isNull();
-        verify(entityManager, times(1)).find(Community.class, 999);
+        verify(communityMapper, times(1)).findBoard(999);
     }
 
     @Test
     @DisplayName("게시글 상세 조회 중 예외 발생 테스트")
     void findBoard_Exception() {
-        when(entityManager.find(Community.class, 1)).thenThrow(new RuntimeException("데이터베이스 연결 오류"));
+        when(communityMapper.findBoard(1)).thenThrow(new RuntimeException("데이터베이스 연결 오류"));
 
         try {
             communityRepository.findBoard(1);
@@ -115,7 +126,7 @@ class CommunityRepositoryTest {
             assertThat(e.getMessage()).isEqualTo("데이터베이스 연결 오류");
         }
 
-        verify(entityManager, times(1)).find(Community.class, 1);
+        verify(communityMapper, times(1)).findBoard(1);
     }
 
     @Test
@@ -131,10 +142,9 @@ class CommunityRepositoryTest {
 
         List<Community> communityList = Arrays.asList(community1, community2);
 
-        when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenReturn(communityList);
+        when(communityMapper.findBoardList(anyMap())).thenReturn(communityList);
 
-        List<Community> result = communityRepository.findBoardList(new java.util.HashMap<>());
+        List<Community> result = communityRepository.findBoardList(new HashMap<>());
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
@@ -143,81 +153,73 @@ class CommunityRepositoryTest {
         assertThat(result.get(1).getUserNm()).isEqualTo("user2");
         assertThat(result.get(1).getContent()).isEqualTo("두 번째 게시글");
 
-        verify(entityManager, times(1)).createQuery("select h from health_community h", Community.class);
-        verify(typedQuery, times(1)).getResultList();
+        verify(communityMapper, times(1)).findBoardList(anyMap());
     }
 
     @Test
     @DisplayName("게시글 목록 조회 - 빈 목록 테스트")
     void findBoardList_Empty() {
-        when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenReturn(Arrays.asList());
+        when(communityMapper.findBoardList(anyMap())).thenReturn(Arrays.asList());
 
-        List<Community> result = communityRepository.findBoardList(new java.util.HashMap<>());
+        List<Community> result = communityRepository.findBoardList(new HashMap<>());
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
 
-        verify(entityManager, times(1)).createQuery("select h from health_community h", Community.class);
-        verify(typedQuery, times(1)).getResultList();
+        verify(communityMapper, times(1)).findBoardList(anyMap());
     }
 
     @Test
     @DisplayName("게시글 목록 조회 중 예외 발생 테스트")
     void findBoardList_Exception() {
-        when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenThrow(new RuntimeException("쿼리 실행 오류"));
+        when(communityMapper.findBoardList(anyMap())).thenThrow(new RuntimeException("쿼리 실행 오류"));
 
         try {
-            communityRepository.findBoardList(new java.util.HashMap<>());
+            communityRepository.findBoardList(new HashMap<>());
             fail("예외가 발생해야 합니다");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("쿼리 실행 오류");
         }
 
-        verify(entityManager, times(1)).createQuery("select h from health_community h", Community.class);
-        verify(typedQuery, times(1)).getResultList();
+        verify(communityMapper, times(1)).findBoardList(anyMap());
     }
 
     @Test
-    @DisplayName("게시글 저장 - EntityManager persist 호출 검증")
-    void writeBoard_EntityManagerPersistCall() {
+    @DisplayName("게시글 저장 - CommunityMapper writeBoard 호출 검증")
+    void writeBoard_CommunityMapperCall() {
         Community newCommunity = new Community();
         newCommunity.setUserNm("newUser");
         newCommunity.setContent("새로운 게시글");
+        newCommunity.setCommuSeq(1);
 
-        doNothing().when(entityManager).persist(any(Community.class));
+        when(communityMapper.writeBoard(any(Community.class))).thenAnswer(invocation -> {
+            Community c = invocation.getArgument(0);
+            c.setCommuSeq(1);
+            return 1;
+        });
 
         communityRepository.writeBoard(newCommunity);
 
-        verify(entityManager, times(1)).persist(newCommunity);
-        verify(entityManager, never()).merge(any(Community.class));
-        verify(entityManager, never()).remove(any(Community.class));
+        verify(communityMapper, times(1)).writeBoard(newCommunity);
     }
 
     @Test
-    @DisplayName("게시글 조회 - EntityManager find 호출 검증")
-    void findBoard_EntityManagerFindCall() {
-        when(entityManager.find(Community.class, 123)).thenReturn(testCommunity);
+    @DisplayName("게시글 조회 - CommunityMapper findBoard 호출 검증")
+    void findBoard_CommunityMapperCall() {
+        when(communityMapper.findBoard(123)).thenReturn(testCommunity);
 
         communityRepository.findBoard(123);
 
-        verify(entityManager, times(1)).find(Community.class, 123);
-        verify(entityManager, never()).persist(any(Community.class));
-        verify(entityManager, never()).merge(any(Community.class));
+        verify(communityMapper, times(1)).findBoard(123);
     }
 
     @Test
-    @DisplayName("게시글 목록 조회 - JPQL 쿼리 검증")
-    void findBoardList_JPQLQueryVerification() {
-        when(entityManager.createQuery(anyString(), eq(Community.class))).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenReturn(Arrays.asList(testCommunity));
+    @DisplayName("게시글 목록 조회 - CommunityMapper findBoardList 호출 검증")
+    void findBoardList_CommunityMapperCall() {
+        when(communityMapper.findBoardList(anyMap())).thenReturn(Arrays.asList(testCommunity));
 
-        communityRepository.findBoardList(new java.util.HashMap<>());
+        communityRepository.findBoardList(new HashMap<>());
 
-        verify(entityManager, times(1)).createQuery(anyString(), eq(Community.class));
-        verify(typedQuery, times(1)).getResultList();
-        verify(typedQuery, never()).setParameter(anyString(), any());
-        verify(typedQuery, never()).setMaxResults(anyInt());
+        verify(communityMapper, times(1)).findBoardList(anyMap());
     }
 }
