@@ -135,7 +135,7 @@ public class ManagementController {
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 정보 수정 중 오류 발생", e);
             return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
@@ -166,7 +166,7 @@ public class ManagementController {
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("사용자 정보 삭제 중 오류 발생", e);
             return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
@@ -197,7 +197,7 @@ public class ManagementController {
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
+            return ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("비밀번호 변경 중 오류 발생", e);
             return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
@@ -228,7 +228,7 @@ public class ManagementController {
             return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("의사 검색 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<Map<String, Object>>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -256,7 +256,7 @@ public class ManagementController {
             return ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("보호자 검색 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<Map<String, Object>>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -324,7 +324,7 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("건강 사용자 목록 조회 중 오류 발생", e);
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<List<Map<String, Object>>>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -339,7 +339,7 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("의사/보호자 목록 조회 중 오류 발생", e);
-            return ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<List<Map<String, Object>>>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
@@ -403,13 +403,14 @@ public class ManagementController {
             return convertToApiResponse(response);
         } catch (Exception e) {
             log.error("사용자 검색 중 오류 발생", e);
-            return (ResponseEntity) ApiResponse.<Void>error(ApiResultCode.UNKNOWN_ERR);
+            return ApiResponse.<List<Map<String, Object>>>error(ApiResultCode.UNKNOWN_ERR);
         }
     }
 
-    private <T> ResponseEntity<ApiResponse<?>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
+    @SuppressWarnings("unchecked")
+    private <T> ResponseEntity<ApiResponse<T>> convertToApiResponse(ServiceResponse<T> serviceResponse) {
         if (serviceResponse.isSuccess()) {
-            return ApiResponse.ok(serviceResponse.getData());
+            return (ResponseEntity<ApiResponse<T>>) ApiResponse.ok(serviceResponse.getData());
         } else {
             ApiResultCode errorCode = ApiResultCode.UNKNOWN_ERR;
             if ("400".equals(serviceResponse.getResultCode())) {
