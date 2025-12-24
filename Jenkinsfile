@@ -77,12 +77,13 @@ pipeline {
                     
                     sh '''
                         echo "BOM 제거 시작"
-                        find . -name "*.java" -type f | while read -r file; do
-                            if [ -f "$file" ] && head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
-                                perl -0777 -i -pe "s/^\\xEF\\xBB\\xBF//" "$file"
-                                echo "BOM 제거: $file"
-                            fi
-                        done
+                        find . -name "*.java" -type f -exec sh -c '
+                            for file; do
+                                if head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
+                                    perl -0777 -i -pe "s/^\\xEF\\xBB\\xBF//" "$file"
+                                fi
+                            done
+                        ' _ {} + 2>/dev/null || true
                         echo "BOM 제거 완료"
                     '''
                 }
@@ -121,6 +122,17 @@ pipeline {
                             
                             dir(service) {
                                 try {
+                                    def gradlewExists = sh(
+                                        script: "test -f gradlew && echo 'exists' || echo 'not_exists'",
+                                        returnStdout: true
+                                    ).trim()
+                                    
+                                    if (gradlewExists == 'not_exists') {
+                                        echo "${service}: gradlew 파일이 없어 테스트를 건너뜁니다."
+                                        testSummary[service] = [total: 0, passed: 0, failed: 0, skipped: 0]
+                                        return
+                                    }
+                                    
                                     def testOutput = sh(
                                         script: """
                                             chmod +x gradlew || true
@@ -133,6 +145,11 @@ pipeline {
                                         script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
                                         returnStdout: true
                                     ).trim()
+                                    
+                                    def testFailed = testOutput.contains("EXIT_CODE:1") || 
+                                                    testOutput.contains("FAILED") || 
+                                                    testOutput.contains("cannot access 'gradlew'") || 
+                                                    testOutput.contains("No such file or directory")
                                     
                                     if (testReport) {
                                         def stats = sh(
@@ -183,13 +200,17 @@ pipeline {
                                             echo "${service} 테스트 성공: 총 ${total}개 중 ${passed}개 통과"
                                         }
                                     } else {
-                                        echo "${service}: 테스트 리포트를 찾을 수 없습니다"
-                                        testSummary[service] = [total: 0, passed: 0, failed: 0, skipped: 0]
-                                    }
-                                    
-                                    if (testOutput.contains("EXIT_CODE:1") || testOutput.contains("FAILED")) {
-                                        if (!failedServices.contains(service)) {
-                                            failedServices.add(service)
+                                        if (testFailed) {
+                                            echo "${service}: 테스트 실행 실패로 인해 리포트가 생성되지 않았습니다"
+                                            echo "${service}: 오류 내용 - ${testOutput.take(300)}"
+                                            testSummary[service] = [total: 0, passed: 0, failed: 1, skipped: 0]
+                                            if (!failedServices.contains(service)) {
+                                                failedServices.add(service)
+                                            }
+                                            currentBuild.result = 'UNSTABLE'
+                                        } else {
+                                            echo "${service}: 테스트 리포트를 찾을 수 없습니다 (테스트가 실행되지 않았거나 리포트가 생성되지 않음)"
+                                            testSummary[service] = [total: 0, passed: 0, failed: 0, skipped: 0]
                                         }
                                     }
                                     
