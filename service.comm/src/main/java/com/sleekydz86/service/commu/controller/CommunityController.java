@@ -52,8 +52,7 @@ public class CommunityController {
             }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("게시글 작성 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);

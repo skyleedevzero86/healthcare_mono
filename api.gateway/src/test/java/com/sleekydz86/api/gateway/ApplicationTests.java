@@ -4,10 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-@SpringBootTest
-@TestPropertySource(properties = {
+@SpringBootTest(properties = {
     "spring.cloud.config.enabled=false",
-    "spring.config.import=optional:file:./"
+    "spring.config.import="
 })
 class ApplicationTests {
 

@@ -62,7 +62,8 @@ public class HealthcareController {
             com.sleekydz86.service.healthcare.util.InputSanitizer inputSanitizer,
             PatientService patientService,
             MedicalRecordService medicalRecordService,
-            CacheService cacheService) {
+            CacheService cacheService,
+            DtoConverter dtoConverter) {
         this.healthDataService = healthDataService;
         this.chartDataService = chartDataService;
         this.healthScoreService = healthScoreService;
@@ -75,6 +76,7 @@ public class HealthcareController {
         this.patientService = patientService;
         this.medicalRecordService = medicalRecordService;
         this.cacheService = cacheService;
+        this.dtoConverter = dtoConverter;
     }
 
     private LocalDate getToday() {

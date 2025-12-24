@@ -69,8 +69,7 @@ public class UserController {
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("회원가입 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -90,15 +89,13 @@ public class UserController {
             dto.setUserId(sanitizedUserId);
             
             if (userService.duplicateId(dto)) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
-                return ResponseEntity.ok(responseEntity.getBody());
+                return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else {
                 return ApiResponse.error(ApiResultCode.DUPLICATE_CODE);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("ID 중복 확인 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -116,15 +113,13 @@ public class UserController {
             }
             
             if (userService.duplicateEmail(dto)) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
-                return ResponseEntity.ok(responseEntity.getBody());
+                return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
         } else {
                 return ApiResponse.error(ApiResultCode.DUPLICATE_CODE);
         }
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
-            ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         } catch (Exception e) {
             log.error("이메일 중복 확인 중 오류 발생", e);
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -172,10 +167,9 @@ public class UserController {
         Map<String, Object> map = userService.findUserPw(dto);
         if (!map.isEmpty()) {
             if ((Long) map.get("count") != 0) {
-                ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
-                return ResponseEntity.ok(responseEntity.getBody());
+                return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
             } else {
-                    return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
+                return ApiResponse.error(ApiResultCode.RESULT_IS_EMPTY);
             }
         } else {
             return ApiResponse.error(ApiResultCode.UNKNOWN_ERR);
@@ -196,8 +190,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<?>> getUserSeq(@RequestBody Map<String, String> request) {
         String userId = request.get("userId");
         if (userId == null || userId.isEmpty()) {
-            ResponseEntity<ApiResponse<Map<String, Object>>> responseEntity = ApiResponse.<Map<String, Object>>error(ApiResultCode.PARAM_VALID_ERR);
-            return ResponseEntity.ok(responseEntity.getBody());
+            return ApiResponse.error(ApiResultCode.PARAM_VALID_ERR);
         }
         Integer userSeq = userService.getUserSeq(userId);
         if (userSeq == null) {
@@ -205,8 +198,7 @@ public class UserController {
         }
         Map<String, Object> result = new HashMap<>();
         result.put("userSeq", userSeq);
-        ResponseEntity<ApiResponse<Map<String, Object>>> responseEntity = ApiResponse.ok(result);
-        return ResponseEntity.ok(responseEntity.getBody());
+        return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok(result);
     }
 
     @PostMapping("/v1/refresh")
@@ -235,8 +227,7 @@ public class UserController {
         }
 
         userService.logout(token);
-        ResponseEntity<ApiResponse<Void>> responseEntity = ApiResponse.<Void>ok();
-        return ResponseEntity.ok(responseEntity.getBody());
+        return (ResponseEntity<ApiResponse<?>>) (ResponseEntity<?>) ApiResponse.ok();
     }
 
 }

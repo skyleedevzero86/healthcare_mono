@@ -44,7 +44,7 @@ class UserServiceTest {
         userDto.setUserId(uniqueId);
         userDto.setUserNm("테스트 사용자");
         userDto.setUserRoleFk("1");
-        userDto.setPageIdx(1);
+        userDto.setPageIndex(1);
         userDto.setPageSize(10);
 
         userhealthDto = new UserhealthDto();
