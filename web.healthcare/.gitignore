@@ -38,3 +38,4 @@ data/
 logs/
 **/data/
 **/logs/
+*.log

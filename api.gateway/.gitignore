@@ -32,6 +32,9 @@ out/
 
 .vscode/
 
+logs/
+*.log
+
 application*.yml
 application*.yaml
 application*.properties

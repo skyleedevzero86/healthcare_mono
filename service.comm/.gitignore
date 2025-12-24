@@ -31,3 +31,6 @@ out/
 /.nb-gradle/
 
 .vscode/
+
+logs/
+*.log
