@@ -1,5 +1,6 @@
 package com.sleekydz86.service.llm.controller;
 
+import com.sleekydz86.service.llm.application.DiseasePredictionService;
 import com.sleekydz86.service.llm.application.EnhancedHealthcareService;
 import com.sleekydz86.service.llm.application.mapper.LLMMapper;
 import com.sleekydz86.service.llm.domain.model.ConversationId;
@@ -33,6 +34,7 @@ public class LLMController {
     private final ManageConversationUseCase manageConversationUseCase;
     private final PromptBuilder promptBuilder;
     private final EnhancedHealthcareService enhancedHealthcareService;
+    private final DiseasePredictionService diseasePredictionService;
 
     @PostMapping("/generate")
     public ResponseEntity<ApiResponse<LLMResponse>> generate(@Valid @RequestBody LLMRequest request) {
@@ -225,6 +227,29 @@ public class LLMController {
         }
 
         return emitter;
+    }
+
+    @PostMapping("/disease-prediction")
+    public ResponseEntity<ApiResponse<DiseasePredictionResponse>> predictDisease(
+            @Valid @RequestBody DiseasePredictionRequest request) {
+        try {
+            log.info("질병 예측 요청 수신: userId={}", request.getUserId());
+
+            if (!generateLLMUseCase.isAvailable()) {
+                return ResponseEntity.ok(ApiResponse.error(
+                        ApiResultCode.LLM_SERVICE_ERROR,
+                        "LLM 서비스가 현재 사용할 수 없습니다."));
+            }
+
+            DiseasePredictionResponse response = diseasePredictionService.predict(request);
+            return ResponseEntity.ok(ApiResponse.ok(response));
+
+        } catch (Exception e) {
+            log.error("질병 예측 요청 처리 오류", e);
+            return ResponseEntity.ok(ApiResponse.error(
+                    ApiResultCode.LLM_SERVICE_ERROR,
+                    "질병 예측 처리 중 오류가 발생했습니다: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/health")
