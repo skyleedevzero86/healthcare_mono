@@ -1,16 +1,10 @@
-# Qwen2.5-7B-Instruct-GGUF 모델 직접 다운로드 스크립트 (단일 파일)
-# Hugging Face에서 직접 다운로드
-
 Write-Host "Qwen2.5-7B-Instruct-GGUF 모델 다운로드를 시작합니다..." -ForegroundColor Green
-
-# models 디렉토리 생성
 $modelsDir = ".\models"
 if (-not (Test-Path $modelsDir)) {
     New-Item -ItemType Directory -Path $modelsDir | Out-Null
     Write-Host "models 디렉토리를 생성했습니다." -ForegroundColor Yellow
 }
 
-# 기존 파일 삭제 (있다면)
 $oldFile = Join-Path $modelsDir "qwen2.5-7b-instruct-q4_k_m.gguf"
 if (Test-Path $oldFile) {
     Write-Host "기존 모델 파일을 삭제합니다..." -ForegroundColor Yellow
@@ -20,7 +14,6 @@ if (Test-Path $oldFile) {
 Write-Host "`n모델 다운로드 중... (약 4.7GB, 시간이 걸릴 수 있습니다)" -ForegroundColor Cyan
 Write-Host "다운로드 URL: https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF" -ForegroundColor Gray
 
-# 여러 가능한 URL 시도
 $urls = @(
     "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf",
     "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf",
@@ -34,11 +27,9 @@ foreach ($url in $urls) {
         Write-Host "`n시도 중: $url" -ForegroundColor Cyan
         $outputFile = Join-Path $modelsDir "qwen2.5-7b-instruct-q4_k_m.gguf"
         
-        # 다운로드 (진행률 표시)
         $ProgressPreference = 'Continue'
         Invoke-WebRequest -Uri $url -OutFile $outputFile -UseBasicParsing
         
-        # 파일 크기 확인 (최소 4GB 이상이어야 함)
         $fileInfo = Get-Item $outputFile
         $fileSizeGB = [math]::Round($fileInfo.Length / 1GB, 2)
         

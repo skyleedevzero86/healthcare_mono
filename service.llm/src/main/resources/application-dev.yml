@@ -1,6 +1,6 @@
 llm:
   llama-cpp:
-    server-url: http://localhost:8080
+    server-url: http://localhost:8090
   cache:
     enabled: true
     ttl: 1800

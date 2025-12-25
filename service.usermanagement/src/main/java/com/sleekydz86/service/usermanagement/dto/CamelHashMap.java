@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.usermanagement.dto;
+package com.sleekydz86.service.usermanagement.dto;
 
 import com.google.common.base.CaseFormat;
 

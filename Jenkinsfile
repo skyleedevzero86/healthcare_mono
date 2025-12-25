@@ -20,6 +20,7 @@ pipeline {
         DEPLOY_TARGET_USER = "${env.DEPLOY_TARGET_USER ?: 'ec2-user'}"
         DEPLOY_TARGET_DIR = "${env.DEPLOY_TARGET_DIR ?: '/app/services'}"
         DOCKER_REGISTRY = "${env.DOCKER_REGISTRY ?: ''}"
+        FAIL_TESTS_ON_FAILURE = "${env.FAIL_TESTS_ON_FAILURE ?: 'false'}"
     }
     
     tools {
@@ -76,12 +77,13 @@ pipeline {
                     
                     sh '''
                         echo "BOM 제거 시작"
-                        find . -name "*.java" -type f | while read -r file; do
-                            if [ -f "$file" ] && head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
-                                perl -0777 -i -pe "s/^\\xEF\\xBB\\xBF//" "$file"
-                                echo "BOM 제거: $file"
-                            fi
-                        done
+                        find . -name "*.java" -type f -exec sh -c '
+                            for file; do
+                                if head -c 3 "$file" | od -An -tx1 | grep -q "ef bb bf"; then
+                                    perl -0777 -i -pe "s/^\\xEF\\xBB\\xBF//" "$file"
+                                fi
+                            done
+                        ' _ {} + 2>/dev/null || true
                         echo "BOM 제거 완료"
                     '''
                 }
@@ -108,6 +110,8 @@ pipeline {
                     ]
                     
                     def testResults = [:]
+                    def failedServices = []
+                    def testSummary = [:]
                     
                     services.each { service ->
                         testResults[service] = {
@@ -118,24 +122,123 @@ pipeline {
                             
                             dir(service) {
                                 try {
-                                    sh """
-                                        chmod +x gradlew || true
-                                        ./gradlew test --no-daemon || echo "테스트 경고 (계속 진행)"
-                                    """
-                                    
-                                    def testReport = sh(
-                                        script: "find build/test-results -name '*.xml' 2>/dev/null | head -1",
+                                    def gradlewExists = sh(
+                                        script: "test -f gradlew && echo 'exists' || echo 'not_exists'",
                                         returnStdout: true
                                     ).trim()
                                     
-                                    if (testReport) {
-                                        echo "${service} 테스트 완료: ${testReport}"
+                                    if (gradlewExists == 'not_exists') {
+                                        echo "${service}: gradlew 파일이 없어 테스트를 건너뜁니다."
+                                        testSummary[service] = [total: 0, passed: 0, failed: 0, skipped: 0]
+                                        return
+                                    }
+                                    
+                                    def testOutput = sh(
+                                        script: """
+                                            chmod +x gradlew || true
+                                            ./gradlew test --no-daemon 2>&1 || echo "EXIT_CODE:1"
+                                        """,
+                                        returnStdout: true
+                                    )
+                                    
+                                    def testReports = sh(
+                                        script: "find build/test-results -name '*.xml' -type f 2>/dev/null",
+                                        returnStdout: true
+                                    ).trim()
+                                    
+                                    def testFailed = testOutput.contains("EXIT_CODE:1") || 
+                                                    testOutput.contains("FAILED") || 
+                                                    testOutput.contains("cannot access 'gradlew'") || 
+                                                    testOutput.contains("No such file or directory")
+                                    
+                                    if (testReports) {
+                                        def reportFiles = testReports.split('\n').findAll { it.trim() }
+                                        def total = 0
+                                        def failures = 0
+                                        def errors = 0
+                                        def skipped = 0
+                                        
+                                        reportFiles.each { reportFile ->
+                                            if (fileExists(reportFile.trim())) {
+                                                def fileStats = sh(
+                                                    script: """
+                                                        tests=\$(grep -oP 'tests=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        failures=\$(grep -oP 'failures=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        errors=\$(grep -oP 'errors=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        skipped=\$(grep -oP 'skipped=\"\\K[0-9]+' "${reportFile.trim()}" | head -1 || echo 0)
+                                                        echo "\${tests}:\${failures}:\${errors}:\${skipped}"
+                                                    """,
+                                                    returnStdout: true
+                                                ).trim()
+                                                
+                                                if (fileStats) {
+                                                    def (t, f, e, s) = fileStats.split(':')
+                                                    total += (t as Integer) ?: 0
+                                                    failures += (f as Integer) ?: 0
+                                                    errors += (e as Integer) ?: 0
+                                                    skipped += (s as Integer) ?: 0
+                                                }
+                                            }
+                                        }
+                                        
+                                        def passed = total - failures - errors - skipped
+                                        
+                                        testSummary[service] = [
+                                            total: total,
+                                            passed: passed,
+                                            failed: (failures as Integer) + (errors as Integer),
+                                            skipped: skipped
+                                        ]
+                                        
+                                        def totalFailed = (failures as Integer) + (errors as Integer)
+                                        if (totalFailed > 0) {
+                                            failedServices.add(service)
+                                            echo "${service} 테스트 실패: 총 ${total}개 중 ${totalFailed}개 실패"
+                                            
+                                            def reportFilesStr = reportFiles.collect { "\"${it.trim()}\"" }.join(' ')
+                                            def failedTestDetails = sh(
+                                                script: """
+                                                    for report in ${reportFilesStr}; do
+                                                        if [ -f "\$report" ]; then
+                                                            grep -oP '<testcase[^>]*name=\"\\K[^\"]+' "\$report" | while read -r testname; do
+                                                                if grep -A 20 "name=\"\${testname}\"" "\$report" | grep -q '<failure\\|<error'; then
+                                                                    echo "  - \${testname}"
+                                                                fi
+                                                            done
+                                                        fi
+                                                    done | head -10
+                                                """,
+                                                returnStdout: true
+                                            ).trim()
+                                            
+                                            if (failedTestDetails) {
+                                                echo "실패한 테스트:"
+                                                echo failedTestDetails
+                                            }
+                                            
+                                            currentBuild.result = 'UNSTABLE'
+                                        } else {
+                                            echo "${service} 테스트 성공: 총 ${total}개 중 ${passed}개 통과"
+                                        }
                                     } else {
-                                        echo "${service}: 테스트 리포트를 찾을 수 없습니다"
+                                        if (testFailed) {
+                                            echo "${service}: 테스트 실행 실패로 인해 리포트가 생성되지 않았습니다"
+                                            echo "${service}: 오류 내용 - ${testOutput.take(300)}"
+                                            testSummary[service] = [total: 0, passed: 0, failed: 1, skipped: 0]
+                                            if (!failedServices.contains(service)) {
+                                                failedServices.add(service)
+                                            }
+                                            currentBuild.result = 'UNSTABLE'
+                                        } else {
+                                            echo "${service}: 테스트 리포트를 찾을 수 없습니다 (테스트가 실행되지 않았거나 리포트가 생성되지 않음)"
+                                            testSummary[service] = [total: 0, passed: 0, failed: 0, skipped: 0]
+                                        }
                                     }
                                     
                                 } catch (Exception e) {
-                                    echo "${service} 테스트 실패: ${e.getMessage()}"
+                                    echo "${service} 테스트 실행 중 오류: ${e.getMessage()}"
+                                    failedServices.add(service)
+                                    testSummary[service] = [total: 0, passed: 0, failed: 1, skipped: 0]
                                     currentBuild.result = 'UNSTABLE'
                                 }
                             }
@@ -145,37 +248,81 @@ pipeline {
                     parallel testResults
                     
                     echo ""
+                    echo "========================================="
+                    echo "테스트 결과 요약"
+                    echo "========================================="
+                    
+                    def totalTests = 0
+                    def totalPassed = 0
+                    def totalFailed = 0
+                    def totalSkipped = 0
+                    
+                    testSummary.each { service, stats ->
+                        totalTests += stats.total as Integer
+                        totalPassed += stats.passed as Integer
+                        totalFailed += stats.failed as Integer
+                        totalSkipped += stats.skipped as Integer
+                        
+                        def status = stats.failed > 0 ? "[FAIL]" : "[PASS]"
+                        echo "${status} ${service}: 총 ${stats.total}개 (통과: ${stats.passed}, 실패: ${stats.failed}, 건너뜀: ${stats.skipped})"
+                    }
+                    
+                    echo ""
+                    echo "전체 통계:"
+                    echo "  총 테스트: ${totalTests}개"
+                    echo "  통과: ${totalPassed}개"
+                    echo "  실패: ${totalFailed}개"
+                    echo "  건너뜀: ${totalSkipped}개"
+                    
+                    if (totalTests > 0) {
+                        def failRateValue = totalFailed * 100.0 / totalTests
+                        def failRate = String.format("%.2f", failRateValue)
+                        echo "  실패율: ${failRate}%"
+                        
+                        if (failRateValue > 20) {
+                            echo ""
+                            echo "경고: 실패율이 20%를 초과합니다!"
+                        }
+                    }
+                    
+                    if (failedServices.size() > 0) {
+                        echo ""
+                        echo "========================================="
+                        echo "테스트 실패한 서비스 목록"
+                        echo "========================================="
+                        failedServices.each { service ->
+                            echo "  - ${service}"
+                        }
+                        echo "총 ${failedServices.size()}개 서비스에서 테스트 실패"
+                        
+                        if (env.FAIL_TESTS_ON_FAILURE == 'true') {
+                            error("테스트 실패로 인해 빌드 중단 (FAIL_TESTS_ON_FAILURE=true)")
+                        }
+                    }
+                    
+                    echo ""
                     echo "----------------------------------------"
                     echo "모바일 앱 테스트 실행"
                     echo "----------------------------------------"
                     
                     dir('mobile/healthcare_mobile') {
                         try {
+                            if (!fileExists('package.json')) {
+                                echo "모바일 앱: package.json이 없어 테스트를 건너뜁니다."
+                                return
+                            }
+                            
                             sh '''
-                                pwd
-                                ls -la
-                                
-                                if [ ! -f "package.json" ]; then
-                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
-                                    exit 1
-                                fi
-                                
                                 if ! command -v node &> /dev/null; then
-                                    echo "Node.js 설치 중..."
                                     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
                                     apt-get install -y nodejs || yum install -y nodejs npm || true
                                 fi
                                 
-                                node --version
-                                npm --version
-                                
                                 if ! command -v pnpm &> /dev/null; then
                                     npm install -g pnpm
                                 fi
-                                pnpm --version
                                 
                                 pnpm install --frozen-lockfile
-                                
                                 pnpm test:ci
                             '''
                             
@@ -308,31 +455,22 @@ pipeline {
                     
                     dir('mobile/healthcare_mobile') {
                         try {
+                            if (!fileExists('package.json')) {
+                                echo "모바일 앱: package.json이 없어 빌드를 건너뜁니다."
+                                return
+                            }
+                            
                             sh '''
-                                pwd
-                                ls -la
-                                
-                                if [ ! -f "package.json" ]; then
-                                    echo "package.json을 찾을 수 없습니다. 현재 디렉토리: $(pwd)"
-                                    exit 1
-                                fi
-                                
                                 if ! command -v node &> /dev/null; then
-                                    echo "Node.js 설치 중..."
                                     curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
                                     apt-get install -y nodejs || yum install -y nodejs npm || true
                                 fi
                                 
-                                node --version
-                                npm --version
-                                
                                 if ! command -v pnpm &> /dev/null; then
                                     npm install -g pnpm
                                 fi
-                                pnpm --version
                                 
                                 pnpm install --frozen-lockfile
-                                
                                 pnpm tsc --noEmit
                             '''
                             
@@ -582,6 +720,50 @@ pipeline {
                     junit '**/build/test-results/**/*.xml'
                 } catch (Exception e) {
                     echo "JUnit 리포트 발행 실패 (무시): ${e.getMessage()}"
+                }
+                
+                try {
+                    def failureReport = sh(
+                        script: """
+                            echo "========================================="
+                            echo "실패한 테스트 상세 리포트"
+                            echo "========================================="
+                            echo ""
+                            
+                            total_failures=0
+                            for xml_file in \$(find . -path '*/build/test-results/*.xml' 2>/dev/null); do
+                                if [ -f "\$xml_file" ]; then
+                                    failures=\$(grep -oP 'failures=\"\\K[0-9]+' "\$xml_file" | head -1 || echo 0)
+                                    errors=\$(grep -oP 'errors=\"\\K[0-9]+' "\$xml_file" | head -1 || echo 0)
+                                    total=\$((failures + errors))
+                                    
+                                    if [ \$total -gt 0 ]; then
+                                        total_failures=\$((total_failures + total))
+                                        echo "파일: \${xml_file}"
+                                        echo "실패: \${failures}개, 오류: \${errors}개"
+                                        
+                                        grep -oP '<testcase[^>]*name=\"\\K[^\"]+' "\$xml_file" | while read testname; do
+                                            if grep -A 20 "name=\"\${testname}\"" "\$xml_file" | grep -q '<failure\\|<error'; then
+                                                echo "  - \${testname}"
+                                            fi
+                                        done
+                                        echo "---"
+                                    fi
+                                fi
+                            done
+                            
+                            if [ \$total_failures -eq 0 ]; then
+                                echo "실패한 테스트가 없습니다."
+                            else
+                                echo ""
+                                echo "총 실패한 테스트: \$total_failures개"
+                            fi
+                        """,
+                        returnStdout: true
+                    )
+                    echo failureReport
+                } catch (Exception e) {
+                    echo "실패 리포트 생성 실패 (무시): ${e.getMessage()}"
                 }
             }
         }

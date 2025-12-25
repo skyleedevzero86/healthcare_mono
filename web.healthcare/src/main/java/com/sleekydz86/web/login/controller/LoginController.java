@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.web.login.controller;
+package com.sleekydz86.web.login.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleekydz86.web.global.util.AES256Util;

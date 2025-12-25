@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.client;
+package com.sleekydz86.service.healthcare.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

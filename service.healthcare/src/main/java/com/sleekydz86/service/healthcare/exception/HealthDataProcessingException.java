@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.exception;
+package com.sleekydz86.service.healthcare.exception;
 
 import lombok.Getter;
 

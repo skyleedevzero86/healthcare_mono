@@ -1,10 +1,11 @@
-﻿package com.sleekydz86.service.healthcare.event;
+package com.sleekydz86.service.healthcare.event;
 
 import com.sleekydz86.service.healthcare.eventsourcing.EventHandler;
 import com.sleekydz86.service.healthcare.eventsourcing.EventStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventConsumer {
 
+    @Qualifier("healthDataEventStore")
     private final EventStore eventStore;
     private final EventHandler eventHandler;
 

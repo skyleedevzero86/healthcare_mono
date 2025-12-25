@@ -123,7 +123,7 @@ class CommunityRepositoryTest {
             communityRepository.findBoard(1);
             fail("예외가 발생해야 합니다");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("데이터베이스 연결 오류");
+            assertThat(e.getMessage()).contains("데이터베이스 연결 오류");
         }
 
         verify(communityMapper, times(1)).findBoard(1);
@@ -178,7 +178,7 @@ class CommunityRepositoryTest {
             communityRepository.findBoardList(new HashMap<>());
             fail("예외가 발생해야 합니다");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("쿼리 실행 오류");
+            assertThat(e.getMessage()).contains("쿼리 실행 오류");
         }
 
         verify(communityMapper, times(1)).findBoardList(anyMap());

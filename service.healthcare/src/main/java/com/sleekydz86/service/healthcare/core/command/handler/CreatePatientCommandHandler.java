@@ -9,6 +9,7 @@ import com.sleekydz86.service.healthcare.dto.ApiResultCode;
 import com.sleekydz86.service.healthcare.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public class CreatePatientCommandHandler implements CommandHandler<CreatePatientCommand, String> {
 
     private final AggregateRepository aggregateRepository;
+    @Qualifier("domainEventStore")
     private final EventStore eventStore;
 
     @Override

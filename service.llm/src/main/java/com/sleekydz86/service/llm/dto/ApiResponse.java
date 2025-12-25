@@ -57,5 +57,14 @@ public class ApiResponse<T> {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+
+    public static <T> ApiResponse<T> error(ApiResultCode resultCode, String message) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .code(resultCode.getCode())
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 }
 

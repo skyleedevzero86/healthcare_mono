@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.event;
+package com.sleekydz86.service.auth.event;
 
 import com.sleekydz86.service.auth.dto.ApiResultCode;
 import com.sleekydz86.service.auth.exception.BusinessException;

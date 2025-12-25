@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.api.gateway.filter;
+package com.sleekydz86.api.gateway.filter;
 
 import com.sleekydz86.api.gateway.dto.ApiResultCode;
 import lombok.extern.slf4j.Slf4j;

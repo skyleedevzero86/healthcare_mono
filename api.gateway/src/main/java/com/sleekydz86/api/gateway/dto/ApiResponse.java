@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.api.gateway.dto;
+package com.sleekydz86.api.gateway.dto;
 
 import com.sleekydz86.api.gateway.util.DtoConverter;
 import lombok.Builder;

@@ -2,15 +2,15 @@ package com.sleekydz86.service.usermanagement.service.cache;
 
 import com.sleekydz86.service.usermanagement.config.CacheConfig;
 import com.sleekydz86.service.usermanagement.entity.User;
-import com.sleekydz86.service.usermanagement.repository.UserJpaRepository;
+import com.sleekydz86.service.usermanagement.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +20,8 @@ public class CacheService {
     private static final Duration USER_DIRECT_TTL = CacheConfig.USER_INFO_TTL;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final UserJpaRepository userJpaRepository;
+    @Qualifier("mapperUserMapper")
+    private final UserMapper userMapper;
 
     @Cacheable(value = CacheConfig.CACHE_USER_INFO, key = "#id", unless = "#result == null")
     public User getUser(Long id) {
@@ -28,8 +29,7 @@ public class CacheService {
         if (user != null) {
             return user;
         }
-        Optional<User> optionalUser = userJpaRepository.findById(id);
-        user = optionalUser.orElse(null);
+        user = userMapper.findById(id);
         if (user != null) {
             cacheUserData(user);
         }

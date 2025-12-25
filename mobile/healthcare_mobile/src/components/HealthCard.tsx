@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { HealthData } from '../types';
+import { HealthData } from '../types/health';
+import { healthAnalysisService } from '../services/healthAnalysisService';
+import { HealthStatusBadge } from './HealthStatusBadge';
 
 interface HealthCardProps {
   data: HealthData;
@@ -8,55 +10,29 @@ interface HealthCardProps {
 }
 
 const HealthCard: React.FC<HealthCardProps> = ({ data, title = '건강 데이터' }) => {
-  const getHealthStatus = (value: number, type: string) => {
-    switch (type) {
-      case 'heartrate':
-        if (value < 60) return { status: '낮음', color: '#4CAF50' };
-        if (value > 100) return { status: '높음', color: '#F44336' };
-        return { status: '정상', color: '#2196F3' };
-      case 'temperature':
-        if (value < 36.1) return { status: '낮음', color: '#4CAF50' };
-        if (value > 37.2) return { status: '높음', color: '#F44336' };
-        return { status: '정상', color: '#2196F3' };
-      case 'spo2':
-        if (value < 95) return { status: '낮음', color: '#F44336' };
-        return { status: '정상', color: '#2196F3' };
-      default:
-        return { status: '정상', color: '#2196F3' };
-    }
-  };
+  const heartrateStatus = healthAnalysisService.getHealthStatus(data.heartrate, 'heartrate');
+  const temperatureStatus = healthAnalysisService.getHealthStatus(data.temperature, 'temperature');
+  const spo2Status = healthAnalysisService.getHealthStatus(data.spo2, 'spo2');
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.dataGrid}>
-        <View style={styles.dataItem}>
-          <Text style={styles.dataLabel}>심박수</Text>
-          <Text style={[styles.dataValue, { color: getHealthStatus(data.heartrate, 'heartrate').color }]}>
-            {data.heartrate} bpm
-          </Text>
-          <Text style={[styles.dataStatus, { color: getHealthStatus(data.heartrate, 'heartrate').color }]}>
-            {getHealthStatus(data.heartrate, 'heartrate').status}
-          </Text>
-        </View>
-        <View style={styles.dataItem}>
-          <Text style={styles.dataLabel}>체온</Text>
-          <Text style={[styles.dataValue, { color: getHealthStatus(data.temperature, 'temperature').color }]}>
-            {data.temperature}°C
-          </Text>
-          <Text style={[styles.dataStatus, { color: getHealthStatus(data.temperature, 'temperature').color }]}>
-            {getHealthStatus(data.temperature, 'temperature').status}
-          </Text>
-        </View>
-        <View style={styles.dataItem}>
-          <Text style={styles.dataLabel}>산소포화도</Text>
-          <Text style={[styles.dataValue, { color: getHealthStatus(data.spo2, 'spo2').color }]}>
-            {data.spo2}%
-          </Text>
-          <Text style={[styles.dataStatus, { color: getHealthStatus(data.spo2, 'spo2').color }]}>
-            {getHealthStatus(data.spo2, 'spo2').status}
-          </Text>
-        </View>
+        <HealthStatusBadge
+          status={heartrateStatus}
+          value={`${data.heartrate} bpm`}
+          label="심박수"
+        />
+        <HealthStatusBadge
+          status={temperatureStatus}
+          value={`${data.temperature}°C`}
+          label="체온"
+        />
+        <HealthStatusBadge
+          status={spo2Status}
+          value={`${data.spo2}%`}
+          label="산소포화도"
+        />
         <View style={styles.dataItem}>
           <Text style={styles.dataLabel}>걸음수</Text>
           <Text style={styles.dataValue}>{data.step.toLocaleString()}</Text>
@@ -115,10 +91,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 2,
-  },
-  dataStatus: {
-    fontSize: 12,
-    fontWeight: '600',
   },
 });
 

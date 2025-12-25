@@ -24,6 +24,6 @@ public class LLMResponse {
     private Long processingTimeMs;
     private LocalDateTime timestamp;
     private Map<String, Object> metadata;
-    private List<com.sleekydz86.service.llm.dto.Message> messages;
+    private List<Message> messages;
 }
 

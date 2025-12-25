@@ -1,6 +1,7 @@
 package com.sleekydz86.service.llm.service;
 
 import com.sleekydz86.service.llm.dto.LLMResponse;
+import com.sleekydz86.service.llm.dto.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,7 +36,7 @@ public class ConversationService {
     public void saveMessage(String conversationId, String role, String content) {
         String key = MESSAGE_KEY_PREFIX + conversationId;
 
-        LLMResponse.Message message = LLMResponse.Message.builder()
+        Message message = Message.builder()
                 .role(role)
                 .content(content)
                 .timestamp(LocalDateTime.now())
@@ -51,7 +52,7 @@ public class ConversationService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<LLMResponse.Message> getHistory(String conversationId) {
+    public List<Message> getHistory(String conversationId) {
         String key = MESSAGE_KEY_PREFIX + conversationId;
 
         Long size = redisTemplate.opsForList().size(key);
@@ -64,10 +65,10 @@ public class ConversationService {
             return new ArrayList<>();
         }
 
-        List<LLMResponse.Message> result = new ArrayList<>();
+        List<Message> result = new ArrayList<>();
         for (Object obj : messages) {
-            if (obj instanceof LLMResponse.Message) {
-                result.add((LLMResponse.Message) obj);
+            if (obj instanceof Message) {
+                result.add((Message) obj);
             }
         }
 

@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService } from './api';
 import { API_ENDPOINTS } from '../constants/api';
 import { SigninRequest, SignupRequest, ApiResponse, JwtToken, User } from '../types';
+import { secureStorage } from '../utils/secureStorage';
 
 class AuthService {
   async signin(credentials: SigninRequest): Promise<{ user: User; token: JwtToken }> {
@@ -13,9 +13,8 @@ class AuthService {
     if (response.resultCode === '0000') {
       const { user, token } = response.resultData;
       
-      await AsyncStorage.setItem('accessToken', token.accessToken);
-      await AsyncStorage.setItem('refreshToken', token.refreshToken);
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+      await secureStorage.setToken(token.accessToken, token.refreshToken);
+      await secureStorage.setItem('user', JSON.stringify(user));
       
       return { user, token };
     } else {
@@ -35,7 +34,7 @@ class AuthService {
   }
 
   async refreshToken(): Promise<JwtToken> {
-    const refreshToken = await AsyncStorage.getItem('refreshToken');
+    const refreshToken = await secureStorage.getRefreshToken();
     if (!refreshToken) {
       throw new Error('갱신 토큰이 없습니다');
     }
@@ -47,8 +46,7 @@ class AuthService {
 
     if (response.resultCode === '0000') {
       const token = response.resultData;
-      await AsyncStorage.setItem('accessToken', token.accessToken);
-      await AsyncStorage.setItem('refreshToken', token.refreshToken);
+      await secureStorage.setToken(token.accessToken, token.refreshToken);
       return token;
     } else {
       throw new Error(response.resultMessage);
@@ -59,9 +57,8 @@ class AuthService {
     try {
       await apiService.post(API_ENDPOINTS.AUTH.LOGOUT);
     } catch (error) {
-      console.warn('로그아웃 API 호출 실패:', error);
     } finally {
-      await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
+      await secureStorage.clearAll();
     }
   }
 
@@ -128,16 +125,15 @@ class AuthService {
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      const userString = await AsyncStorage.getItem('user');
+      const userString = await secureStorage.getItem('user');
       return userString ? JSON.parse(userString) : null;
     } catch (error) {
-      console.error('현재 사용자 정보 가져오기 오류:', error);
       return null;
     }
   }
 
   async isAuthenticated(): Promise<boolean> {
-    const token = await AsyncStorage.getItem('accessToken');
+    const token = await secureStorage.getAccessToken();
     return !!token;
   }
 }

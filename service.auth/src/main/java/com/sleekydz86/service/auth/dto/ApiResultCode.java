@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.dto;
+package com.sleekydz86.service.auth.dto;
 
 public enum ApiResultCode {
 

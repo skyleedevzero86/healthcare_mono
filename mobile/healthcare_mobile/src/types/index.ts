@@ -15,28 +15,7 @@ export interface User {
   guardianSeq?: number;
 }
 
-export interface HealthData {
-  userId: string;
-  time: string;
-  heartrate: number;
-  temperature: number;
-  spo2: number;
-  step: number;
-  stress: number;
-  bloodpressMin: number;
-  bloodpressMax: number;
-  repiratory: number;
-  sleep: number;
-}
-
-export interface HealthScore {
-  userId: string;
-  dailyDate: string;
-  userSleepScore: number;
-  userExerciseScore: number;
-  userStressScore: number;
-  healthScore: number;
-}
+export { HealthData, HealthScore, Checkup, CheckupItem } from './health';
 
 export interface CommunityPost {
   commuSeq: number;
@@ -101,6 +80,12 @@ export type RootStackParamList = {
   HealthInfo: undefined;
   Community: undefined;
   Profile: undefined;
+  Diet: undefined;
+  Exercise: undefined;
+  Recommend: undefined;
+  Consultation: undefined;
+  Notification: undefined;
+  Settings: undefined;
 };
 
 export type MainTabParamList = {
@@ -109,6 +94,12 @@ export type MainTabParamList = {
   Community: undefined;
   Profile: undefined;
   Permission: undefined;
+  Diet: undefined;
+  Exercise: undefined;
+  Recommend: undefined;
+  Consultation: undefined;
+  Notification: undefined;
+  Settings: undefined;
 };
 
 export interface PermissionStatus {
@@ -150,4 +141,181 @@ export interface SensorData {
     z: number;
   };
   timestamp: number;
+}
+
+
+export interface MealItem {
+  foodCode: string;
+  foodName: string;
+  quantity: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface MealRecord {
+  mealSeq: number;
+  userId: string;
+  mealDate: string;
+  mealType: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+  mealTime: string;
+  items: MealItem[];
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+}
+
+export interface DietPlan {
+  planSeq: number;
+  userId: string;
+  goal: 'WEIGHT_LOSS' | 'WEIGHT_MAINTENANCE' | 'WEIGHT_GAIN' | 'MUSCLE_GAIN';
+  activityLevel: 'SEDENTARY' | 'LIGHT' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE';
+  duration: number;
+  dailyCalories: number;
+  days: DietDay[];
+}
+
+export interface DietDay {
+  day: number;
+  totalCalories: number;
+  meals: MealPlan[];
+}
+
+export interface MealPlan {
+  mealType: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+  calories: number;
+  items: MealItem[];
+  nutrition: {
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}
+
+export interface ExerciseRecord {
+  exerciseSeq: number;
+  userId: string;
+  exerciseDate: string;
+  exerciseCode: string;
+  exerciseName: string;
+  duration: number;
+  heartRateAvg?: number;
+  heartRateMax?: number;
+  distance?: number;
+  intensity: 'LOW' | 'MODERATE' | 'HIGH' | 'VERY_HIGH';
+  calories: number;
+  notes?: string;
+}
+
+export interface ExerciseProgram {
+  programSeq: number;
+  userId: string;
+  goal: 'WEIGHT_LOSS' | 'MUSCLE_GAIN' | 'STRENGTH' | 'FLEXIBILITY' | 'GENERAL_FITNESS';
+  exerciseType: 'CARDIO' | 'STRENGTH' | 'FLEXIBILITY' | 'MIXED';
+  weeklyFrequency: number;
+  duration: number;
+  fitnessLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  weeks: ExerciseWeek[];
+}
+
+export interface ExerciseWeek {
+  week: number;
+  exercises: ExerciseSchedule[];
+}
+
+export interface ExerciseSchedule {
+  day: number;
+  exerciseCode: string;
+  exerciseName: string;
+  duration: number;
+  sets?: number;
+  reps?: number;
+  intensity: 'LOW' | 'MODERATE' | 'HIGH' | 'VERY_HIGH';
+  notes?: string;
+}
+
+export interface HealthContent {
+  contentId: number;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  views: number;
+  likes: number;
+  content: string;
+}
+
+export interface HealthService {
+  serviceId: number;
+  name: string;
+  type: 'HOSPITAL' | 'CLINIC' | 'PHARMACY' | 'FITNESS' | 'OTHER';
+  description: string;
+  address: string;
+  phone: string;
+  rating: number;
+  reviewCount: number;
+  hours: string;
+}
+
+export interface Doctor {
+  doctorSeq: number;
+  doctorNm: string;
+  specialty: string;
+  hospital: string;
+  experience: number;
+  rating: number;
+  reviewCount: number;
+  available: boolean;
+  specialties: string[];
+}
+
+export interface Consultation {
+  consultationSeq: number;
+  userId: string;
+  doctorSeq: number;
+  doctorNm: string;
+  consultationType: 'GENERAL' | 'CHECKUP_REVIEW' | 'MEDICATION' | 'LIFESTYLE' | 'EMERGENCY';
+  consultationDate: string;
+  subject: string;
+  content: string;
+  status: 'PENDING' | 'APPROVED' | 'COMPLETED' | 'CANCELLED';
+  doctorResponse?: string;
+  responseDate?: string;
+  shareConsent: boolean;
+}
+
+export interface ServiceReservation {
+  reservationSeq: number;
+  userId: string;
+  serviceId: number;
+  hospitalName: string;
+  reservationType: 'GENERAL' | 'CHECKUP' | 'FOLLOW_UP' | 'CONSULTATION' | 'VACCINATION';
+  department: string;
+  reservationDateTime: string;
+  symptoms?: string;
+  phone: string;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+}
+
+export { Notification, NotificationFilter } from './notification';
+
+export { Settings } from './settings';
+
+export interface NutritionGoals {
+  dailyCalories: number;
+  dailyProtein: number;
+  dailyCarbs: number;
+  dailyFat: number;
+}
+
+export interface NutritionProgress {
+  today: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  goals: NutritionGoals;
 }

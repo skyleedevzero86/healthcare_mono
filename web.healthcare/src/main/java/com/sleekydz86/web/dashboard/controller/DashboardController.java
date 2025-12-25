@@ -17,7 +17,7 @@ import java.util.Map;
 @Controller
 public class DashboardController {
 
-    @RequestMapping(value = "/")
+    @RequestMapping(value = "/health/info")
     public String main(HttpServletRequest req, HttpServletResponse res, HttpSession session,
             @RequestParam Map<String, Object> map, Model model) {
 

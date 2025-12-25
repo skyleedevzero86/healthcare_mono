@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.eventsourcing;
+package com.sleekydz86.service.healthcare.eventsourcing;
 
 import com.sleekydz86.service.healthcare.event.HealthDataEvent;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Repository
+@Repository("healthDataEventStore")
 @RequiredArgsConstructor
 public class EventStore {
     

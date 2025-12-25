@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api.gateway
+  profiles:
+    active: dev
+
+logging:
+  level:
+    root: INFO
+    com.sleekydz86: DEBUG
+

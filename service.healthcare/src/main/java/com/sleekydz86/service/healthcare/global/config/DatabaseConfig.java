@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(value = "com.sleekydz86.service.healthcare.global.mapper")
+@MapperScan(value = {"com.sleekydz86.service.healthcare.global.mapper", "com.sleekydz86.service.healthcare.core.eventsourcing"})
 public class DatabaseConfig {
 
     @Bean

@@ -26,6 +26,7 @@ import com.sleekydz86.service.healthcare.service.score.ScoreCalculatorImpl;
 import com.sleekydz86.service.healthcare.strategy.DataProcessingService;
 import com.sleekydz86.service.healthcare.strategy.DataProcessor;
 import com.sleekydz86.service.healthcare.validation.HealthDataValidator;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -48,8 +49,8 @@ public class ServiceConfiguration {
     public HealthDataService healthDataService(HealthDataRepository healthDataRepository,
             HealthDataValidator healthDataValidator,
             DataProcessingService dataProcessingService,
-            EventPublisher eventPublisher,
-            EventStore eventStore,
+            @Qualifier("healthDataEventPublisher") EventPublisher eventPublisher,
+            @Qualifier("healthDataEventStore") EventStore eventStore,
             AuthServiceClient authServiceClient,
             HealthcareMetrics healthcareMetrics,
             io.micrometer.core.instrument.MeterRegistry meterRegistry) {

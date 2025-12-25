@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,9 @@ import java.util.UUID;
 public class HealthcareServiceImpl implements HealthcareService {
 
     private final HealthcareMapper healthcareMapper;
+    @Qualifier("healthDataEventPublisher")
     private final EventPublisher eventPublisher;
+    @Qualifier("healthDataEventStore")
     private final EventStore eventStore;
     private final com.sleekydz86.service.healthcare.client.AuthServiceClient authServiceClient;
     private final HealthcareMetrics healthcareMetrics;

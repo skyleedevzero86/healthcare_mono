@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.config;
+package com.sleekydz86.service.healthcare.config;
 
 import feign.Logger;
 import feign.Request;

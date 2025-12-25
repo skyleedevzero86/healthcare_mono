@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.config;
+package com.sleekydz86.service.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

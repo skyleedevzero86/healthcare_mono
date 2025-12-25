@@ -5,6 +5,7 @@ import com.sleekydz86.service.commu.metrics.CommunityMetrics;
 import com.sleekydz86.service.commu.repository.CommunityRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.Timer.Sample;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,12 @@ class CommunityServiceTest {
     @Mock
     private Timer timer;
 
+    @Mock
+    private MeterRegistry meterRegistry;
+
+    @Mock
+    private Sample timerSample;
+
     @InjectMocks
     private CommunityServiceImpl communityService;
 
@@ -49,10 +56,11 @@ class CommunityServiceTest {
         testCommunity.setRegDate(new Date());
         testCommunity.setUserId(String.valueOf(System.currentTimeMillis() % Integer.MAX_VALUE));
 
-        when(communityMetrics.startBoardPostProcessingTimer()).thenReturn(Timer.start(mock(MeterRegistry.class)));
-        when(communityMetrics.startBoardQueryTimer()).thenReturn(Timer.start(mock(MeterRegistry.class)));
+        when(communityMetrics.startBoardPostProcessingTimer()).thenReturn(timerSample);
+        when(communityMetrics.startBoardQueryTimer()).thenReturn(timerSample);
         when(communityMetrics.getBoardPostProcessingTime()).thenReturn(timer);
         when(communityMetrics.getBoardQueryTime()).thenReturn(timer);
+        doNothing().when(timerSample).stop(any(Timer.class));
         doNothing().when(communityMetrics).incrementBoardPostsCreated();
         doNothing().when(communityMetrics).incrementBoardPostsRead();
         doNothing().when(communityMetrics).incrementBoardListQueries();

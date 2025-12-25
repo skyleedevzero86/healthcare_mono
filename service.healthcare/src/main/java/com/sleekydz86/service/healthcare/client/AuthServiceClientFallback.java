@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.client;
+package com.sleekydz86.service.healthcare.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

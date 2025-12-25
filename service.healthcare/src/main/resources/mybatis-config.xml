@@ -29,4 +29,8 @@
         <typeAlias type="java.util.LinkedHashMap" alias="CamelMap"/>
         <package name="com.sleekydz86.service.healthcare.dto"/>
     </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="com.sleekydz86.service.healthcare.core.eventsourcing.UUIDTypeHandler"/>
+    </typeHandlers>
 </configuration>

@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.commu.service;
+package com.sleekydz86.service.commu.service;
 
 import com.sleekydz86.service.commu.entity.Community;
 import com.sleekydz86.service.commu.entity.Usermng;

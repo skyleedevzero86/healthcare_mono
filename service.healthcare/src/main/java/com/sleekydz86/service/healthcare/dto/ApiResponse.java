@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.healthcare.dto;
+package com.sleekydz86.service.healthcare.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

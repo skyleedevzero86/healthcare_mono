@@ -14,9 +14,14 @@ server:
 spring:
   application:
     name: service.healthcare
+  main:
+    allow-bean-definition-overriding: true
   profiles:
     active: dev
     include: common
+  autoconfigure:
+    exclude:
+      - org.apache.shardingsphere.spring.boot.ShardingSphereAutoConfiguration
 
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
@@ -40,7 +45,8 @@ spring:
   cloud:
     config:
       uri: ${CONFIG_SERVER_URL:http://localhost:8888}
-      fail-fast: true
+      fail-fast: false
+      enabled: ${SPRING_CLOUD_CONFIG_ENABLED:true}
       retry:
         initial-interval: 1000
         max-attempts: 6

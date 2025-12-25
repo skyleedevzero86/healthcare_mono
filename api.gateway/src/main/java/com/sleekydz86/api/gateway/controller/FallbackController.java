@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.api.gateway.controller;
+package com.sleekydz86.api.gateway.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

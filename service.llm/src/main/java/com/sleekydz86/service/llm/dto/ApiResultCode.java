@@ -15,7 +15,10 @@ public enum ApiResultCode {
     LLM_TIMEOUT("LLM_TIMEOUT", "LLM 응답 시간이 초과되었습니다."),
     LLM_RATE_LIMIT_EXCEEDED("LLM_RATE_LIMIT_EXCEEDED", "요청 한도를 초과했습니다."),
     INVALID_PROMPT("INVALID_PROMPT", "유효하지 않은 프롬프트입니다."),
+    PARAM_VALID_ERR("PARAM_VALID_ERR", "파라미터 검증 오류가 발생했습니다."),
     CACHE_ERROR("CACHE_ERROR", "캐시 처리 중 오류가 발생했습니다."),
+    DISEASE_PREDICTION_ERROR("DISEASE_PREDICTION_ERROR", "질병 예측 처리 중 오류가 발생했습니다."),
+    DISEASE_PREDICTION_PARSE_ERROR("DISEASE_PREDICTION_PARSE_ERROR", "질병 예측 결과 파싱 중 오류가 발생했습니다."),
     UNKNOWN_ERR("UNKNOWN_ERR", "알 수 없는 오류가 발생했습니다.");
 
     private final String code;

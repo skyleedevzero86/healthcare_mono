@@ -1,4 +1,4 @@
-﻿package com.sleekydz86.service.auth.security;
+package com.sleekydz86.service.auth.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
