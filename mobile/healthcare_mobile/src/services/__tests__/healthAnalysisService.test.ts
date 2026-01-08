@@ -1,50 +1,50 @@
-import { healthAnalysisService } from '../healthAnalysisService';
+import { getHealthStatus, analyzeHealthData } from '../healthAnalysisService';
 import { HealthData } from '../../types/health';
 
 describe('HealthAnalysisService', () => {
   describe('getHealthStatus', () => {
     it('should return normal status for heartrate in range', () => {
-      const result = healthAnalysisService.getHealthStatus(75, 'heartrate');
+      const result = getHealthStatus(75, 'heartrate');
       expect(result.status).toBe('정상');
       expect(result.color).toBe('#2196F3');
     });
 
     it('should return high status for high heartrate', () => {
-      const result = healthAnalysisService.getHealthStatus(110, 'heartrate');
+      const result = getHealthStatus(110, 'heartrate');
       expect(result.status).toBe('높음');
       expect(result.color).toBe('#F44336');
     });
 
     it('should return low status for low heartrate', () => {
-      const result = healthAnalysisService.getHealthStatus(50, 'heartrate');
+      const result = getHealthStatus(50, 'heartrate');
       expect(result.status).toBe('낮음');
       expect(result.color).toBe('#4CAF50');
     });
 
     it('should return normal status for temperature in range', () => {
-      const result = healthAnalysisService.getHealthStatus(36.5, 'temperature');
+      const result = getHealthStatus(36.5, 'temperature');
       expect(result.status).toBe('정상');
     });
 
     it('should return high status for high temperature', () => {
-      const result = healthAnalysisService.getHealthStatus(38.0, 'temperature');
+      const result = getHealthStatus(38.0, 'temperature');
       expect(result.status).toBe('높음');
     });
 
     it('should return normal status for spo2 in range', () => {
-      const result = healthAnalysisService.getHealthStatus(98, 'spo2');
+      const result = getHealthStatus(98, 'spo2');
       expect(result.status).toBe('정상');
     });
 
     it('should return low status for low spo2', () => {
-      const result = healthAnalysisService.getHealthStatus(90, 'spo2');
+      const result = getHealthStatus(90, 'spo2');
       expect(result.status).toBe('낮음');
     });
   });
 
   describe('analyzeHealthData', () => {
     it('should return default analysis when data is null', () => {
-      const result = healthAnalysisService.analyzeHealthData(null);
+      const result = analyzeHealthData(null);
       expect(result.overallStatus).toBe('양호');
       expect(result.recommendations.length).toBeGreaterThan(0);
     });
@@ -64,7 +64,7 @@ describe('HealthAnalysisService', () => {
         sleep: 7,
       };
 
-      const result = healthAnalysisService.analyzeHealthData(data);
+      const result = analyzeHealthData(data);
       expect(result.overallStatus).toBe('양호');
       expect(result.analysis.length).toBeGreaterThan(0);
     });
@@ -84,7 +84,7 @@ describe('HealthAnalysisService', () => {
         sleep: 5,
       };
 
-      const result = healthAnalysisService.analyzeHealthData(data);
+      const result = analyzeHealthData(data);
       expect(result.overallStatus).toBe('주의');
       expect(result.recommendations.length).toBeGreaterThan(0);
     });

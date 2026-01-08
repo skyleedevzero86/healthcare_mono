@@ -15,8 +15,8 @@ import { RootState, AppDispatch } from '../../store';
 import { fetchHealthData, insertHealthData, fetchHealthChart } from '../../store/slices/healthSlice';
 import { takePicture, selectImageFromLibrary } from '../../store/slices/permissionSlice';
 import { HealthData } from '../../types/health';
-import { healthAnalysisService } from '../../services/healthAnalysisService';
-import { InputValidator } from '../../utils/inputValidator';
+import { getHealthStatus } from '../../services/healthAnalysisService';
+import { validateHealthValue } from '../../utils/inputValidator';
 import { ErrorHandler } from '../../utils/errorHandler';
 
 const HealthInfoScreen: React.FC = () => {
@@ -244,7 +244,7 @@ const HealthInfoScreen: React.FC = () => {
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>심박수</Text>
                     {(() => {
-                      const status = healthAnalysisService.getHealthStatus(data.heartrate, 'heartrate');
+                      const status = getHealthStatus(data.heartrate, 'heartrate');
                       return (
                         <>
                           <Text style={[styles.dataValue, { color: status.color }]}>
@@ -260,7 +260,7 @@ const HealthInfoScreen: React.FC = () => {
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>체온</Text>
                     {(() => {
-                      const status = healthAnalysisService.getHealthStatus(data.temperature, 'temperature');
+                      const status = getHealthStatus(data.temperature, 'temperature');
                       return (
                         <>
                           <Text style={[styles.dataValue, { color: status.color }]}>
@@ -276,7 +276,7 @@ const HealthInfoScreen: React.FC = () => {
                   <View style={styles.dataItem}>
                     <Text style={styles.dataLabel}>산소포화도</Text>
                     {(() => {
-                      const status = healthAnalysisService.getHealthStatus(data.spo2, 'spo2');
+                      const status = getHealthStatus(data.spo2, 'spo2');
                       return (
                         <>
                           <Text style={[styles.dataValue, { color: status.color }]}>

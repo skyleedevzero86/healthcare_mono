@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { HealthData } from '../types/health';
-import { healthAnalysisService, HealthAnalysis } from '../services/healthAnalysisService';
+import { analyzeHealthData, HealthAnalysis } from '../services/healthAnalysisService';
 
 interface UseHealthAnalysisResult {
   analysis: HealthAnalysis | null;
@@ -20,7 +20,7 @@ export const useHealthAnalysis = (healthData: HealthData | null): UseHealthAnaly
 
     setLoading(true);
     setTimeout(() => {
-      const result = healthAnalysisService.analyzeHealthData(healthData);
+      const result = analyzeHealthData(healthData);
       setAnalysis(result);
       setLoading(false);
     }, 1500);

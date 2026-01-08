@@ -10,7 +10,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNotifications } from '../../hooks/useNotifications';
-import { notificationService } from '../../services/notificationService';
 import { NotificationItem } from '../../components/NotificationItem';
 
 const NotificationScreen: React.FC = () => {

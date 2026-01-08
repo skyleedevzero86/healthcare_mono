@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User, SigninRequest, SignupRequest, JwtToken, ApiResponse } from '../../types';
-import { authService } from '../../services/authService';
+import * as authService from '../../services/authService';
 
 interface AuthState {
   user: User | null;
@@ -34,7 +34,7 @@ export const signup = createAsyncThunk(
   'auth/signup',
   async (userData: SignupRequest, { rejectWithValue }) => {
     try {
-      const response = await authService.signup(userData);
+      await authService.signup(userData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -46,8 +46,7 @@ export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await authService.refreshToken();
-      return response;
+      return await authService.refreshToken();
     } catch (error: any) {
       return rejectWithValue(error.message);
     }

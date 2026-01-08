@@ -1,3 +1,4 @@
-export { healthAnalysisService, IHealthAnalysisService, HealthStatus, HealthAnalysis } from './healthAnalysisService';
-export { notificationService, INotificationService } from './notificationService';
+export { getHealthStatus, analyzeHealthData, HealthStatus, HealthAnalysis } from './healthAnalysisService';
+export { getNotificationIcon, getTimeAgo, filterNotifications } from './notificationService';
+export { healthKitService } from './healthKitService';
 

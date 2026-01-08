@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { HealthData } from '../types/health';
-import { healthAnalysisService } from '../services/healthAnalysisService';
+import { getHealthStatus } from '../services/healthAnalysisService';
 import { HealthStatusBadge } from './HealthStatusBadge';
 
 interface HealthDataCardProps {
@@ -11,9 +11,9 @@ interface HealthDataCardProps {
 }
 
 export const HealthDataCard: React.FC<HealthDataCardProps> = ({ data, onChartPress }) => {
-  const heartrateStatus = healthAnalysisService.getHealthStatus(data.heartrate, 'heartrate');
-  const temperatureStatus = healthAnalysisService.getHealthStatus(data.temperature, 'temperature');
-  const spo2Status = healthAnalysisService.getHealthStatus(data.spo2, 'spo2');
+  const heartrateStatus = getHealthStatus(data.heartrate, 'heartrate');
+  const temperatureStatus = getHealthStatus(data.temperature, 'temperature');
+  const spo2Status = getHealthStatus(data.spo2, 'spo2');
 
   return (
     <View style={styles.container}>

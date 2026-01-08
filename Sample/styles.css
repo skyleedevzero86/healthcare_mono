@@ -4534,6 +4534,66 @@ body {
     background-color: #3a3a3a;
 }
 
+.dark-mode .app-header {
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.dark-mode .screen-header {
+    color: #e0e0e0;
+}
+
+.dark-mode .screen-header h2 {
+    color: #e0e0e0;
+}
+
+.dark-mode .header-actions {
+    color: #e0e0e0;
+}
+
+.dark-mode .header-button {
+    color: #b0b0b0;
+}
+
+.dark-mode .header-button:hover {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+}
+
+.dark-mode .header-buttons {
+    color: #e0e0e0;
+}
+
+.dark-mode .header-action-btn {
+    color: #b0b0b0;
+}
+
+.dark-mode .header-action-btn:hover {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+}
+
+.dark-mode .card-header h3 {
+    color: #e0e0e0;
+}
+
+.dark-mode .data-header {
+    color: #e0e0e0;
+}
+
+.dark-mode .data-time {
+    color: #b0b0b0;
+}
+
+.dark-mode .modal-header {
+    background-color: #2a2a2a;
+    border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .modal-header h3 {
+    color: #e0e0e0;
+}
 
 .notification-header-actions {
     display: flex;
