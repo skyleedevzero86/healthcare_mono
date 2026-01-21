@@ -15,19 +15,6 @@ spring:
       cache:
         period: 3600
 
-  jpa:
-    hibernate:
-      ddl-auto: validate
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-        jdbc:
-          time_zone: Asia/Seoul
-
   mybatis:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.sleekydz86.web.dto
@@ -130,8 +117,6 @@ logging:
     root: INFO
     com.sleekydz86: DEBUG
     org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.web: DEBUG
 
 info:

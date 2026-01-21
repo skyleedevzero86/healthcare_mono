@@ -3,21 +3,25 @@ package com.sleekydz86.api.gateway.events;
 import com.sleekydz86.api.gateway.dto.ApiResultCode;
 import com.sleekydz86.api.gateway.eventsourcing.DomainEvent;
 import com.sleekydz86.api.gateway.exception.BusinessException;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    
+    @Value("${spring.rabbitmq.exchange:healthcare.exchange}")
+    private String exchange;
 
-    public EventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
+    public EventPublisher(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public void publish(DomainEvent event) {
         try {
-            kafkaTemplate.send("healthcare-events", event.getEventType(), event);
+            rabbitTemplate.convertAndSend(exchange, event.getEventType(), event);
         } catch (Exception e) {
             throw new BusinessException("이벤트 발행 실패", e, ApiResultCode.INTERNAL_ERROR);
         }
