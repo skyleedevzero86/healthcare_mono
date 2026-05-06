@@ -2,7 +2,7 @@
 
 ## 웹버전
 
-![System Architecture](https://github.com/user-attachments/assets/a2a4ebde-590b-4b29-81d2-6c5b06395ef9)
+![System Architecture](https://github.com/user-attachments/assets/a2a4ebde-590b-4b29-81d2-6c5b06395ef9)<br/>
 
 ## 모바일버전
 
