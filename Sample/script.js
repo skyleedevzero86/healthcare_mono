@@ -40,6 +40,8 @@ class HealthcareApp {
         this.settings = this.loadSettings();
         this.notifications = [];
         this.isSubmittingConsultation = false;
+        this.autoSyncEnabled = false;
+        this.autoSyncInterval = null;
         
         this.init();
     }
@@ -54,6 +56,7 @@ class HealthcareApp {
         setTimeout(() => {
             this.hideLoadingScreen();
             this.checkAuthentication();
+            this.startAutoSync();
         }, 2000);
     }
 
@@ -147,6 +150,17 @@ class HealthcareApp {
         document.getElementById('submit-health-data').addEventListener('click', () => {
             this.submitHealthData();
         });
+
+        const autoSyncToggle = document.getElementById('setting-auto-sync');
+        if (autoSyncToggle) {
+            autoSyncToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.startAutoSync();
+                } else {
+                    this.stopAutoSync();
+                }
+            });
+        }
 
         document.getElementById('show-write-form').addEventListener('click', () => {
             this.showWriteModal();
@@ -1884,6 +1898,90 @@ class HealthcareApp {
         this.updateHealthInfo();
         this.updateDashboard();
         this.showToast('건강 데이터가 저장되었습니다.', 'success');
+    }
+
+    generateAutoHealthData() {
+        if (!this.isAuthenticated || !this.currentUser) {
+            return null;
+        }
+
+        const baseHeartRate = 70;
+        const baseTemperature = 36.5;
+        const baseSpo2 = 98;
+        const baseStep = 5000;
+        const baseStress = 3;
+        const baseBpMax = 120;
+        const baseBpMin = 80;
+        const baseRespiratory = 16;
+        const baseSleep = 7;
+
+        return {
+            userId: this.currentUser.userId,
+            time: new Date().toISOString(),
+            heartrate: Math.round(baseHeartRate + (Math.random() - 0.5) * 20),
+            temperature: parseFloat((baseTemperature + (Math.random() - 0.5) * 0.5).toFixed(1)),
+            spo2: Math.round(baseSpo2 + (Math.random() - 0.5) * 4),
+            step: Math.round(baseStep + (Math.random() - 0.5) * 2000),
+            stress: Math.round(baseStress + (Math.random() - 0.5) * 2),
+            bloodpressMin: Math.round(baseBpMin + (Math.random() - 0.5) * 10),
+            bloodpressMax: Math.round(baseBpMax + (Math.random() - 0.5) * 10),
+            repiratory: Math.round(baseRespiratory + (Math.random() - 0.5) * 2),
+            sleep: parseFloat((baseSleep + (Math.random() - 0.5) * 1).toFixed(1))
+        };
+    }
+
+    startAutoSync() {
+        if (this.autoSyncEnabled) {
+            return;
+        }
+
+        this.autoSyncEnabled = true;
+        
+        if (this.healthData.length === 0 && this.isAuthenticated && this.currentUser) {
+            const initialData = this.generateAutoHealthData();
+            if (initialData) {
+                this.healthData.unshift(initialData);
+                this.saveToStorage();
+                this.updateHealthInfo();
+                this.updateDashboard();
+            }
+        }
+
+        this.autoSyncInterval = setInterval(() => {
+            if (this.isAuthenticated && this.currentUser) {
+                const newData = this.generateAutoHealthData();
+                if (newData) {
+                    const lastData = this.healthData[0];
+                    const timeDiff = lastData ? 
+                        (new Date(newData.time) - new Date(lastData.time)) / (1000 * 60) : 60;
+                    
+                    if (!lastData || timeDiff >= 30) {
+                        this.healthData.unshift(newData);
+                        this.saveToStorage();
+                        this.updateHealthInfo();
+                        this.updateDashboard();
+                    }
+                }
+            }
+        }, 60000);
+    }
+
+    stopAutoSync() {
+        this.autoSyncEnabled = false;
+        if (this.autoSyncInterval) {
+            clearInterval(this.autoSyncInterval);
+            this.autoSyncInterval = null;
+        }
+    }
+
+    toggleAutoSync() {
+        if (this.autoSyncEnabled) {
+            this.stopAutoSync();
+            this.showToast('자동 데이터 수집이 중지되었습니다.', 'info');
+        } else {
+            this.startAutoSync();
+            this.showToast('자동 데이터 수집이 시작되었습니다.', 'success');
+        }
     }
 
     showWriteModal() {

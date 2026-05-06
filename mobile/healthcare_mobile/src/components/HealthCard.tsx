@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { HealthData } from '../types/health';
-import { healthAnalysisService } from '../services/healthAnalysisService';
+import { getHealthStatus } from '../services/healthAnalysisService';
 import { HealthStatusBadge } from './HealthStatusBadge';
 
 interface HealthCardProps {
@@ -10,9 +10,9 @@ interface HealthCardProps {
 }
 
 const HealthCard: React.FC<HealthCardProps> = ({ data, title = '건강 데이터' }) => {
-  const heartrateStatus = healthAnalysisService.getHealthStatus(data.heartrate, 'heartrate');
-  const temperatureStatus = healthAnalysisService.getHealthStatus(data.temperature, 'temperature');
-  const spo2Status = healthAnalysisService.getHealthStatus(data.spo2, 'spo2');
+  const heartrateStatus = getHealthStatus(data.heartrate, 'heartrate');
+  const temperatureStatus = getHealthStatus(data.temperature, 'temperature');
+  const spo2Status = getHealthStatus(data.spo2, 'spo2');
 
   return (
     <View style={styles.container}>

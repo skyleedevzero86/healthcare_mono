@@ -63,7 +63,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
     implementation("org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter:5.2.1")
-    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
 }

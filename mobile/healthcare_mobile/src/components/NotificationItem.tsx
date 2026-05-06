@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Notification } from '../types/notification';
-import { notificationService } from '../services/notificationService';
+import { getNotificationIcon, getTimeAgo } from '../services/notificationService';
 
 interface NotificationItemProps {
   notification: Notification;
@@ -13,8 +13,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   onPress,
 }) => {
-  const iconName = notificationService.getNotificationIcon(notification.type);
-  const timeAgo = notificationService.getTimeAgo(notification.createdAt);
+  const iconName = getNotificationIcon(notification.type);
+  const timeAgo = getTimeAgo(notification.createdAt);
 
   return (
     <TouchableOpacity

@@ -1,10 +1,6 @@
 package com.sleekydz86.api.gateway.saga;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -19,12 +15,11 @@ import java.util.UUID;
 @ConditionalOnProperty(name = "spring.datasource.enabled", havingValue = "true", matchIfMissing = false)
 public class SagaRepositoryImpl implements SagaRepository {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
+    private final SagaMapper sagaMapper;
     private final ObjectMapper objectMapper;
 
-    public SagaRepositoryImpl(ObjectMapper objectMapper) {
+    public SagaRepositoryImpl(SagaMapper sagaMapper, ObjectMapper objectMapper) {
+        this.sagaMapper = sagaMapper;
         this.objectMapper = objectMapper;
     }
 
@@ -37,32 +32,21 @@ public class SagaRepositoryImpl implements SagaRepository {
             String status = saga.getStatus().name();
             String dataJson = serializeData(saga.getData());
 
-            Query checkQuery = entityManager.createNativeQuery(
-                    "SELECT COUNT(*) FROM sagas WHERE saga_id = :sagaId");
-            checkQuery.setParameter("sagaId", sagaId);
-            Long count = ((Number) checkQuery.getSingleResult()).longValue();
+            int count = sagaMapper.countBySagaId(sagaId);
+
+            SagaEntity sagaEntity = SagaEntity.builder()
+                    .sagaId(sagaId)
+                    .sagaType(sagaType)
+                    .status(status)
+                    .data(dataJson)
+                    .updatedAt(LocalDateTime.now())
+                    .build();
 
             if (count > 0) {
-                Query updateQuery = entityManager.createNativeQuery(
-                        "UPDATE sagas SET saga_type = :sagaType, status = :status, " +
-                                "data = :data, updated_at = :updatedAt WHERE saga_id = :sagaId");
-                updateQuery.setParameter("sagaId", sagaId);
-                updateQuery.setParameter("sagaType", sagaType);
-                updateQuery.setParameter("status", status);
-                updateQuery.setParameter("data", dataJson);
-                updateQuery.setParameter("updatedAt", LocalDateTime.now());
-                updateQuery.executeUpdate();
+                sagaMapper.update(sagaEntity);
             } else {
-                Query insertQuery = entityManager.createNativeQuery(
-                        "INSERT INTO sagas (saga_id, saga_type, status, data, created_at, updated_at) " +
-                                "VALUES (:sagaId, :sagaType, :status, :data, :createdAt, :updatedAt)");
-                insertQuery.setParameter("sagaId", sagaId);
-                insertQuery.setParameter("sagaType", sagaType);
-                insertQuery.setParameter("status", status);
-                insertQuery.setParameter("data", dataJson);
-                insertQuery.setParameter("createdAt", LocalDateTime.now());
-                insertQuery.setParameter("updatedAt", LocalDateTime.now());
-                insertQuery.executeUpdate();
+                sagaEntity.setCreatedAt(LocalDateTime.now());
+                sagaMapper.insert(sagaEntity);
             }
 
             log.debug("Saga saved: {}", sagaId);
@@ -76,26 +60,16 @@ public class SagaRepositoryImpl implements SagaRepository {
     @Transactional(readOnly = true)
     public Optional<Saga> findById(UUID sagaId) {
         try {
-            Query query = entityManager.createNativeQuery(
-                    "SELECT saga_id, saga_type, status, data FROM sagas WHERE saga_id = :sagaId");
-            query.setParameter("sagaId", sagaId.toString());
-
-            Object[] result = (Object[]) query.getSingleResult();
-            if (result == null) {
+            SagaEntity entity = sagaMapper.selectById(sagaId.toString());
+            if (entity == null) {
                 return Optional.empty();
             }
 
-            String sagaType = (String) result[1];
-            String statusStr = (String) result[2];
-            String dataJson = (String) result[3];
-
-            Saga saga = createSagaInstance(sagaType, UUID.fromString((String) result[0]));
-            saga.setStatus(SagaStatus.valueOf(statusStr));
-            saga.setData(deserializeData(sagaType, dataJson));
+            Saga saga = createSagaInstance(entity.getSagaType(), UUID.fromString(entity.getSagaId()));
+            saga.setStatus(SagaStatus.valueOf(entity.getStatus()));
+            saga.setData(deserializeData(entity.getSagaType(), entity.getData()));
 
             return Optional.of(saga);
-        } catch (jakarta.persistence.NoResultException e) {
-            return Optional.empty();
         } catch (Exception e) {
             log.error("Saga 조회 실패: {}", sagaId, e);
             return Optional.empty();
@@ -106,26 +80,16 @@ public class SagaRepositoryImpl implements SagaRepository {
     @Transactional(readOnly = true)
     public Optional<Saga> findBySagaType(String sagaType) {
         try {
-            Query query = entityManager.createNativeQuery(
-                    "SELECT saga_id, saga_type, status, data FROM sagas " +
-                            "WHERE saga_type = :sagaType ORDER BY created_at DESC LIMIT 1");
-            query.setParameter("sagaType", sagaType);
-
-            Object[] result = (Object[]) query.getSingleResult();
-            if (result == null) {
+            SagaEntity entity = sagaMapper.selectBySagaType(sagaType);
+            if (entity == null) {
                 return Optional.empty();
             }
 
-            String statusStr = (String) result[2];
-            String dataJson = (String) result[3];
-
-            Saga saga = createSagaInstance(sagaType, UUID.fromString((String) result[0]));
-            saga.setStatus(SagaStatus.valueOf(statusStr));
-            saga.setData(deserializeData(sagaType, dataJson));
+            Saga saga = createSagaInstance(entity.getSagaType(), UUID.fromString(entity.getSagaId()));
+            saga.setStatus(SagaStatus.valueOf(entity.getStatus()));
+            saga.setData(deserializeData(entity.getSagaType(), entity.getData()));
 
             return Optional.of(saga);
-        } catch (jakarta.persistence.NoResultException e) {
-            return Optional.empty();
         } catch (Exception e) {
             log.error("Saga 타입별 조회 실패: {}", sagaType, e);
             return Optional.empty();

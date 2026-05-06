@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Notification } from '../types/notification';
-import { notificationService } from '../services/notificationService';
+import { filterNotifications } from '../services/notificationService';
 
 interface UseNotificationsResult {
   notifications: Notification[];
@@ -54,7 +54,7 @@ export const useNotifications = (): UseNotificationsResult => {
     loadNotifications();
   }, []);
 
-  const filteredNotifications = notificationService.filterNotifications(
+  const filteredNotifications = filterNotifications(
     notifications,
     filter,
     typeFilter

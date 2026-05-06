@@ -21,19 +21,9 @@ datasource:
   driver-class-name: org.h2.Driver
   url: jdbc:h2:mem:testdb
 
-jpa:
-  hibernate:
-    ddl-auto: create-DROP #app실행시점에 테이블 지우고 다시 생성, 종료시 지움
-  properties:
-    hibernate:
-      show_sql: true
-      format_sql: true
-
 logging:
   config: classpath:log4j2-spring.xml
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
 
 spring:
   rabbitmq:
